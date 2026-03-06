@@ -1,14 +1,553 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Feelings &amp; Life Skills | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: #fdf4f8; }
+    .page-hero {
+      background: linear-gradient(150deg, #6a3080, #9a5ab0, #b870c8);
+      padding: 2.2rem 1.75rem 2.8rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:36px;
+      background:#fdf4f8; clip-path:ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display:inline-flex; align-items:center; gap:.4rem;
+      color:rgba(255,255,255,.72); text-decoration:none;
+      font-size:.82rem; font-weight:700; margin-bottom:1rem;
+      transition:color .15s; position:relative; z-index:1;
+    }
+    .back-link:hover { color:#fff; }
+    .hero-icon { font-size:3rem; margin:0 auto .8rem; position:relative; z-index:1; animation:bounce 2.5s ease-in-out infinite; }
+    .page-hero h1 { font-size:clamp(1.7rem,4vw,2.5rem); margin-bottom:.45rem; position:relative; z-index:1; }
+    .page-hero p  { font-size:.92rem; opacity:.8; position:relative; z-index:1; max-width:440px; margin:0 auto; }
+
+    /* tabs */
+    .tab-bar {
+      background:#fff; border-bottom:2px solid var(--linen-dark);
+      display:flex; overflow-x:auto; scrollbar-width:none;
+      position:sticky; top:var(--topbar-h); z-index:10;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      flex-shrink:0; background:none; border:none;
+      border-bottom:3px solid transparent;
+      padding:.85rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
+      color:var(--text-mid); cursor:pointer; transition:all .18s;
+    }
+    .tab-btn:hover  { color:#9a40b8; }
+    .tab-btn.active { color:#9a40b8; border-bottom-color:#9a40b8; }
+    .tab-panel { display:none; padding:1.75rem; }
+    .tab-panel.active { display:block; animation:fadeUp .35s ease both; }
+    .sec-h { font-family:'Lora',serif; color:#4a1060; font-size:1.2rem; margin-bottom:.4rem; }
+    .sec-p { font-size:.83rem; color:var(--text-mid); margin-bottom:1.25rem; }
+
+    /* ── EMOTIONS BOARD ── */
+    .emotions-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+      gap:.75rem; margin-bottom:1.5rem;
+    }
+    .emotion-btn {
+      background:#fff; border:3px solid var(--linen-dark);
+      border-radius:var(--r-lg); padding:.75rem .5rem;
+      cursor:pointer; text-align:center;
+      transition:transform .15s, box-shadow .15s, border-color .15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .emotion-btn:hover { transform:scale(1.06); box-shadow:var(--shadow-sm); }
+    .emotion-btn.selected { border-color:#9a40b8; background:#f4e8fc; }
+    .emotion-face { font-size:2.2rem; display:block; margin-bottom:.3rem; }
+    .emotion-name { font-size:.72rem; font-weight:800; color:var(--forest-deep); }
+
+    .emotion-display {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid var(--linen-dark);
+      padding:1.5rem; text-align:center;
+      margin-bottom:1.5rem; min-height:120px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      transition:all .3s;
+    }
+    .emotion-display .big-face { font-size:5rem; margin-bottom:.4rem; animation:pop .3s ease; }
+    .emotion-display .big-name { font-family:'Lora',serif; font-size:1.5rem; font-weight:700; color:#4a1060; }
+    .emotion-display .big-desc { font-size:.88rem; color:var(--text-mid); margin-top:.3rem; line-height:1.55; }
+    .emotion-display .empty-msg { color:var(--linen-mid); font-size:.9rem; font-style:italic; }
+
+    /* ── FEELINGS METER ── */
+    .meter-wrap { margin-bottom:1.5rem; }
+    .meter-label { font-weight:800; font-size:.85rem; color:#4a1060; margin-bottom:.6rem; }
+    .meter-track {
+      height:48px; border-radius:var(--r-full);
+      background:linear-gradient(90deg,#60c080,#f0d040,#f09040,#e04040);
+      position:relative; cursor:pointer;
+      box-shadow:inset 0 2px 4px rgba(0,0,0,.1);
+      touch-action:none;
+    }
+    .meter-thumb {
+      width:44px; height:44px; border-radius:50%;
+      background:#fff; border:4px solid #9a40b8;
+      position:absolute; top:2px; left:2px;
+      transform:translateX(0); transition:transform .12s;
+      box-shadow:0 2px 8px rgba(0,0,0,.2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.5rem; cursor:grab;
+    }
+    .meter-thumb:active { cursor:grabbing; }
+    .meter-zones {
+      display:flex; justify-content:space-between;
+      padding:0 6px; margin-top:.4rem;
+      font-size:.7rem; font-weight:800; color:var(--text-mid);
+    }
+    .meter-result {
+      margin-top:.75rem; text-align:center;
+      font-family:'Lora',serif; font-size:1.1rem; color:#4a1060;
+      min-height:1.6rem;
+    }
+
+    /* ── SOCIAL STORIES ── */
+    .story-list { display:flex; flex-direction:column; gap:.75rem; margin-bottom:1.5rem; }
+    .story-card {
+      background:#fff; border-radius:var(--r-lg);
+      border:2px solid var(--linen-dark);
+      overflow:hidden; cursor:pointer; transition:all .18s;
+    }
+    .story-card:hover { border-color:#c080d8; box-shadow:var(--shadow-sm); }
+    .story-header {
+      padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem;
+    }
+    .story-icon { font-size:1.8rem; flex-shrink:0; }
+    .story-title { font-family:'Lora',serif; font-size:1rem; font-weight:700; color:#4a1060; }
+    .story-sub   { font-size:.78rem; color:var(--text-mid); margin-top:.1rem; }
+    .story-expand { font-size:.8rem; font-weight:800; color:#9a40b8; margin-left:auto; flex-shrink:0; }
+    .story-body {
+      max-height:0; overflow:hidden; transition:max-height .35s ease;
+      font-size:.85rem; color:var(--text-mid); line-height:1.7;
+      padding:0 1.25rem;
+    }
+    .story-card.open .story-body { max-height:600px; padding:0 1.25rem 1.25rem; }
+    .story-card.open .story-expand::before { content:'▲ '; }
+    .story-card:not(.open) .story-expand::before { content:'▼ '; }
+    .story-read-btn {
+      background:#9a40b8; color:#fff; border:none;
+      border-radius:var(--r-full); padding:.45rem 1.1rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.82rem;
+      cursor:pointer; margin-top:.75rem; transition:background .15s;
+    }
+    .story-read-btn:hover { background:#6a2080; }
+    .story-step {
+      background:#f8f0ff; border-radius:var(--r-md);
+      padding:.65rem .9rem; margin:.4rem 0;
+      display:flex; align-items:flex-start; gap:.6rem;
+    }
+    .story-step-num {
+      width:22px; height:22px; border-radius:50%;
+      background:#9a40b8; color:#fff; font-size:.72rem;
+      font-weight:800; display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; margin-top:1px;
+    }
+
+    /* ── ROUTINES ── */
+    .routine-builder {
+      background:#fff; border-radius:var(--r-xl);
+      border:2px solid var(--linen-dark);
+      padding:1.25rem; margin-bottom:1.25rem;
+    }
+    .routine-builder h3 { font-family:'Lora',serif; font-size:1rem; color:#4a1060; margin-bottom:.75rem; }
+    .routine-slots { display:flex; flex-direction:column; gap:.5rem; min-height:60px; margin-bottom:.75rem; }
+    .routine-slot {
+      background:#f4e8fc; border:2px solid #c080d8;
+      border-radius:var(--r-md); padding:.6rem 1rem;
+      display:flex; align-items:center; gap:.7rem;
+      font-size:.88rem; font-weight:700; color:#4a1060;
+    }
+    .routine-slot-icon { font-size:1.4rem; }
+    .routine-slot-remove {
+      margin-left:auto; background:none; border:none;
+      color:#c080d8; cursor:pointer; font-size:1rem; padding:0;
+      transition:color .15s;
+    }
+    .routine-slot-remove:hover { color:#6a2080; }
+    .routine-options {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.75rem;
+    }
+    .routine-opt-btn {
+      background:var(--linen); border:2px solid var(--linen-dark);
+      border-radius:var(--r-full); padding:.35rem .85rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.8rem;
+      color:var(--text-mid); cursor:pointer; transition:all .15s;
+      display:flex; align-items:center; gap:.35rem;
+    }
+    .routine-opt-btn:hover { background:#f0d8fc; border-color:#c080d8; color:#4a1060; }
+    .routine-speak-btn {
+      background:#9a40b8; color:#fff; border:none;
+      border-radius:var(--r-full); padding:.65rem 1.25rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.88rem;
+      cursor:pointer; transition:background .15s;
+    }
+    .routine-speak-btn:hover { background:#6a2080; }
+    .routine-empty { font-size:.82rem; color:var(--linen-mid); font-style:italic; padding:.5rem 0; }
+
+    /* ── CALM-DOWN CORNER ── */
+    .calm-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:.75rem; margin-bottom:1.25rem;
+    }
+    .calm-card {
+      background:#fff; border-radius:var(--r-lg);
+      border:2px solid var(--linen-dark); padding:1rem;
+      text-align:center; cursor:pointer; transition:all .18s;
+    }
+    .calm-card:hover { border-color:#9a40b8; transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+    .calm-card.active { background:#f4e8fc; border-color:#9a40b8; }
+    .calm-card-icon { font-size:2.2rem; margin-bottom:.4rem; }
+    .calm-card-name { font-family:'Lora',serif; font-size:.88rem; font-weight:700; color:#4a1060; }
+    .calm-card-tip  { font-size:.72rem; color:var(--text-mid); margin-top:.2rem; line-height:1.45; }
+    .calm-detail {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid #c080d8; padding:1.25rem;
+      margin-top:.75rem; display:none; animation:fadeUp .25s ease both;
+    }
+    .calm-detail.show { display:block; }
+    .calm-detail h3 { font-family:'Lora',serif; color:#4a1060; margin-bottom:.5rem; }
+    .calm-detail p  { font-size:.85rem; color:var(--text-mid); line-height:1.65; }
+  </style>
 </head>
-
 <body>
-  
-</body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
 
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">💛</div>
+    <h1>Feelings &amp; Life Skills</h1>
+    <p>Learn about emotions, practise routines, and find ways to feel calm and safe</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="emotions">😊 Emotions</button>
+    <button class="tab-btn" data-tab="meter">🌡️ Feelings Meter</button>
+    <button class="tab-btn" data-tab="stories">📖 Social Stories</button>
+    <button class="tab-btn" data-tab="routines">📅 My Routines</button>
+    <button class="tab-btn" data-tab="calm">🌿 Calm-Down Corner</button>
+  </div>
+
+  <!-- EMOTIONS -->
+  <div class="tab-panel active" id="tab-emotions">
+    <h2 class="sec-h">😊 How Am I Feeling?</h2>
+    <p class="sec-p">Tap a feeling to learn about it — hear it spoken aloud too!</p>
+    <div class="emotion-display" id="emotion-display">
+      <div class="empty-msg">Tap a feeling below 👇</div>
+    </div>
+    <div class="emotions-grid" id="emotions-grid"></div>
+  </div>
+
+  <!-- FEELINGS METER -->
+  <div class="tab-panel" id="tab-meter">
+    <h2 class="sec-h">🌡️ Feelings Meter</h2>
+    <p class="sec-p">Drag the slider to show how big your feeling is right now</p>
+    <div class="meter-wrap">
+      <div class="meter-label">How strong is the feeling?</div>
+      <div class="meter-track" id="meter-track">
+        <div class="meter-thumb" id="meter-thumb">😊</div>
+      </div>
+      <div class="meter-zones">
+        <span>Calm 🟢</span>
+        <span>OK 🟡</span>
+        <span>Wobbly 🟠</span>
+        <span>BIG feeling 🔴</span>
+      </div>
+      <div class="meter-result" id="meter-result"></div>
+    </div>
+    <div class="calm-detail show" id="meter-advice" style="margin-top:0;">
+      <h3>💡 What could help?</h3>
+      <p id="meter-advice-text">Drag the slider to get a suggestion.</p>
+    </div>
+  </div>
+
+  <!-- SOCIAL STORIES -->
+  <div class="tab-panel" id="tab-stories">
+    <h2 class="sec-h">📖 Social Stories</h2>
+    <p class="sec-p">Tap a story to read and listen — these help us understand tricky situations</p>
+    <div class="story-list" id="story-list"></div>
+  </div>
+
+  <!-- ROUTINES -->
+  <div class="tab-panel" id="tab-routines">
+    <h2 class="sec-h">📅 My Routine Builder</h2>
+    <p class="sec-p">Build your routine by tapping activities — then press Speak to hear it read out!</p>
+    <div class="routine-builder">
+      <h3>My routine today:</h3>
+      <div class="routine-slots" id="routine-slots">
+        <div class="routine-empty" id="routine-empty">Tap activities below to add them…</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+        <button class="routine-speak-btn" onclick="speakRoutine()">🔊 Read my routine</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearRoutine()">✕ Clear</button>
+      </div>
+    </div>
+    <div class="sec-h" style="font-size:1rem;">Tap to add:</div>
+    <div class="routine-options" id="routine-options"></div>
+  </div>
+
+  <!-- CALM DOWN -->
+  <div class="tab-panel" id="tab-calm">
+    <h2 class="sec-h">🌿 Calm-Down Corner</h2>
+    <p class="sec-p">Tap a strategy to learn how to use it — find what works for you!</p>
+    <div class="calm-grid" id="calm-grid"></div>
+    <div class="calm-detail" id="calm-detail"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+const synth = window.speechSynthesis;
+function speak(text,rate=.82,pitch=1.1){
+  if(!synth) return; synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-GB'; u.rate=rate; u.pitch=pitch;
+  const v=synth.getVoices(); const pv=v.find(x=>x.lang==='en-GB')||v.find(x=>x.lang.startsWith('en'));
+  if(pv) u.voice=pv; synth.speak(u);
+}
+
+/* ── EMOTIONS DATA ── */
+const EMOTIONS=[
+  {face:'😄',name:'Happy',   desc:'I feel good inside. Something nice has happened!',        color:'#d8f8d0',border:'#60a840'},
+  {face:'😊',name:'Calm',    desc:'I feel peaceful and relaxed. My body feels quiet.',        color:'#d8f0f8',border:'#4080a8'},
+  {face:'😢',name:'Sad',     desc:'I feel sad. Maybe something made me feel unhappy.',         color:'#d8e8f8',border:'#4068a0'},
+  {face:'😡',name:'Angry',   desc:'I feel angry. Something feels unfair or has upset me.',    color:'#f8d8d8',border:'#c04040'},
+  {face:'😰',name:'Worried', desc:'I feel worried. I am thinking about something scary.',     color:'#f8f0d8',border:'#b09020'},
+  {face:'😔',name:'Lonely',  desc:'I feel lonely. I would like someone to be with me.',       color:'#e8d8f8',border:'#8060a8'},
+  {face:'😴',name:'Tired',   desc:'I feel tired. My body needs rest or sleep.',               color:'#e0e8f0',border:'#6080a0'},
+  {face:'🤩',name:'Excited', desc:'I feel excited! Something amazing is about to happen!',   color:'#fff8d0',border:'#c0a020'},
+  {face:'😲',name:'Surprised',desc:'I feel surprised. I did not expect that to happen!',     color:'#f0e8d8',border:'#c08040'},
+  {face:'🥺',name:'Upset',   desc:'I feel upset. My feelings have been hurt.',               color:'#f8e0e8',border:'#c06080'},
+  {face:'😤',name:'Frustrated',desc:'I feel frustrated. Things are not going the way I want.',color:'#f8e8d0',border:'#d08030'},
+  {face:'🤗',name:'Loved',   desc:'I feel loved. Someone is kind and caring to me.',          color:'#fde8f8',border:'#c060a8'},
+];
+
+function renderEmotions(){
+  document.getElementById('emotions-grid').innerHTML=EMOTIONS.map((e,i)=>`
+    <button class="emotion-btn" onclick="selectEmotion(${i})" style="border-color:${e.border}20">
+      <span class="emotion-face">${e.face}</span>
+      <span class="emotion-name">${e.name}</span>
+    </button>`).join('');
+}
+
+function selectEmotion(i){
+  const e=EMOTIONS[i];
+  document.querySelectorAll('.emotion-btn').forEach((b,j)=>b.classList.toggle('selected',j===i));
+  const d=document.getElementById('emotion-display');
+  d.style.background=e.color;
+  d.style.borderColor=e.border;
+  d.innerHTML=`<div class="big-face">${e.face}</div><div class="big-name">${e.name}</div><div class="big-desc">${e.desc}</div>`;
+  speak(`${e.name}. ${e.desc}`,.8,1.1);
+}
+
+/* ── FEELINGS METER ── */
+const METER_ZONES=[
+  {max:.25,emoji:'😌',label:'I feel calm and OK',advice:'Great! You can keep doing what you\'re doing. Maybe have a little movement break soon.'},
+  {max:.5, emoji:'😐',label:'I feel a bit wobbly', advice:'Try taking 3 slow deep breaths. A fidget tool might help too.'},
+  {max:.75,emoji:'😟',label:'My feeling is getting big',advice:'Let\'s try the breathing helper or a calm-down strategy. Tell a grown-up how you feel.'},
+  {max:1,  emoji:'😫',label:'I have a VERY BIG feeling',advice:'This is a big feeling — that\'s OK. Find your calm-down corner, or tell a grown-up right now. You are safe.'},
+];
+
+let meterDragging=false,meterPct=0;
+const meterTrack=document.getElementById('meter-track');
+const meterThumb=document.getElementById('meter-thumb');
+
+function getMeterPct(e){
+  const r=meterTrack.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  return Math.max(0,Math.min(1,(x-22)/(r.width-44)));
+}
+function updateMeter(pct){
+  meterPct=pct;
+  const zone=METER_ZONES.find(z=>pct<=z.max)||METER_ZONES[METER_ZONES.length-1];
+  meterThumb.textContent=zone.emoji;
+  meterThumb.style.transform=`translateX(${pct*(meterTrack.offsetWidth-48)}px)`;
+  document.getElementById('meter-result').textContent=zone.label;
+  document.getElementById('meter-advice-text').textContent=zone.advice;
+}
+meterTrack.addEventListener('mousedown',e=>{meterDragging=true;updateMeter(getMeterPct(e));});
+meterTrack.addEventListener('touchstart',e=>{meterDragging=true;updateMeter(getMeterPct(e));e.preventDefault();},{passive:false});
+window.addEventListener('mousemove',e=>{if(meterDragging)updateMeter(getMeterPct(e));});
+meterTrack.addEventListener('touchmove',e=>{if(meterDragging)updateMeter(getMeterPct(e));e.preventDefault();},{passive:false});
+window.addEventListener('mouseup',()=>meterDragging=false);
+window.addEventListener('touchend',()=>meterDragging=false);
+
+/* ── SOCIAL STORIES ── */
+const STORIES=[
+  {icon:'🏫',title:'Starting something new',sub:'For when we try a new activity or place',
+   body:`Sometimes we have to do new things. New things can feel scary or exciting — or both!<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>Before we go, we can look at pictures of the place.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>It's OK to feel nervous. Nervous feelings usually get smaller once we start.</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>We can tell a grown-up if we feel worried. They will help us.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>After, we can tell someone one thing we noticed.</div></div>`},
+  {icon:'😡',title:'When I feel angry',sub:'For when big feelings arrive quickly',
+   body:`Sometimes I feel angry. Anger is a feeling in my body. My face might feel hot. My fists might feel tight.<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>I can notice where the feeling is in my body.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>I can take a big breath in — breathe in for 4, out for 6.</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>I can go to my calm space if I need to.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>When I feel calmer, I can talk about what happened.</div></div>
+   <div class="story-step"><div class="story-step-num">5</div><div>It is OK to feel angry. It is not OK to hurt people or things.</div></div>`},
+  {icon:'🤝',title:'Taking turns',sub:'For sharing and playing with others',
+   body:`Taking turns means everyone gets a go. Sometimes waiting is hard.<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>I can watch while it is someone else's turn.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>While I wait, I can think about what I will do on my turn.</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>When it is my turn, I take it. Then the next person has their turn.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>Taking turns means we can all have fun together.</div></div>`},
+  {icon:'🙅',title:'When someone says no',sub:'For understanding boundaries and disappointment',
+   body:`Sometimes people say no to something I want. This can feel sad or frustrating.<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>It is OK to feel disappointed. That feeling is normal.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>I can take a breath and say "OK" — even if I feel sad inside.</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>Maybe I can ask why, or ask for it at another time.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>Other people saying no does not mean they don't care about me.</div></div>`},
+  {icon:'😟',title:'When something changes',sub:'For unexpected changes to plans or routines',
+   body:`Sometimes plans change. This can feel really hard — especially when we were looking forward to something.<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>It is OK to feel upset when things change. My feelings make sense.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>I can tell someone how I feel.</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>Sometimes there is a reason for the change, even if I don't know it yet.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>Maybe we can plan a new version — or reschedule the thing I was looking forward to.</div></div>
+   <div class="story-step"><div class="story-step-num">5</div><div>Changes feel smaller the more we talk about them.</div></div>`},
+  {icon:'🎉',title:'Being proud of myself',sub:'Celebrating what we do well',
+   body:`Feeling proud is a lovely warm feeling. It happens when I do something well or try really hard.<br><br>
+   <div class="story-step"><div class="story-step-num">1</div><div>I can notice when I do something hard or new.</div></div>
+   <div class="story-step"><div class="story-step-num">2</div><div>I can say to myself: "I did that. Well done, me!"</div></div>
+   <div class="story-step"><div class="story-step-num">3</div><div>I can tell a grown-up what I did. They will want to celebrate with me.</div></div>
+   <div class="story-step"><div class="story-step-num">4</div><div>Being proud of myself helps me want to try again next time.</div></div>`},
+];
+
+function renderStories(){
+  document.getElementById('story-list').innerHTML=STORIES.map((s,i)=>`
+    <div class="story-card" id="story-${i}" onclick="toggleStory(${i})">
+      <div class="story-header">
+        <div class="story-icon">${s.icon}</div>
+        <div><div class="story-title">${s.title}</div><div class="story-sub">${s.sub}</div></div>
+        <div class="story-expand">Read</div>
+      </div>
+      <div class="story-body">
+        ${s.body}
+        <button class="story-read-btn" onclick="event.stopPropagation();readStory(${i})">🔊 Read aloud</button>
+      </div>
+    </div>`).join('');
+}
+function toggleStory(i){
+  document.querySelectorAll('.story-card').forEach((c,j)=>c.classList.toggle('open',j===i&&!c.classList.contains('open')));
+}
+function readStory(i){
+  const s=STORIES[i];
+  const text=s.title+'. '+s.body.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  speak(text,.78,1.05);
+}
+
+/* ── ROUTINES ── */
+const ROUTINE_ITEMS=[
+  {icon:'🌅',label:'Wake up'},{icon:'🪥',label:'Brush teeth'},{icon:'🚿',label:'Get washed'},
+  {icon:'👕',label:'Get dressed'},{icon:'🍳',label:'Breakfast'},{icon:'📚',label:'Learning time'},
+  {icon:'🍎',label:'Snack time'},{icon:'🎮',label:'Free time'},{icon:'🏃',label:'Exercise'},
+  {icon:'🍽️',label:'Lunch'},{icon:'☀️',label:'Outside time'},{icon:'📖',label:'Reading'},
+  {icon:'🎨',label:'Art & crafts'},{icon:'🧘',label:'Quiet time'},{icon:'🛁',label:'Bath time'},
+  {icon:'🌙',label:'Bedtime'},{icon:'💤',label:'Sleep'},
+];
+let myRoutine=[];
+
+function renderRoutineOptions(){
+  document.getElementById('routine-options').innerHTML=ROUTINE_ITEMS.map((r,i)=>`
+    <button class="routine-opt-btn" onclick="addRoutineItem(${i})">${r.icon} ${r.label}</button>`).join('');
+}
+function addRoutineItem(i){
+  myRoutine.push(ROUTINE_ITEMS[i]);
+  renderRoutineSlots();
+}
+function removeRoutineItem(i){
+  myRoutine.splice(i,1);
+  renderRoutineSlots();
+}
+function renderRoutineSlots(){
+  const slots=document.getElementById('routine-slots');
+  const empty=document.getElementById('routine-empty');
+  if(!myRoutine.length){ slots.innerHTML=''; slots.appendChild(empty); empty.style.display=''; return; }
+  empty.style.display='none';
+  const existing=slots.querySelectorAll('.routine-slot');
+  existing.forEach(e=>e.remove());
+  myRoutine.forEach((r,i)=>{
+    const el=document.createElement('div'); el.className='routine-slot';
+    el.innerHTML=`<span class="routine-slot-icon">${r.icon}</span>${r.label}<button class="routine-slot-remove" onclick="removeRoutineItem(${i})">✕</button>`;
+    slots.appendChild(el);
+  });
+}
+function speakRoutine(){
+  if(!myRoutine.length){ speak('Your routine is empty. Add some activities first.',.8,1.1); return; }
+  const text='Your routine today: '+myRoutine.map(r=>r.label).join(', then ')+'!';
+  speak(text,.78,1.1);
+}
+function clearRoutine(){ myRoutine=[]; renderRoutineSlots(); }
+
+/* ── CALM DOWN ── */
+const CALM_STRATEGIES=[
+  {icon:'🌬️',name:'Deep Breathing',tip:'Breathe in, hold, breathe out',
+   detail:'Take a slow breath in for 4 counts. Hold for 2. Breathe out slowly for 6 counts. Do this 3 times. Notice your tummy rise and fall. This sends a calm signal to your brain.'},
+  {icon:'🌊',name:'5-4-3-2-1',tip:'Use your 5 senses to feel grounded',
+   detail:'Look around and name: 5 things you can SEE. 4 things you can TOUCH. 3 things you can HEAR. 2 things you can SMELL. 1 thing you can TASTE. This brings you back to the present moment.'},
+  {icon:'🤲',name:'Fidget Tool',tip:'Something to hold and squeeze',
+   detail:'Use your spinner, stress ball, or squeeze toy. The feeling in your hands helps your brain calm down. Try the Fidget Tools page on this app!'},
+  {icon:'🎵',name:'Calm Music',tip:'Put on your favourite calming song',
+   detail:'Music can change how we feel very quickly. Choose a calm, slow song. Close your eyes if you can. Let the music fill up your mind instead of the big feeling.'},
+  {icon:'🏃',name:'Move Your Body',tip:'Jump, stomp or shake it out!',
+   detail:'Sometimes feelings need to come out through your body. Try jumping 10 times. Shake your hands and arms. Roll your shoulders. Moving helps the feeling move too.'},
+  {icon:'🛋️',name:'Safe Space',tip:'Go somewhere cosy and quiet',
+   detail:'Everyone needs a safe, quiet spot. This might be under a blanket, in a tent, or behind the sofa. Go there when feelings get big. No one will bother you there.'},
+  {icon:'💧',name:'Cold Water',tip:'Splash cold water on your face or wrists',
+   detail:'Splashing cold water on your wrists or face sends a calming signal to your nervous system. It works very quickly! Try running cold water over your wrists for 30 seconds.'},
+  {icon:'✏️',name:'Draw It Out',tip:'Draw the feeling as a shape or colour',
+   detail:'Get a piece of paper and draw what the feeling looks like. What colour is it? What shape is it? Big or small? Drawing the feeling helps it feel smaller.'},
+];
+
+function renderCalmGrid(){
+  document.getElementById('calm-grid').innerHTML=CALM_STRATEGIES.map((c,i)=>`
+    <div class="calm-card" id="cc-${i}" onclick="showCalm(${i})">
+      <div class="calm-card-icon">${c.icon}</div>
+      <div class="calm-card-name">${c.name}</div>
+      <div class="calm-card-tip">${c.tip}</div>
+    </div>`).join('');
+}
+function showCalm(i){
+  const c=CALM_STRATEGIES[i];
+  document.querySelectorAll('.calm-card').forEach((el,j)=>el.classList.toggle('active',j===i));
+  const d=document.getElementById('calm-detail');
+  d.innerHTML=`<h3>${c.icon} ${c.name}</h3><p>${c.detail}</p>
+    <button class="routine-speak-btn" onclick="speak('${c.detail.replace(/'/g,"\\'")}',0.78,1.05)">🔊 Read aloud</button>`;
+  d.classList.add('show');
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+renderEmotions(); renderStories(); renderRoutineOptions(); renderCalmGrid();
+</script>
+</body>
 </html>

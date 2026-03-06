@@ -1,14 +1,579 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Spelling Board | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: #f4f8ff; }
+    .page-hero {
+      background: linear-gradient(150deg, #1a3a70, #2a5a90, #3a7ab0);
+      padding: 2.2rem 1.75rem 2.8rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:36px;
+      background:#f4f8ff; clip-path:ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display:inline-flex; align-items:center; gap:.4rem;
+      color:rgba(255,255,255,.72); text-decoration:none;
+      font-size:.82rem; font-weight:700; margin-bottom:1rem;
+      transition:color .15s; position:relative; z-index:1;
+    }
+    .back-link:hover { color:#fff; }
+    .hero-icon { font-size:3rem; margin:0 auto .8rem; position:relative; z-index:1; animation:bounce 2.5s ease-in-out infinite; }
+    .page-hero h1 { font-size:clamp(1.7rem,4vw,2.5rem); margin-bottom:.45rem; position:relative; z-index:1; }
+    .page-hero p  { font-size:.92rem; opacity:.8; position:relative; z-index:1; max-width:440px; margin:0 auto; }
+
+    .tab-bar {
+      background:#fff; border-bottom:2px solid var(--linen-dark);
+      display:flex; overflow-x:auto; scrollbar-width:none;
+      position:sticky; top:var(--topbar-h); z-index:10;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      flex-shrink:0; background:none; border:none;
+      border-bottom:3px solid transparent;
+      padding:.85rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
+      color:var(--text-mid); cursor:pointer; transition:all .18s;
+    }
+    .tab-btn:hover  { color:#2a5a90; }
+    .tab-btn.active { color:#2a5a90; border-bottom-color:#2a5a90; }
+    .tab-panel { display:none; padding:1.75rem; }
+    .tab-panel.active { display:block; animation:fadeUp .35s ease both; }
+    .sec-h { font-family:'Lora',serif; color:#1a3a70; font-size:1.2rem; margin-bottom:.4rem; }
+    .sec-p { font-size:.83rem; color:var(--text-mid); margin-bottom:1.25rem; }
+
+    /* word box + letters */
+    .spelling-arena {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid var(--linen-dark); padding:1.5rem;
+      text-align:center; margin-bottom:1.25rem;
+    }
+    .word-to-spell {
+      font-family:'Lora',serif; font-size:clamp(2rem,6vw,3rem);
+      font-weight:700; color:#1a3a70; letter-spacing:.1em;
+      margin-bottom:.4rem; min-height:1.2em;
+    }
+    .word-hint { font-size:.82rem; color:var(--text-mid); margin-bottom:.75rem; font-style:italic; }
+    .answer-boxes {
+      display:flex; justify-content:center; gap:.4rem;
+      flex-wrap:wrap; margin-bottom:.75rem;
+    }
+    .ans-box {
+      width:48px; height:56px; border-radius:var(--r-md);
+      border:3px solid #6090c0; background:#f0f4fc;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Lora',serif; font-size:1.6rem; font-weight:700;
+      color:#1a3a70; transition:all .2s;
+    }
+    .ans-box.correct { background:#d0eec0; border-color:#50a030; }
+    .ans-box.wrong   { background:#f8d8d0; border-color:#c04030; animation:shake .3s ease; }
+    .ans-box.current { border-color:#2a5a90; background:#e0ecfc; box-shadow:0 0 0 3px rgba(42,90,144,.2); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    .letter-tiles {
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:.45rem; margin-bottom:.75rem;
+    }
+    .letter-tile {
+      width:46px; height:46px; border-radius:var(--r-md);
+      background:#fff; border:2.5px solid #90b0d0;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Lora',serif; font-size:1.4rem; font-weight:700;
+      color:#1a3a70; cursor:pointer; transition:all .15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .letter-tile:hover   { background:#e0ecfc; border-color:#2a5a90; transform:scale(1.08); }
+    .letter-tile.used    { opacity:.28; cursor:default; transform:none; }
+    .letter-tile.correct { background:#d0eec0; border-color:#50a030; }
+    .spell-controls { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+    .spell-btn {
+      border:none; border-radius:var(--r-full); padding:.65rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.9rem;
+      cursor:pointer; transition:all .15s;
+    }
+    .sp-hint   { background:#e0ecfc; color:#1a3a70; }
+    .sp-hear   { background:#2a5a90; color:#fff; }
+    .sp-next   { background:#50a030; color:#fff; }
+    .sp-clear  { background:var(--linen-dark); color:var(--text-mid); }
+
+    .spell-feedback {
+      padding:.75rem; border-radius:var(--r-md); margin:.75rem 0;
+      text-align:center; font-weight:800; font-size:1rem; display:none;
+    }
+    .spell-feedback.correct { background:#d0eec0; color:#206010; display:block; }
+    .spell-feedback.wrong   { background:#f8d8d0; color:#802010; display:block; }
+
+    .score-strip {
+      background:#fff; border-radius:var(--r-lg);
+      border:2px solid var(--linen-dark); padding:.9rem 1.25rem;
+      display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem;
+    }
+    .score-num { font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:#1a3a70; }
+    .score-lbl { font-size:.75rem; color:var(--text-mid); }
+    .set-selector { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+    .set-btn {
+      background:#fff; border:2px solid var(--linen-dark);
+      border-radius:var(--r-full); padding:.38rem .9rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.78rem;
+      color:var(--text-mid); cursor:pointer; transition:all .15s;
+    }
+    .set-btn:hover, .set-btn.active { background:#2a5a90; color:#fff; border-color:#2a5a90; }
+
+    /* word families */
+    .family-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+      gap:.75rem; margin-bottom:1.25rem;
+    }
+    .family-card {
+      background:#fff; border-radius:var(--r-lg);
+      border:2.5px solid var(--linen-dark); padding:1rem;
+      cursor:pointer; transition:all .18s;
+    }
+    .family-card:hover { border-color:#2a5a90; transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+    .family-card.active { background:#e8f0fc; border-color:#2a5a90; }
+    .family-header { font-family:'Lora',serif; font-size:1.3rem; font-weight:700; color:#1a3a70; margin-bottom:.25rem; }
+    .family-pattern { font-size:.75rem; color:var(--text-mid); margin-bottom:.5rem; font-style:italic; }
+    .family-words { display:flex; flex-wrap:wrap; gap:.3rem; }
+    .family-word {
+      background:#e8f0fc; border-radius:var(--r-full); padding:.18rem .6rem;
+      font-size:.75rem; font-weight:800; color:#1a3a70;
+    }
+    .family-detail {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid #90b0d0; padding:1.25rem;
+      margin-top:.75rem; display:none; animation:fadeUp .25s ease both;
+    }
+    .family-detail.show { display:block; }
+    .family-detail h3 { font-family:'Lora',serif; color:#1a3a70; margin-bottom:.6rem; }
+    .family-words-big {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.75rem;
+    }
+    .fwb {
+      background:#e8f0fc; border-radius:var(--r-lg);
+      padding:.6rem 1rem; font-family:'Lora',serif;
+      font-size:1.1rem; font-weight:700; color:#1a3a70;
+      cursor:pointer; border:2px solid #90b0d0; transition:all .15s;
+    }
+    .fwb:hover { background:#d0e4fc; border-color:#2a5a90; transform:scale(1.05); }
+
+    /* dictation */
+    .dictation-wrap {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid var(--linen-dark); padding:1.5rem;
+      margin-bottom:1.25rem; text-align:center;
+    }
+    .dictation-word-display {
+      font-size:1rem; color:var(--text-mid); margin-bottom:.75rem;
+      font-style:italic; min-height:1.5rem;
+    }
+    .dictation-input {
+      font-family:'Lora',serif; font-size:2rem; font-weight:700;
+      color:#1a3a70; text-align:center;
+      background:var(--linen); border:3px solid #90b0d0;
+      border-radius:var(--r-md); padding:.5rem 1rem;
+      outline:none; width:100%; max-width:320px; transition:border .2s;
+    }
+    .dictation-input:focus { border-color:#2a5a90; }
+    .dictation-input.correct { border-color:#50a030; background:#d0eec0; }
+    .dictation-input.wrong   { border-color:#c04030; background:#f8d8d0; }
+    .dictation-btns { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin-top:1rem; }
+    .dictation-score { font-family:'Lora',serif; font-size:1.1rem; color:#1a3a70; margin-top:.75rem; }
+  </style>
 </head>
-
 <body>
-  
-</body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
 
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">✏️</div>
+    <h1>Spelling Board</h1>
+    <p>Build words · Word families · Hear &amp; spell · Type a word</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="anagram">🔤 Unscramble</button>
+    <button class="tab-btn" data-tab="families">👨‍👩‍👧 Word Families</button>
+    <button class="tab-btn" data-tab="dictation">🔊 Hear &amp; Spell</button>
+    <button class="tab-btn" data-tab="tricky">⭐ Tricky Words</button>
+  </div>
+
+  <!-- UNSCRAMBLE -->
+  <div class="tab-panel active" id="tab-anagram">
+    <h2 class="sec-h">🔤 Unscramble the Word</h2>
+    <p class="sec-p">Tap the letters in the right order to spell the word</p>
+    <div class="score-strip">
+      <div><div class="score-num" id="ana-score">0</div><div class="score-lbl">correct</div></div>
+      <div><div class="score-num" id="ana-total">0</div><div class="score-lbl">tried</div></div>
+      <div style="margin-left:auto">
+        <div class="set-selector">
+          <button class="set-btn active" onclick="setAnaSet('easy',this)">🌱 Easy</button>
+          <button class="set-btn" onclick="setAnaSet('medium',this)">🌿 Medium</button>
+          <button class="set-btn" onclick="setAnaSet('hard',this)">🌳 Hard</button>
+        </div>
+      </div>
+    </div>
+    <div class="spelling-arena">
+      <div class="word-hint" id="ana-hint">Hint loading…</div>
+      <div class="answer-boxes" id="ana-answer-boxes"></div>
+      <div class="spell-feedback" id="ana-feedback"></div>
+      <div class="letter-tiles" id="ana-letter-tiles"></div>
+      <div class="spell-controls">
+        <button class="spell-btn sp-hear"  onclick="hearAnaWord()">🔊 Hear word</button>
+        <button class="spell-btn sp-clear" onclick="clearAnaAnswer()">⌫ Clear</button>
+        <button class="spell-btn sp-next"  onclick="newAnaWord()">▶ Next word</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORD FAMILIES -->
+  <div class="tab-panel" id="tab-families">
+    <h2 class="sec-h">👨‍👩‍👧 Word Families</h2>
+    <p class="sec-p">Tap a family to see all the words — tap any word to hear it!</p>
+    <div class="family-grid" id="family-grid"></div>
+    <div class="family-detail" id="family-detail"></div>
+  </div>
+
+  <!-- DICTATION -->
+  <div class="tab-panel" id="tab-dictation">
+    <h2 class="sec-h">🔊 Hear &amp; Spell</h2>
+    <p class="sec-p">Listen to the word, then type it in the box</p>
+    <div class="set-selector" style="margin-bottom:1.25rem;">
+      <button class="set-btn active" onclick="setDictSet('cvc',this)">CVC words</button>
+      <button class="set-btn" onclick="setDictSet('digraph',this)">Digraphs</button>
+      <button class="set-btn" onclick="setDictSet('blend',this)">Blends</button>
+      <button class="set-btn" onclick="setDictSet('tricky',this)">Tricky words</button>
+    </div>
+    <div class="dictation-wrap">
+      <div class="dictation-word-display" id="dict-display">Press "Say the word" to begin!</div>
+      <input class="dictation-input" id="dict-input" placeholder="Type it here…" autocomplete="off" autocorrect="off" spellcheck="false" oninput="checkDictInput()"/>
+      <div class="dictation-score" id="dict-score"></div>
+      <div class="dictation-btns">
+        <button class="spell-btn sp-hear" onclick="sayDictWord()">🔊 Say the word</button>
+        <button class="spell-btn sp-hear" onclick="sayDictWord(true)">🔊 Slow</button>
+        <button class="spell-btn sp-next" onclick="newDictWord()">▶ Next</button>
+      </div>
+    </div>
+    <div class="score-strip">
+      <div><div class="score-num" id="dict-correct">0</div><div class="score-lbl">correct</div></div>
+      <div><div class="score-num" id="dict-tried">0</div><div class="score-lbl">tried</div></div>
+    </div>
+  </div>
+
+  <!-- TRICKY WORDS -->
+  <div class="tab-panel" id="tab-tricky">
+    <h2 class="sec-h">⭐ Tricky Words</h2>
+    <p class="sec-p">These words don't follow the rules — tap to hear them, then test yourself!</p>
+    <div class="set-selector" style="margin-bottom:1.25rem;" id="tricky-set-selector"></div>
+    <div class="family-words-big" id="tricky-word-list" style="margin-bottom:1.25rem;"></div>
+    <div class="dictation-wrap" style="margin-bottom:0;">
+      <div class="dictation-word-display" id="tricky-display">Press "Test me!" to start a quiz on these words</div>
+      <input class="dictation-input" id="tricky-input" placeholder="Type the word…" autocomplete="off" autocorrect="off" spellcheck="false" oninput="checkTrickyInput()"/>
+      <div class="dictation-score" id="tricky-score"></div>
+      <div class="dictation-btns">
+        <button class="spell-btn sp-hear" onclick="sayTrickyWord()">🔊 Hear it</button>
+        <button class="spell-btn sp-next" id="tricky-test-btn" onclick="startTrickyTest()">🎯 Test me!</button>
+        <button class="spell-btn sp-clear" onclick="resetTricky()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+const synth=window.speechSynthesis;
+function speak(text,rate=.82,pitch=1.1){
+  if(!synth) return; synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-GB'; u.rate=rate; u.pitch=pitch;
+  const v=synth.getVoices(); const pv=v.find(x=>x.lang==='en-GB')||v.find(x=>x.lang.startsWith('en'));
+  if(pv) u.voice=pv; synth.speak(u);
+}
+
+/* ── WORD SETS ── */
+const ANA_SETS={
+  easy:[
+    {w:'cat',hint:'A furry pet 🐱'},{w:'dog',hint:'Man\'s best friend 🐶'},
+    {w:'sun',hint:'It shines in the sky ☀️'},{w:'hat',hint:'You wear it on your head 🎩'},
+    {w:'cup',hint:'You drink from it ☕'},{w:'pig',hint:'A pink farm animal 🐷'},
+    {w:'bed',hint:'You sleep in it 🛏️'},{w:'bus',hint:'It takes you to school 🚌'},
+    {w:'fox',hint:'A clever orange animal 🦊'},{w:'hen',hint:'A farm bird 🐔'},
+  ],
+  medium:[
+    {w:'ship',hint:'It sails on the sea ⛵'},{w:'chip',hint:'You eat it with fish 🍟'},
+    {w:'frog',hint:'It jumps and croaks 🐸'},{w:'crab',hint:'It lives at the beach 🦀'},
+    {w:'flag',hint:'It flies at the top of a pole 🚩'},{w:'drum',hint:'You hit it to make music 🥁'},
+    {w:'rain',hint:'Water falling from clouds 🌧️'},{w:'feet',hint:'At the bottom of your legs 🦶'},
+    {w:'moon',hint:'It shines at night 🌙'},{w:'bear',hint:'A big furry animal 🐻'},
+  ],
+  hard:[
+    {w:'splash',hint:'When you jump in a puddle 💦'},{w:'bright',hint:'Very shiny or clever 💡'},
+    {w:'knight',hint:'Wears armour and rides a horse 🛡️'},{w:'cheese',hint:'You put it on toast 🧀'},
+    {w:'castle',hint:'Where a king lives 🏰'},{w:'spring',hint:'The season after winter 🌸'},
+    {w:'flight',hint:'A journey on a plane ✈️'},{w:'frozen',hint:'Very cold, like ice 🧊'},
+  ],
+};
+
+const FAMILIES=[
+  {name:'-at',pattern:'_at words',words:['cat','bat','hat','mat','rat','sat','fat','pat','flat','chat']},
+  {name:'-ight',pattern:'_ight words',words:['light','night','right','sight','tight','bright','fight','might','flight','knight']},
+  {name:'-ake',pattern:'_ake words',words:['cake','lake','make','rake','take','wake','bake','flake','shake','snake']},
+  {name:'-ing',pattern:'_ing words',words:['king','ring','sing','wing','bring','thing','spring','string','swing','sting']},
+  {name:'-all',pattern:'_all words',words:['ball','call','fall','hall','tall','wall','small','stall']},
+  {name:'-oo',pattern:'_oo words',words:['moon','soon','food','cool','pool','root','school','zoom','boot','tooth']},
+  {name:'-ay',pattern:'_ay words',words:['day','may','say','way','play','stay','spray','tray','clay','pray']},
+  {name:'-own',pattern:'_own words',words:['town','down','crown','brown','clown','drown','frown','gown']},
+];
+
+const DICT_SETS={
+  cvc:   ['cat','dog','sit','cup','pin','hat','big','mud','net','fox','run','bed','log','zip','van'],
+  digraph:['chip','shop','thin','ring','rain','feet','night','boat','moon','farm','corn','burn'],
+  blend: ['clap','frog','stop','drip','plan','swim','trip','slug','flag','brim','crab','drum'],
+  tricky:['the','I','go','no','to','into','he','she','we','me','be','was','my','you','they','all','are','her'],
+};
+
+const TRICKY_SETS={
+  phase2:['the','I','go','no','to','into'],
+  phase3:['he','she','we','me','be','was','my','you','they','all','are','her'],
+  phase4:['said','have','like','some','come','were','there','little','one','do','when','out','what'],
+  phase5:['could','should','would','their','people','looked','called','asked','water','where'],
+};
+
+/* ── ANAGRAM ── */
+let anaSet='easy', anaWord='', anaHint='', anaAnswer=[], anaTiles=[], anaScore=0, anaTotal=0;
+
+function setAnaSet(s,btn){
+  anaSet=s;
+  document.querySelectorAll('.set-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  anaScore=0; anaTotal=0; updateAnaScore();
+  newAnaWord();
+}
+
+function newAnaWord(){
+  document.getElementById('ana-feedback').className='spell-feedback';
+  const words=ANA_SETS[anaSet];
+  const pick=words[Math.floor(Math.random()*words.length)];
+  anaWord=pick.w; anaHint=pick.hint;
+  anaAnswer=Array(anaWord.length).fill('');
+  anaTiles=anaWord.split('').map((l,i)=>({letter:l,idx:i,used:false}));
+  // shuffle tiles
+  for(let i=anaTiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[anaTiles[i],anaTiles[j]]=[anaTiles[j],anaTiles[i]];}
+  document.getElementById('ana-hint').textContent=anaHint;
+  renderAnaBoxes(); renderAnaTiles();
+}
+
+function renderAnaBoxes(){
+  document.getElementById('ana-answer-boxes').innerHTML=anaAnswer.map((l,i)=>`
+    <div class="ans-box ${l?'':'current'}" id="anabox-${i}">${l||''}</div>`).join('');
+}
+function renderAnaTiles(){
+  document.getElementById('ana-letter-tiles').innerHTML=anaTiles.map((t,i)=>`
+    <div class="letter-tile ${t.used?'used':''}" id="anatile-${i}" onclick="${t.used?'':'tapAnaTile('+i+')'}">
+      ${t.letter}</div>`).join('');
+}
+
+function tapAnaTile(i){
+  if(anaTiles[i].used) return;
+  const slot=anaAnswer.indexOf('');
+  if(slot===-1) return;
+  anaAnswer[slot]=anaTiles[i].letter;
+  anaTiles[i].used=true;
+  renderAnaBoxes(); renderAnaTiles();
+  // check if complete
+  if(!anaAnswer.includes('')){
+    const attempt=anaAnswer.join('');
+    anaTotal++;
+    const fb=document.getElementById('ana-feedback');
+    if(attempt===anaWord){
+      anaScore++;
+      fb.textContent='🎉 Brilliant! '+anaWord.toUpperCase()+' is correct!';
+      fb.className='spell-feedback correct';
+      speak('Well done! '+anaWord,.8,1.15);
+    } else {
+      fb.textContent='Not quite — the word was '+anaWord.toUpperCase()+'. Try the next one!';
+      fb.className='spell-feedback wrong';
+      speak('The word was '+anaWord,.8,1.05);
+    }
+    updateAnaScore();
+  }
+}
+
+function clearAnaAnswer(){
+  anaAnswer=Array(anaWord.length).fill('');
+  anaTiles.forEach(t=>t.used=false);
+  document.getElementById('ana-feedback').className='spell-feedback';
+  renderAnaBoxes(); renderAnaTiles();
+}
+function hearAnaWord(){ speak(anaWord,.7,1.1); }
+function updateAnaScore(){
+  document.getElementById('ana-score').textContent=anaScore;
+  document.getElementById('ana-total').textContent=anaTotal;
+}
+
+/* ── WORD FAMILIES ── */
+function renderFamilyGrid(){
+  document.getElementById('family-grid').innerHTML=FAMILIES.map((f,i)=>`
+    <div class="family-card" id="fc-${i}" onclick="showFamily(${i})">
+      <div class="family-header">${f.name}</div>
+      <div class="family-pattern">${f.pattern}</div>
+      <div class="family-words">${f.words.slice(0,4).map(w=>`<span class="family-word">${w}</span>`).join('')}${f.words.length>4?`<span class="family-word">+${f.words.length-4}</span>`:''}</div>
+    </div>`).join('');
+}
+function showFamily(i){
+  const f=FAMILIES[i];
+  document.querySelectorAll('.family-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+  const d=document.getElementById('family-detail');
+  d.innerHTML=`<h3>${f.name} word family</h3>
+    <div class="family-words-big">${f.words.map(w=>`<div class="fwb" onclick="speak('${w}',.7,1.1)">${w}</div>`).join('')}</div>
+    <button class="spell-btn sp-hear" onclick="speak('${f.words.join(', ')}',.75,1.05)">🔊 Hear them all</button>`;
+  d.classList.add('show');
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+  speak(f.name+' family: '+f.words.join(', '),.75,1.05);
+}
+
+/* ── DICTATION ── */
+let dictSet='cvc', dictWord='', dictScore=0, dictTried=0;
+
+function setDictSet(s,btn){
+  dictSet=s;
+  document.querySelectorAll('#tab-dictation .set-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  dictScore=0; dictTried=0; updateDictScore();
+  newDictWord();
+}
+
+function newDictWord(){
+  const words=DICT_SETS[dictSet];
+  dictWord=words[Math.floor(Math.random()*words.length)];
+  const input=document.getElementById('dict-input');
+  input.value=''; input.className='dictation-input';
+  document.getElementById('dict-display').textContent='Press "Say the word" to hear it';
+  document.getElementById('dict-score').textContent='';
+}
+
+function sayDictWord(slow){
+  speak(dictWord,slow?.55:.72,1.1);
+  document.getElementById('dict-display').textContent='Heard: '+'_ '.repeat(dictWord.length).trim();
+}
+
+function checkDictInput(){
+  const input=document.getElementById('dict-input');
+  const val=input.value.trim().toLowerCase();
+  if(val.length>=dictWord.length){
+    dictTried++;
+    if(val===dictWord){
+      dictScore++;
+      input.className='dictation-input correct';
+      document.getElementById('dict-display').textContent='✅ '+dictWord.toUpperCase()+' — correct!';
+      speak('Well done! '+dictWord,.8,1.15);
+      setTimeout(newDictWord,1800);
+    } else {
+      input.className='dictation-input wrong';
+      document.getElementById('dict-display').textContent='The word was: '+dictWord;
+      speak('The word was '+dictWord,.75,1.05);
+      setTimeout(()=>{input.value='';input.className='dictation-input';},1600);
+    }
+    updateDictScore();
+  }
+}
+function updateDictScore(){
+  document.getElementById('dict-correct').textContent=dictScore;
+  document.getElementById('dict-tried').textContent=dictTried;
+}
+
+/* ── TRICKY WORDS ── */
+let trickySetKey='phase2', trickyMode='browse', trickyWord='', trickyScore=0, trickyTried=0;
+
+function renderTrickySetSelector(){
+  const sel=document.getElementById('tricky-set-selector');
+  sel.innerHTML=Object.keys(TRICKY_SETS).map(k=>`
+    <button class="set-btn ${k==='phase2'?'active':''}" onclick="setTrickySet('${k}',this)">${k}</button>`).join('');
+}
+function setTrickySet(k,btn){
+  trickySetKey=k;
+  document.querySelectorAll('#tricky-set-selector .set-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  resetTricky();
+  renderTrickyWords();
+}
+function renderTrickyWords(){
+  const words=TRICKY_SETS[trickySetKey];
+  document.getElementById('tricky-word-list').innerHTML=words.map(w=>`
+    <div class="fwb" onclick="speak('${w}',.7,1.1)">${w}</div>`).join('');
+}
+function startTrickyTest(){
+  trickyMode='test'; trickyScore=0; trickyTried=0;
+  newTrickyWord();
+}
+function newTrickyWord(){
+  const words=TRICKY_SETS[trickySetKey];
+  trickyWord=words[Math.floor(Math.random()*words.length)];
+  document.getElementById('tricky-input').value='';
+  document.getElementById('tricky-input').className='dictation-input';
+  document.getElementById('tricky-display').textContent='Listen, then type the tricky word!';
+  document.getElementById('tricky-score').textContent='';
+  speak(trickyWord,.65,1.1);
+}
+function sayTrickyWord(){
+  if(trickyWord) speak(trickyWord,.65,1.1);
+  else { const w=TRICKY_SETS[trickySetKey][0]; speak(w,.65,1.1); }
+}
+function checkTrickyInput(){
+  if(trickyMode!=='test') return;
+  const input=document.getElementById('tricky-input');
+  const val=input.value.trim().toLowerCase();
+  if(val.length>=trickyWord.length){
+    trickyTried++;
+    if(val===trickyWord){
+      trickyScore++;
+      input.className='dictation-input correct';
+      document.getElementById('tricky-display').textContent='✅ '+trickyWord+' — correct!';
+      document.getElementById('tricky-score').textContent=`Score: ${trickyScore} / ${trickyTried}`;
+      speak('Well done!',.8,1.15);
+      setTimeout(newTrickyWord,1600);
+    } else {
+      input.className='dictation-input wrong';
+      document.getElementById('tricky-display').textContent='The word was: '+trickyWord;
+      document.getElementById('tricky-score').textContent=`Score: ${trickyScore} / ${trickyTried}`;
+      setTimeout(()=>{input.value='';input.className='dictation-input';newTrickyWord();},1800);
+    }
+  }
+}
+function resetTricky(){
+  trickyMode='browse'; trickyWord=''; trickyScore=0; trickyTried=0;
+  document.getElementById('tricky-input').value='';
+  document.getElementById('tricky-input').className='dictation-input';
+  document.getElementById('tricky-display').textContent='Press "Test me!" to start a quiz on these words';
+  document.getElementById('tricky-score').textContent='';
+}
+
+/* tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+renderFamilyGrid(); renderTrickySetSelector(); renderTrickyWords(); newAnaWord(); newDictWord();
+</script>
+</body>
 </html>

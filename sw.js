@@ -2,12 +2,15 @@
    THE SEN HOME HUB — Service Worker (PWA offline support)
    ============================================================ */
 
-const CACHE = 'shh-v1';
+const CACHE = 'shh-v2';
 const PRECACHE = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/app.js',
+  '/about.html',
+  '/contact.html',
+  '/privacy.html',
   '/children/index.html',
   '/children/phonics.html',
   '/children/maths.html',
@@ -19,6 +22,8 @@ const PRECACHE = [
   '/parent/printables.html',
   '/parent/ehcp.html',
   '/parent/sen-types.html',
+  '/parent/tips.html',
+  '/parent/support.html',
 ];
 
 self.addEventListener('install', e => {

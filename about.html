@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>About | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body{background:var(--linen);}
+    .page-hero{background:linear-gradient(150deg,var(--forest-deep),var(--forest-mid));padding:2.2rem 1.75rem 3rem;text-align:center;color:#fff;position:relative;overflow:hidden;}
+    .page-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:var(--linen);clip-path:ellipse(55% 100% at 50% 100%);}
+    .back-link{display:inline-flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.72);text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem;transition:color .15s;position:relative;z-index:1;}
+    .back-link:hover{color:#fff;}
+    .hero-icon{font-size:3rem;margin:0 auto .8rem;position:relative;z-index:1;}
+    .page-hero h1{font-size:clamp(1.7rem,4vw,2.5rem);margin-bottom:.45rem;position:relative;z-index:1;}
+    .page-hero p{font-size:.92rem;opacity:.8;position:relative;z-index:1;max-width:480px;margin:0 auto;}
+    .content{max-width:720px;margin:0 auto;padding:2.5rem 1.75rem 4rem;}
+    .content h2{font-family:'Lora',serif;color:var(--forest-deep);font-size:1.2rem;margin:2rem 0 .6rem;}
+    .content p{font-size:.9rem;color:var(--text-mid);line-height:1.75;margin-bottom:.9rem;}
+    .ib{background:var(--forest-pale);border-left:4px solid var(--forest-mid);border-radius:0 var(--r-md) var(--r-md) 0;padding:1.1rem 1.25rem;margin:1.5rem 0;}
+    .ib p{margin:0;font-size:.88rem;color:var(--forest-deep);}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html"><div class="topbar-badge">SHH</div><div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div></a>
+  <div class="topbar-actions"><button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button></div>
+</header>
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">🌿</div>
+    <h1>About The SEN Home Hub</h1>
+    <p>Built by a SEN family, for SEN families</p>
+  </div>
+  <div class="content">
+    <div class="ib"><p>The SEN Home Hub is completely free, has no ads, and requires no account or login. It always will be.</p></div>
+
+    <h2>Why we built this</h2>
+    <p>The SEN Home Hub was created by a home-educating parent of a child with special educational needs. After years of searching for resources that were accessible, calm, genuinely useful, and free from the commercial noise of most educational sites — we decided to build our own.</p>
+    <p>Everything here has been created with real SEN children and their families in mind. The tools are gentle, the language is clear, and nothing is designed to overwhelm.</p>
+
+    <h2>Who it's for</h2>
+    <p>The SEN Home Hub is for UK parents and carers who are home educating children with any kind of special educational need or disability (SEND). Our resources are designed for children aged roughly 3–11 (EYFS through KS2), though many tools are useful outside those ages too.</p>
+    <p>We cover a wide range of SEN including autism, ADHD, dyslexia, dyspraxia, PDA, speech and language needs, sensory processing differences, anxiety, and more.</p>
+
+    <h2>What's on the site</h2>
+    <p>The SEN Home Hub has two zones: the Parent Zone, with guides, legal information, printables, and teaching tips; and the Children's Zone, with interactive phonics and maths boards, a feelings and life skills section, spelling practice, sensory fidget tools, and educational games.</p>
+    <p>Everything is designed to work offline once loaded, so you can use it anywhere — even without an internet connection.</p>
+
+    <h2>A note on our information</h2>
+    <p>We are parents, not professionals. The information on this site — particularly regarding EHCPs, legal rights, and SEN types — is provided as general guidance only. It is not professional legal, medical, or therapeutic advice. Always verify important information with qualified professionals and check <a href="https://www.gov.uk" target="_blank" style="color:var(--forest)">GOV.UK</a> for the latest official guidance.</p>
+
+    <h2>Get in touch</h2>
+    <p>We'd love to hear from you — whether it's a suggestion, a correction, or just a hello. Visit our <a href="/contact.html" style="color:var(--forest)">contact page</a>.</p>
+  </div>
+  <footer style="background:var(--forest-deep);color:rgba(255,255,255,.55);padding:2.5rem 1.75rem;text-align:center;">
+    <div style="font-family:'Lora',serif;font-size:1.2rem;color:var(--forest-light);margin-bottom:.35rem;">The SEN Home Hub</div>
+    <div style="font-size:.82rem;margin-bottom:1.3rem;">Supporting UK families on their home education journey 💚</div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <a href="/index.html" style="color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;font-weight:700;">Home</a>
+      <a href="/parent/resources.html" style="color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;font-weight:700;">Resources</a>
+      <a href="/contact.html" style="color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;font-weight:700;">Contact</a>
+      <a href="/privacy.html" style="color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;font-weight:700;">Privacy</a>
+    </div>
+    <div style="font-size:.7rem;opacity:.35;">© 2026 The SEN Home Hub · Free forever · Not affiliated with the UK Government</div>
+  </footer>
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

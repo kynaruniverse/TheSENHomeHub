@@ -5,7 +5,7 @@
 'use strict';
 
 /* ── FAVOURITES (localStorage) ── */
-const SHH = {
+window.SHH = {
 
   STORE_KEY: 'shh-favourites',
 
@@ -48,7 +48,7 @@ const SHH = {
       el = document.createElement('div');
       el.id = 'shh-toast';
       el.className = 'toast';
-      document.body.appendChild(el);
+      (document.body || document.documentElement).appendChild(el);
     }
     el.textContent = msg;
     el.classList.add('show');
@@ -98,7 +98,7 @@ const SHH = {
   updateFavCounters() {
     const n = this.getFavCount();
     document.querySelectorAll('[data-fav-count]').forEach(el => {
-      el.textContent = n + (n === 1 ? ' saved' : ' saved');
+      el.textContent = n + (n === 1 ? ' saved item' : ' saved items');
     });
   },
 
@@ -113,7 +113,11 @@ const SHH = {
         zones.forEach(z => {
           const show = z.dataset.zone === target;
           z.classList.toggle('hidden', !show);
-          if (show) z.classList.add('anim-fade-up');
+          if (show) {
+            z.classList.remove('anim-fade-up');
+            void z.offsetWidth;
+            z.classList.add('anim-fade-up');
+          }
         });
         localStorage.setItem('shh-last-zone', target);
       });
@@ -150,6 +154,6 @@ document.addEventListener('DOMContentLoaded', () => SHH.init());
 /* ── PWA SERVICE WORKER REGISTRATION ── */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }

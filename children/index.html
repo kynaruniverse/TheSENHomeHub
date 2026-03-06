@@ -1,14 +1,613 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#4a7a3a"/>
+  <meta name="description" content="The SEN Home Hub Children's Zone — interactive phonics, maths, spelling, games, feelings and fidget tools for SEN children aged 3–11."/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="SHH Kids"/>
+  <title>Children's Zone | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+
+    body { background: var(--story-bg); }
+
+    /* ── TOPBAR override for kids zone ── */
+    .topbar { background: #3a6030; }
+    .topbar-badge { background: linear-gradient(135deg, #6fa060, #a0c880); }
+
+    /* ── HERO ── */
+    .kids-main-hero {
+      background: linear-gradient(150deg, #3a6030, #5a8a40, #7aaa58);
+      padding: 2.8rem 1.75rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .kids-main-hero::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .kids-main-hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 44px;
+      background: var(--story-bg);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .hero-content { position: relative; z-index: 1; }
+
+    .mascot-big {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: #fff;
+      margin: 0 auto 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.18);
+      animation: bounce 2.8s ease-in-out infinite;
+    }
+    .kids-main-hero h1 {
+      color: #fff; font-size: clamp(1.8rem, 5vw, 2.8rem);
+      margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .kids-main-hero p {
+      color: rgba(255,255,255,0.85); font-size: 1rem; margin-bottom: 1.5rem;
+    }
+
+    /* mood picker */
+    .mood-strip {
+      display: inline-flex; gap: 0.5rem; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 0.5rem;
+    }
+    .mood-btn {
+      background: rgba(255,255,255,0.18);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: var(--r-full); padding: 0.45rem 1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+      color: #fff; cursor: pointer; transition: all 0.18s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mood-btn:hover, .mood-btn.active {
+      background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.6);
+      transform: scale(1.05);
+    }
+    .mood-response {
+      color: rgba(255,255,255,0.9); font-size: 0.88rem;
+      margin-top: 0.6rem; min-height: 1.4rem;
+      font-style: italic; animation: fadeIn 0.3s ease both;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .zone-section { padding: 1.5rem 1.75rem 0.5rem; }
+    .zone-section-title {
+      font-family: 'Lora', serif;
+      font-size: 1.15rem; font-weight: 700;
+      color: #3a5030; margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .zone-section-title::after {
+      content: '';
+      flex: 1; height: 2px;
+      background: linear-gradient(90deg, #c8ddb8, transparent);
+      border-radius: 2px; margin-left: 0.5rem;
+    }
+
+    /* ── LEARN CARDS — bigger and bolder ── */
+    .learn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 0.9rem;
+    }
+    .learn-card {
+      border-radius: var(--r-xl);
+      padding: 1.6rem 1rem 1.3rem;
+      text-align: center; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none; display: block; color: inherit;
+      position: relative; overflow: hidden;
+    }
+    .learn-card::before {
+      content: '';
+      position: absolute; bottom: -20px; right: -20px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      pointer-events: none;
+    }
+    .learn-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: var(--shadow-lg); }
+    .learn-card-icon  { font-size: 3rem; margin-bottom: 0.6rem; display: block; animation: none; }
+    .learn-card:hover .learn-card-icon { animation: bounce 0.6s ease; }
+    .learn-card-title { font-size: 1rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.25rem; }
+    .learn-card-sub   { font-size: 0.75rem; opacity: 0.72; }
+    .lc-green  { background: linear-gradient(135deg, #c8e8a8, #d8f0b8); color: #1a3010; }
+    .lc-amber  { background: linear-gradient(135deg, #f0d4a0, #f8e4b8); color: #4a2008; }
+    .lc-sky    { background: linear-gradient(135deg, #b8d8f0, #c8e4f8); color: #0a2840; }
+    .lc-rose   { background: linear-gradient(135deg, #f0c8c0, #f8d8d0); color: #3a1008; }
+    .lc-plum   { background: linear-gradient(135deg, #d4c0f0, #e0d0f8); color: #240848; }
+    .lc-gold   { background: linear-gradient(135deg, #f0e098, #f8ecb8); color: #302800; }
+
+    /* ── GAMES GRID ── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+    .game-card {
+      border-radius: var(--r-lg);
+      padding: 1.2rem 0.75rem 1rem;
+      text-align: center; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.18s;
+      text-decoration: none; display: block; color: inherit;
+    }
+    .game-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .game-card-icon  { font-size: 2.4rem; margin-bottom: 0.45rem; display: block; }
+    .game-card-title { font-size: 0.88rem; font-weight: 900; line-height: 1.2; }
+    .game-card-sub   { font-size: 0.7rem; opacity: 0.68; margin-top: 0.2rem; }
+    .gc-clay   { background: linear-gradient(135deg, #f8d4b0, #fce4c8); color: #4a1808; }
+    .gc-teal   { background: linear-gradient(135deg, #b8e8e0, #c8f0e8); color: #083830; }
+    .gc-lilac  { background: linear-gradient(135deg, #e0c8f8, #ead8f8); color: #280848; }
+    .gc-coral  { background: linear-gradient(135deg, #f8c8c8, #fcd8d8); color: #480810; }
+    .gc-mint   { background: linear-gradient(135deg, #c8f0d8, #d8f8e4); color: #083820; }
+
+    /* ── FIDGET STRIP ── */
+    .fidget-strip-kids {
+      background: linear-gradient(135deg, #4a7a3a, #6a9a50);
+      border-radius: var(--r-xl); padding: 1.5rem;
+      margin: 0 1.75rem; position: relative; overflow: hidden;
+    }
+    .fidget-strip-kids::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .fidget-strip-kids h3 {
+      color: #fff; font-family: 'Lora', serif;
+      font-size: 1.1rem; margin-bottom: 0.35rem;
+    }
+    .fidget-strip-kids p {
+      color: rgba(255,255,255,0.78); font-size: 0.8rem; margin-bottom: 1rem;
+    }
+    .fidget-tools-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.65rem;
+    }
+    .fidget-tile {
+      background: rgba(255,255,255,0.18);
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: var(--r-lg); padding: 1rem 0.5rem;
+      text-align: center; text-decoration: none; color: #fff;
+      transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    }
+    .fidget-tile:hover { background: rgba(255,255,255,0.28); transform: scale(1.04); }
+    .fidget-tile-icon { font-size: 2rem; display: block; margin-bottom: 0.35rem; }
+    .fidget-tile-name { font-size: 0.75rem; font-weight: 800; line-height: 1.3; }
+
+    /* ── CALM CORNER BANNER ── */
+    .calm-banner {
+      background: linear-gradient(135deg, #9a60c0, #b880d8);
+      border-radius: var(--r-xl); padding: 1.25rem 1.5rem;
+      margin: 0 1.75rem;
+      display: flex; align-items: center; gap: 1.1rem;
+      text-decoration: none; color: #fff;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .calm-banner:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .calm-banner-icon { font-size: 2.8rem; flex-shrink: 0; animation: bounce 3s ease-in-out infinite; }
+    .calm-banner-text strong { display: block; font-size: 1.05rem; font-weight: 900; margin-bottom: 0.2rem; }
+    .calm-banner-text span   { font-size: 0.82rem; opacity: 0.85; }
+    .calm-banner-arrow { margin-left: auto; font-size: 1.4rem; opacity: 0.7; flex-shrink: 0; }
+
+    /* ── PRINT STRIP ── */
+    .print-strip {
+      background: #fff;
+      border-radius: var(--r-xl);
+      border: 2.5px solid var(--linen-dark);
+      margin: 0 1.75rem;
+      padding: 1.25rem 1.5rem;
+    }
+    .print-strip h3 {
+      font-family: 'Lora', serif; color: #3a5030;
+      font-size: 1.05rem; margin-bottom: 0.8rem;
+    }
+    .print-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.6rem;
+    }
+    .print-tile {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-lg); padding: 0.9rem 0.6rem;
+      text-align: center; text-decoration: none;
+      transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    }
+    .print-tile:hover { border-color: #6a9a50; background: #eaf4d8; transform: translateY(-2px); }
+    .print-tile-icon  { font-size: 1.9rem; display: block; margin-bottom: 0.3rem; }
+    .print-tile-name  { font-size: 0.75rem; font-weight: 800; color: #3a5030; line-height: 1.3; }
+
+    /* ── DAILY PICKER ── */
+    .daily-picker {
+      background: #fff;
+      border-radius: var(--r-xl);
+      border: 2.5px solid var(--linen-dark);
+      padding: 1.25rem 1.5rem;
+      margin: 0 1.75rem;
+    }
+    .daily-picker h3 {
+      font-family: 'Lora', serif; color: #3a5030;
+      font-size: 1.05rem; margin-bottom: 0.3rem;
+    }
+    .daily-picker p {
+      font-size: 0.8rem; color: var(--text-mid); margin-bottom: 1rem;
+    }
+    .daily-suggest-btn {
+      background: linear-gradient(135deg, #5a8a40, #7aaa58);
+      color: #fff; border: none; border-radius: var(--r-full);
+      padding: 0.75rem 1.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.18s; width: 100%;
+      box-shadow: 0 3px 12px rgba(90,138,64,0.35);
+    }
+    .daily-suggest-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(90,138,64,0.45); }
+    .daily-result {
+      margin-top: 1rem; display: none;
+      animation: fadeUp 0.3s ease both;
+    }
+    .daily-result.show { display: block; }
+    .daily-result-card {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-lg); padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 0.9rem;
+      text-decoration: none; color: inherit; transition: all 0.18s;
+    }
+    .daily-result-card:hover { border-color: #6a9a50; transform: translateY(-2px); }
+    .daily-result-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .daily-result-name  { font-family: 'Lora', serif; font-weight: 700; font-size: 1rem; color: #3a5030; }
+    .daily-result-sub   { font-size: 0.78rem; color: var(--text-mid); margin-top: 0.15rem; }
+    .daily-result-arrow { margin-left: auto; font-size: 1.2rem; color: #6a9a50; flex-shrink: 0; }
+
+    /* ── PARENT SWITCH ── */
+    .parent-switch {
+      background: var(--forest-deep);
+      border-radius: var(--r-xl);
+      margin: 0 1.75rem;
+      padding: 1.1rem 1.4rem;
+      display: flex; align-items: center; gap: 0.9rem;
+      text-decoration: none; color: rgba(255,255,255,0.75);
+      font-size: 0.82rem; font-weight: 700;
+      transition: background 0.18s;
+    }
+    .parent-switch:hover { background: #1a2d1c; color: #fff; }
+    .parent-switch-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .parent-switch span  { flex: 1; }
+    .parent-switch .arrow { opacity: 0.5; }
+
+    /* ── FOOTER ── */
+    .kids-footer {
+      background: #3a5030;
+      color: rgba(255,255,255,0.55);
+      padding: 2rem 1.75rem;
+      text-align: center;
+      margin-top: 2.5rem;
+    }
+    .kids-footer-logo {
+      font-family: 'Lora', serif; font-size: 1.1rem;
+      color: #a8c888; margin-bottom: 0.3rem;
+    }
+    .kids-footer-links {
+      display: flex; justify-content: center;
+      gap: 1.25rem; flex-wrap: wrap; margin: 0.75rem 0;
+    }
+    .kids-footer-links a {
+      color: rgba(255,255,255,0.45); text-decoration: none;
+      font-size: 0.78rem; font-weight: 700; transition: color 0.15s;
+    }
+    .kids-footer-links a:hover { color: #a8c888; }
+    .kids-footer-copy { font-size: 0.68rem; opacity: 0.3; }
+
+    /* spacing helper */
+    .zone-gap { height: 1.5rem; }
+
+    @media (max-width: 480px) {
+      .learn-grid  { grid-template-columns: repeat(2, 1fr); }
+      .games-grid  { grid-template-columns: repeat(2, 1fr); }
+      .fidget-tools-row { grid-template-columns: repeat(3, 1fr); }
+      .print-tiles { grid-template-columns: repeat(2, 1fr); }
+      .zone-section { padding: 1.2rem 1rem 0.4rem; }
+      .fidget-strip-kids, .calm-banner, .print-strip, .daily-picker, .parent-switch { margin: 0 1rem; }
+    }
+  </style>
 </head>
-
 <body>
-  
-</body>
 
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/children/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">
+      Children's Zone
+      <small>🌿 The SEN Home Hub</small>
+    </div>
+  </a>
+  <div class="topbar-actions">
+    <a class="topbar-pill" href="/index.html" style="text-decoration:none;">👩 Grown-ups</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="kids-main-hero">
+    <div class="hero-content">
+      <div class="mascot-big" id="mascot">🦔</div>
+      <h1>Hello! What shall we do today?</h1>
+      <p>Tap how you're feeling and I'll help you choose 🌟</p>
+
+      <div class="mood-strip">
+        <button class="mood-btn" onclick="pickMood('happy',   this)">😄 Happy</button>
+        <button class="mood-btn" onclick="pickMood('focused', this)">🎯 Ready to learn</button>
+        <button class="mood-btn" onclick="pickMood('wiggly',  this)">🐛 Wiggly</button>
+        <button class="mood-btn" onclick="pickMood('tired',   this)">😴 Tired</button>
+        <button class="mood-btn" onclick="pickMood('worried', this)">😟 Worried</button>
+      </div>
+      <div class="mood-response" id="mood-response"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ LEARN ═══════════════ -->
+  <div class="zone-section">
+    <div class="zone-section-title">📖 Let's Learn!</div>
+    <div class="learn-grid">
+      <a class="learn-card lc-green" href="/children/phonics.html">
+        <span class="learn-card-icon">🔤</span>
+        <div class="learn-card-title">Phonics &amp; Reading</div>
+        <div class="learn-card-sub">Sounds · letters · words</div>
+      </a>
+      <a class="learn-card lc-amber" href="/children/maths.html">
+        <span class="learn-card-icon">🔢</span>
+        <div class="learn-card-title">Maths Fun</div>
+        <div class="learn-card-sub">Counting · adding · shapes</div>
+      </a>
+      <a class="learn-card lc-sky" href="/children/feelings.html">
+        <span class="learn-card-icon">💛</span>
+        <div class="learn-card-title">Feelings &amp; Me</div>
+        <div class="learn-card-sub">Emotions · routines · calm</div>
+      </a>
+      <a class="learn-card lc-rose" href="/children/spelling.html">
+        <span class="learn-card-icon">✏️</span>
+        <div class="learn-card-title">Spelling</div>
+        <div class="learn-card-sub">Words · families · tricky</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ GAMES ═══════════════ -->
+  <div class="zone-section">
+    <div class="zone-section-title">🎮 Games!</div>
+    <div class="games-grid">
+      <a class="game-card gc-clay" href="/children/games.html">
+        <span class="game-card-icon">🃏</span>
+        <div class="game-card-title">Word Match</div>
+        <div class="game-card-sub">Match word to picture</div>
+      </a>
+      <a class="game-card gc-teal" href="/children/games.html">
+        <span class="game-card-icon">🧠</span>
+        <div class="game-card-title">Memory</div>
+        <div class="game-card-sub">Find the pairs!</div>
+      </a>
+      <a class="game-card gc-mint" href="/children/games.html">
+        <span class="game-card-icon">🐛</span>
+        <div class="game-card-title">Number Bugs</div>
+        <div class="game-card-sub">Count the bugs!</div>
+      </a>
+      <a class="game-card gc-lilac" href="/children/games.html">
+        <span class="game-card-icon">🎨</span>
+        <div class="game-card-title">Colour &amp; Draw</div>
+        <div class="game-card-sub">Make something beautiful</div>
+      </a>
+      <a class="game-card gc-coral" href="/children/games.html">
+        <span class="game-card-icon">🔷</span>
+        <div class="game-card-title">Shapes Quiz</div>
+        <div class="game-card-sub">Do you know your shapes?</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ FIDGET TOOLS ═══════════════ -->
+  <div class="fidget-strip-kids">
+    <h3>🤲 Need a moment?</h3>
+    <p>These tools help when your body needs to move or your feelings feel big</p>
+    <div class="fidget-tools-row">
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">🌀</span>
+        <div class="fidget-tile-name">Fidget Spinner</div>
+      </a>
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">🔘</span>
+        <div class="fidget-tile-name">Clicker Counter</div>
+      </a>
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">⏳</span>
+        <div class="fidget-tile-name">Sand Timer</div>
+      </a>
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">🫧</span>
+        <div class="fidget-tile-name">Bubble Wrap</div>
+      </a>
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">🌬️</span>
+        <div class="fidget-tile-name">Breathing Helper</div>
+      </a>
+      <a class="fidget-tile" href="/children/fidget.html">
+        <span class="fidget-tile-icon">🔀</span>
+        <div class="fidget-tile-name">Switch Counter</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ CALM CORNER ═══════════════ -->
+  <a class="calm-banner" href="/children/feelings.html">
+    <div class="calm-banner-icon">🌿</div>
+    <div class="calm-banner-text">
+      <strong>Calm-Down Corner</strong>
+      <span>Breathing · 5-4-3-2-1 · Safe space · Draw it out &amp; more</span>
+    </div>
+    <div class="calm-banner-arrow">→</div>
+  </a>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ WHAT TO DO TODAY ═══════════════ -->
+  <div class="daily-picker">
+    <h3>🎲 Not sure what to do?</h3>
+    <p>Let me pick something for you!</p>
+    <button class="daily-suggest-btn" onclick="suggestActivity()">✨ Surprise me!</button>
+    <div class="daily-result" id="daily-result">
+      <a class="daily-result-card" id="daily-result-card" href="#">
+        <div class="daily-result-icon" id="daily-icon">🔤</div>
+        <div>
+          <div class="daily-result-name" id="daily-name">Phonics Board</div>
+          <div class="daily-result-sub"  id="daily-sub">Tap to go there!</div>
+        </div>
+        <div class="daily-result-arrow">→</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ PRINT & DO ═══════════════ -->
+  <div class="print-strip">
+    <h3>🖨️ Print &amp; Do!</h3>
+    <div class="print-tiles">
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">⭐</span>
+        <div class="print-tile-name">Reward Charts</div>
+      </a>
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">🗓️</span>
+        <div class="print-tile-name">My Schedule</div>
+      </a>
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">🖍️</span>
+        <div class="print-tile-name">Drawing Frame</div>
+      </a>
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">📝</span>
+        <div class="print-tile-name">Alphabet Sheet</div>
+      </a>
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">💛</span>
+        <div class="print-tile-name">Feelings Check-In</div>
+      </a>
+      <a class="print-tile" href="/parent/printables.html">
+        <span class="print-tile-icon">🌳</span>
+        <div class="print-tile-name">Kindness Tree</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="zone-gap"></div>
+
+  <!-- ═══════════════ PARENT SWITCH ═══════════════ -->
+  <a class="parent-switch" href="/index.html">
+    <div class="parent-switch-icon">👩</div>
+    <span>Grown-up? Switch to the Parent Zone →</span>
+  </a>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="kids-footer">
+    <div class="kids-footer-logo">The SEN Home Hub 🌿</div>
+    <div style="font-size:.8rem;margin-bottom:.5rem;">A safe, calm place to learn 💚</div>
+    <div class="kids-footer-links">
+      <a href="/children/phonics.html">Phonics</a>
+      <a href="/children/maths.html">Maths</a>
+      <a href="/children/spelling.html">Spelling</a>
+      <a href="/children/games.html">Games</a>
+      <a href="/children/fidget.html">Fidget Tools</a>
+      <a href="/children/feelings.html">Feelings</a>
+      <a href="/parent/printables.html">Printables</a>
+      <a href="/index.html">Parent Zone</a>
+    </div>
+    <div class="kids-footer-copy">© 2026 The SEN Home Hub · Free forever</div>
+  </footer>
+
+</div><!-- /page -->
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ── MOOD PICKER ── */
+const MOOD_RESPONSES = {
+  happy:   { text: "Brilliant! You\'re in a great mood — let\'s do some learning! 🎉", suggest: 'learn' },
+  focused: { text: "Amazing! Your brain is ready — perfect time for phonics or maths! 🧠", suggest: 'learn' },
+  wiggly:  { text: "Wiggly bodies need to move first! Try a fidget tool, then we\'ll learn 🐛", suggest: 'fidget' },
+  tired:   { text: "That\'s OK — let\'s do something calm and easy today 🌙", suggest: 'calm' },
+  worried: { text: "It\'s OK to feel worried. Let\'s go to the calm-down corner first 🌿", suggest: 'calm' },
+};
+
+const MASCOTS = { happy:'😄', focused:'🎯', wiggly:'🐛', tired:'😴', worried:'🌿' };
+
+function pickMood(mood, btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const r = MOOD_RESPONSES[mood];
+  const resp = document.getElementById('mood-response');
+  resp.style.animation = 'none';
+  resp.offsetHeight; // reflow
+  resp.style.animation = 'fadeIn 0.3s ease both';
+  resp.textContent = r.text;
+  document.getElementById('mascot').textContent = MASCOTS[mood] || '🦔';
+
+  // scroll to suggestion
+  if (r.suggest === 'fidget') {
+    setTimeout(() => document.querySelector('.fidget-strip-kids').scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
+  } else if (r.suggest === 'calm') {
+    setTimeout(() => document.querySelector('.calm-banner').scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
+  }
+}
+
+/* ── SURPRISE ME ── */
+const ACTIVITIES = [
+  { icon:'🔤', name:'Phonics Board',       sub:'Letters, sounds and words',    url:'/children/phonics.html' },
+  { icon:'🔢', name:'Maths Board',         sub:'Counting and adding',          url:'/children/maths.html' },
+  { icon:'✏️', name:'Spelling Board',      sub:'Word families and dictation',  url:'/children/spelling.html' },
+  { icon:'💛', name:'Feelings & Me',       sub:'Emotions and routines',        url:'/children/feelings.html' },
+  { icon:'🃏', name:'Word Match Game',     sub:'Match words to pictures',      url:'/children/games.html' },
+  { icon:'🧠', name:'Memory Game',         sub:'Find all the pairs',           url:'/children/games.html' },
+  { icon:'🐛', name:'Number Bugs',         sub:'Count the bugs!',              url:'/children/games.html' },
+  { icon:'🎨', name:'Colour & Draw',       sub:'Make something beautiful',     url:'/children/games.html' },
+  { icon:'🌀', name:'Fidget Spinner',      sub:'Spin away your wiggles',       url:'/children/fidget.html' },
+  { icon:'🫧', name:'Bubble Wrap',         sub:'Pop pop pop!',                 url:'/children/fidget.html' },
+  { icon:'🌬️', name:'Breathing Helper',   sub:'Calm your body',               url:'/children/fidget.html' },
+  { icon:'🔷', name:'Shapes Quiz',         sub:'How many shapes do you know?', url:'/children/games.html' },
+];
+
+let lastActivity = -1;
+function suggestActivity() {
+  let idx;
+  do { idx = Math.floor(Math.random() * ACTIVITIES.length); } while (idx === lastActivity);
+  lastActivity = idx;
+  const a = ACTIVITIES[idx];
+  document.getElementById('daily-icon').textContent = a.icon;
+  document.getElementById('daily-name').textContent = a.name;
+  document.getElementById('daily-sub').textContent  = a.sub;
+  document.getElementById('daily-result-card').href = a.url;
+  const result = document.getElementById('daily-result');
+  result.style.display = 'none';
+  result.offsetHeight;
+  result.classList.add('show');
+  result.style.display = 'block';
+}
+</script>
+</body>
 </html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Teaching Tips | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: var(--linen); }
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), #3a6a50, #5a8a60);
+      padding: 2.2rem 1.75rem 3rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:40px;
+      background:var(--linen); clip-path:ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display:inline-flex; align-items:center; gap:.4rem;
+      color:rgba(255,255,255,.72); text-decoration:none;
+      font-size:.82rem; font-weight:700; margin-bottom:1rem; transition:color .15s;
+      position:relative; z-index:1;
+    }
+    .back-link:hover { color:#fff; }
+    .hero-icon { font-size:3rem; margin:0 auto .8rem; position:relative; z-index:1; }
+    .page-hero h1 { font-size:clamp(1.7rem,4vw,2.5rem); margin-bottom:.45rem; position:relative; z-index:1; }
+    .page-hero p  { font-size:.92rem; opacity:.8; position:relative; z-index:1; max-width:480px; margin:0 auto; }
+
+    .tab-bar {
+      background:#fff; border-bottom:2px solid var(--linen-dark);
+      display:flex; overflow-x:auto; scrollbar-width:none;
+      position:sticky; top:var(--topbar-h); z-index:10;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      flex-shrink:0; background:none; border:none;
+      border-bottom:3px solid transparent;
+      padding:.85rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
+      color:var(--text-mid); cursor:pointer; transition:all .18s;
+    }
+    .tab-btn:hover  { color:var(--forest); }
+    .tab-btn.active { color:var(--forest); border-bottom-color:var(--forest); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; animation:fadeUp .35s ease both; }
+    .content-wrap { max-width:860px; margin:0 auto; padding:2rem 1.75rem 3rem; }
+    .sec-h { font-family:'Lora',serif; color:var(--forest-deep); font-size:1.15rem; margin:.5rem 0 .75rem; }
+    .sec-p { font-size:.85rem; color:var(--text-mid); line-height:1.7; margin-bottom:1.25rem; }
+
+    /* tip cards */
+    .tips-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; margin-bottom:1.75rem; }
+    .tip-card {
+      background:#fff; border-radius:var(--r-lg);
+      border:2px solid var(--linen-dark); padding:1.2rem;
+      transition:all .18s;
+    }
+    .tip-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+    .tip-icon { font-size:1.8rem; margin-bottom:.5rem; }
+    .tip-title { font-family:'Lora',serif; font-size:.98rem; font-weight:700; color:var(--forest-deep); margin-bottom:.4rem; }
+    .tip-body  { font-size:.82rem; color:var(--text-mid); line-height:1.6; }
+    .tip-tag {
+      display:inline-block; margin-top:.6rem;
+      border-radius:var(--r-full); padding:.18rem .65rem;
+      font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .tt-structure { background:#d8f0d0; color:#1a4010; }
+    .tt-sensory   { background:#fde8d8; color:#6a2010; }
+    .tt-language  { background:#d8e8f8; color:#1a3a60; }
+    .tt-behaviour { background:#f8e0e8; color:#5a1a30; }
+    .tt-learning  { background:#f0f0d8; color:#4a4010; }
+    .tt-wellbeing { background:#e8d8f8; color:#3a1a60; }
+
+    /* accordion */
+    .accordion { display:flex; flex-direction:column; gap:.65rem; margin-bottom:1.75rem; }
+    .acc-item { background:#fff; border-radius:var(--r-md); border:2px solid var(--linen-dark); overflow:hidden; }
+    .acc-q {
+      padding:1rem 1.25rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+      font-weight:800; font-size:.9rem; color:var(--forest-deep); user-select:none;
+      transition:background .15s;
+    }
+    .acc-q:hover { background:var(--linen); }
+    .acc-icon { transition:transform .25s; flex-shrink:0; }
+    .acc-item.open .acc-icon { transform:rotate(45deg); }
+    .acc-a {
+      max-height:0; overflow:hidden; transition:max-height .35s ease,padding .25s;
+      font-size:.84rem; color:var(--text-mid); line-height:1.7; padding:0 1.25rem;
+    }
+    .acc-item.open .acc-a { max-height:500px; padding:0 1.25rem 1.1rem; }
+
+    /* info boxes */
+    .ib { border-radius:var(--r-lg); padding:1.1rem 1.3rem; margin-bottom:1.25rem; }
+    .ib h3 { font-family:'Lora',serif; font-size:.98rem; margin-bottom:.45rem; }
+    .ib p, .ib li { font-size:.83rem; color:var(--text-mid); line-height:1.65; }
+    .ib ul { padding-left:1.2rem; }
+    .ib li { margin-bottom:.25rem; }
+    .ib-green { background:var(--forest-pale); border-left:4px solid var(--forest-mid); }
+    .ib-green h3 { color:var(--forest-deep); }
+    .ib-amber { background:#fff8e0; border-left:4px solid #c0a020; }
+    .ib-amber h3 { color:#4a3a10; }
+
+    @media (max-width:600px) {
+      .content-wrap { padding:1.5rem 1rem 2rem; }
+      .tips-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">💡</div>
+    <h1>Teaching Tips</h1>
+    <p>Practical, SEN-informed strategies for home-educating parents — written with love from one parent to another</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="structure">📅 Structure</button>
+    <button class="tab-btn" data-tab="multisensory">🖐️ Multi-Sensory</button>
+    <button class="tab-btn" data-tab="behaviour">💛 Behaviour</button>
+    <button class="tab-btn" data-tab="environment">🏠 Environment</button>
+    <button class="tab-btn" data-tab="communication">🗣️ Communication</button>
+    <button class="tab-btn" data-tab="burnout">🔋 Avoiding Burnout</button>
+  </div>
+
+  <!-- STRUCTURE -->
+  <div class="tab-panel active" id="tab-structure">
+    <div class="content-wrap">
+      <h2 class="sec-h">Building Structure Without Rigidity</h2>
+      <p class="sec-p">SEN children — especially autistic and anxious children — thrive with predictability. But "structure" doesn't mean rigid school-style timetables. The goal is a predictable shape to the day, with flexibility within it.</p>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">🌅</div><div class="tip-title">Same start, flexible middle</div><div class="tip-body">Begin each day with the same routine (breakfast, morning jobs, check-in). The rest of the day can flex around this anchor. Your child's nervous system learns to expect the beginning, which reduces morning anxiety.</div><span class="tip-tag tt-structure">Structure</span></div>
+        <div class="tip-card"><div class="tip-icon">📋</div><div class="tip-title">Visual timetables beat verbal ones</div><div class="tip-body">A visual schedule on the wall, using pictures or written words, is far more effective than telling a child what's happening. They can refer back to it independently and it reduces "what's happening next?" anxiety.</div><span class="tip-tag tt-structure">Structure</span></div>
+        <div class="tip-card"><div class="tip-icon">⏱️</div><div class="tip-title">Timers make transitions easier</div><div class="tip-body">A visual sand timer or the timer on this app gives children advance notice that something is ending. "5 more minutes of Lego, then snack" lands far better with a visible timer ticking down.</div><span class="tip-tag tt-structure">Structure</span></div>
+        <div class="tip-card"><div class="tip-icon">🔄</div><div class="tip-title">Warn before every change</div><div class="tip-body">Never just end an activity — always give notice. "In 10 minutes we're going to stop and have lunch." Repeat at 5 minutes. This prevents the shock of abrupt transitions that can cause significant distress for many SEN children.</div><span class="tip-tag tt-structure">Structure</span></div>
+        <div class="tip-card"><div class="tip-icon">🎯</div><div class="tip-title">One goal per session</div><div class="tip-body">SEN children often have working memory difficulties. Setting one clear, achievable goal per learning session ("today we're going to practise the 'ight' word family") reduces overwhelm and increases the chance of success.</div><span class="tip-tag tt-learning">Learning</span></div>
+        <div class="tip-card"><div class="tip-icon">✅</div><div class="tip-title">End with success</div><div class="tip-body">Always try to end a learning session on something the child can do well. Even if the session was hard, finishing with a skill they've mastered leaves them with a positive last impression — which matters enormously for motivation.</div><span class="tip-tag tt-learning">Learning</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-SENSORY -->
+  <div class="tab-panel" id="tab-multisensory">
+    <div class="content-wrap">
+      <h2 class="sec-h">Multi-Sensory Learning</h2>
+      <p class="sec-p">Multi-sensory teaching means engaging more than one sense at a time — seeing, saying, hearing, and touching simultaneously. This is especially powerful for dyslexic children but benefits almost all SEN learners.</p>
+      <div class="ib ib-green">
+        <h3>The VAKT principle</h3>
+        <ul>
+          <li><strong>Visual</strong> — see it (written word, picture, colour-coding)</li>
+          <li><strong>Auditory</strong> — hear it (say it aloud, use the phonics board, listen back)</li>
+          <li><strong>Kinaesthetic</strong> — feel it (write it in sand, use letter tiles, stamp it out)</li>
+          <li><strong>Tactile</strong> — touch it (trace letters, handle objects, use textured materials)</li>
+        </ul>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">✋</div><div class="tip-title">Write in unexpected surfaces</div><div class="tip-body">Writing letters in a tray of sand, shaving foam, or rice engages touch and makes it memorable. Children who struggle with handwriting often find this easier and more enjoyable.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">🎵</div><div class="tip-title">Sing it first, read it second</div><div class="tip-body">Many SEN children retain information through music far more effectively than through reading. Alphabet songs, counting songs, and even making up silly songs about facts are powerful memory tools.</div><span class="tip-tag tt-learning">Learning</span></div>
+        <div class="tip-card"><div class="tip-icon">🧱</div><div class="tip-title">Make maths concrete</div><div class="tip-body">Never go straight to abstract numbers. Use Lego bricks, dried pasta, buttons — anything that can be counted, grouped, and moved. The concrete stage must come before the abstract, especially for dyscalculic learners.</div><span class="tip-tag tt-learning">Learning</span></div>
+        <div class="tip-card"><div class="tip-icon">🎨</div><div class="tip-title">Colour-code everything</div><div class="tip-body">Use different colours for different phonics groups (vowels one colour, consonants another). Use colour-coding for maths operations. Colour creates neural hooks that help information stick, especially for dyslexic learners.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">🏃</div><div class="tip-title">Move to learn</div><div class="tip-body">Active children learn better when moving. Spell words by jumping on letter mats. Count by throwing bean bags. Do times tables while bouncing. The body and brain are not separate.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">📢</div><div class="tip-title">Say it before you write it</div><div class="tip-body">Always have a child say a word or sentence aloud before attempting to write it. This uses auditory processing to support the written task, and is especially helpful for children with dyslexia or language difficulties.</div><span class="tip-tag tt-language">Language</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEHAVIOUR -->
+  <div class="tab-panel" id="tab-behaviour">
+    <div class="content-wrap">
+      <h2 class="sec-h">Understanding Behaviour &amp; Distress</h2>
+      <p class="sec-p">All behaviour is communication. When a SEN child is struggling, distressed, or refusing — they are telling you something. The goal is not compliance, it's connection and understanding.</p>
+      <div class="ib ib-amber">
+        <h3>⚠️ Demand avoidance vs refusal</h3>
+        <p>If your child frequently avoids or refuses activities, distinguish between anxiety-driven avoidance (they can't, not won't) and low motivation (different strategy needed). PDA children in particular avoid demands due to anxiety, not defiance. Punishing anxiety-driven avoidance always makes things worse.</p>
+      </div>
+      <div class="accordion" id="behaviour-accordion">
+        <div class="acc-item"><div class="acc-q">Why does my child melt down over "small" things? <span class="acc-icon">+</span></div><div class="acc-a">Meltdowns are rarely about the thing that triggers them. They are about the accumulated load of anxiety, sensory input, social demands, and effort the child has been carrying — often invisibly. The "last straw" is just that: the straw. Look at what came before, not just what came immediately before the meltdown.</div></div>
+        <div class="acc-item"><div class="acc-q">What's the best way to respond during a meltdown? <span class="acc-icon">+</span></div><div class="acc-a">During a meltdown: reduce demands to zero. Lower your voice, don't try to reason. Stay calm and nearby but not intrusive. Remove any audience. Don't try to teach or problem-solve — the brain is in fight/flight and is not accessible for learning. Afterwards, wait until the child is fully regulated before gently reconnecting — not to analyse, just to offer comfort.</div></div>
+        <div class="acc-item"><div class="acc-q">My child refuses to start tasks. What helps? <span class="acc-icon">+</span></div><div class="acc-a">Task initiation difficulties are very common in ADHD and autism. Try: starting the task with them (the first 30 seconds together), using a timer to make the start feel finite ("just for 3 minutes"), offering choice of order, making the materials visible and already laid out, or using a preferred activity as a natural bridge into the task.</div></div>
+        <div class="acc-item"><div class="acc-q">How do I motivate my child without rewards and punishments? <span class="acc-icon">+</span></div><div class="acc-a">Intrinsic motivation grows when children feel competent, connected, and autonomous. Make activities feel achievable (right level of challenge). Follow their interests. Give genuine choices. Notice and comment on their effort specifically ("I noticed how hard you tried with that tricky word"). Avoid vague praise ("well done") and instead describe what you saw.</div></div>
+        <div class="acc-item"><div class="acc-q">My child gets angry when they make mistakes. How do I help? <span class="acc-icon">+</span></div><div class="acc-a">Many SEN children have high anxiety about being wrong — often from negative school experiences. Normalise mistakes loudly and often: "Oops, I got that wrong — let me try again." Frame errors as information, not failure. "Your brain just learned something new." Never draw attention to mistakes in front of others, and avoid timed tasks that increase performance pressure.</div></div>
+        <div class="acc-item"><div class="acc-q">How much "school" does a home-educated SEN child actually need? <span class="acc-icon">+</span></div><div class="acc-a">Far less than you think — and far less than school. Research on home education consistently shows that 1:1 learning is dramatically more efficient than classroom learning. 1–2 hours of focused activity can cover what a school achieves in a full day. The rest of your child's day — playing, building, exploring, watching, talking — IS learning.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENVIRONMENT -->
+  <div class="tab-panel" id="tab-environment">
+    <div class="content-wrap">
+      <h2 class="sec-h">Creating a Supportive Learning Environment</h2>
+      <p class="sec-p">The physical environment has a profound effect on SEN children's ability to learn. Small changes can make a significant difference.</p>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">🔇</div><div class="tip-title">Reduce background noise</div><div class="tip-body">Many SEN children (especially autistic and ADHD) are highly sensitive to background noise. Turn off TVs, reduce music, and consider over-ear headphones or ear defenders if the child finds noise distressing during learning.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">💡</div><div class="tip-title">Consider lighting</div><div class="tip-body">Fluorescent overhead lighting can cause significant distress for sensory-sensitive children. Natural light or warm-toned lamps are usually better. If the child squints or seems uncomfortable, try adjusting the lighting.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">🛋️</div><div class="tip-title">Create a safe, cosy space</div><div class="tip-body">Every SEN child benefits from a predictable, cosy place they can go to when they need to regulate — not as a punishment, but as a resource. A beanbag in a corner, a pop-up tent, or even a corner with a blanket and cushions can serve as a regulation station.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">🧹</div><div class="tip-title">Reduce visual clutter</div><div class="tip-body">A desk with only the materials needed for the current task reduces distraction significantly. Too many visual stimuli compete for attention. Put away everything not needed. Worksheets with lots of images and text crowded together are particularly overwhelming.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">🪑</div><div class="tip-title">Seating matters</div><div class="tip-body">Many SEN children, especially those with sensory processing differences, do better learning when they are not sitting at a desk. Floor time, lying on the stomach, sitting on a wobble cushion, or standing at a surface can all improve focus.</div><span class="tip-tag tt-sensory">Sensory</span></div>
+        <div class="tip-card"><div class="tip-icon">🌿</div><div class="tip-title">Nature is a classroom too</div><div class="tip-body">Learning outdoors can completely change the dynamic for a child who finds indoor learning difficult. Maths on a walk (count steps, find shapes), literacy in the garden (nature journaling), science everywhere — outside is always available.</div><span class="tip-tag tt-learning">Learning</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMUNICATION -->
+  <div class="tab-panel" id="tab-communication">
+    <div class="content-wrap">
+      <h2 class="sec-h">Communication &amp; Language Strategies</h2>
+      <p class="sec-p">How you say things matters as much as what you say. These strategies help all SEN children — and are especially important for those with autism, ADHD, or speech and language needs.</p>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">⏱️</div><div class="tip-title">Wait 10 seconds after asking</div><div class="tip-body">Most adults wait 2–3 seconds before repeating a question or adding more words. SEN children often need 10–15 seconds to process. Count silently. Don't fill the gap. Give the child time to formulate their response before jumping in.</div><span class="tip-tag tt-language">Language</span></div>
+        <div class="tip-card"><div class="tip-icon">🎯</div><div class="tip-title">Use simple, direct instructions</div><div class="tip-body">Instead of "Can you come and sit down and get your pencil ready so we can start our phonics?" say "Please sit down." Then, when they're sitting: "Please get your pencil." One instruction at a time, given clearly and directly.</div><span class="tip-tag tt-language">Language</span></div>
+        <div class="tip-card"><div class="tip-icon">✅</div><div class="tip-title">Tell them what TO do, not what NOT to do</div><div class="tip-body">"Stop running" is harder to process than "Please walk." SEN children (especially autistic children) often struggle to suppress the behaviour first named. Focus on the desired behaviour, not the one to stop.</div><span class="tip-tag tt-behaviour">Behaviour</span></div>
+        <div class="tip-card"><div class="tip-icon">🔁</div><div class="tip-title">Repeat back what they say</div><div class="tip-body">When a child says something — especially something about their feelings — reflect it back: "You said the maths feels too hard. I hear that." This validates them, buys thinking time, and models language. It also helps children with word-finding difficulties feel understood.</div><span class="tip-tag tt-language">Language</span></div>
+        <div class="tip-card"><div class="tip-icon">👁️</div><div class="tip-title">Don't require eye contact</div><div class="tip-body">Many autistic children actually process language better when NOT making eye contact — because eye contact itself uses up cognitive resources. Saying "Look at me when I'm talking" may actively interfere with comprehension. Allow the child to look away.</div><span class="tip-tag tt-language">Language</span></div>
+        <div class="tip-card"><div class="tip-icon">📝</div><div class="tip-title">Write it down as well as saying it</div><div class="tip-body">For children with auditory processing difficulties or working memory challenges, verbal instructions vanish as soon as they're spoken. Write instructions on a whiteboard or piece of paper that the child can keep in front of them — it removes the need to hold everything in their head.</div><span class="tip-tag tt-language">Language</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BURNOUT -->
+  <div class="tab-panel" id="tab-burnout">
+    <div class="content-wrap">
+      <h2 class="sec-h">Looking After Yourself &amp; Avoiding Burnout</h2>
+      <p class="sec-p">Home educating a SEN child is one of the most demanding, loving, and important things a parent can do. It is also exhausting. Your wellbeing matters — for its own sake, and because you cannot pour from an empty cup.</p>
+      <div class="ib ib-green">
+        <h3>You are enough</h3>
+        <p>You do not need to be a qualified teacher. You do not need to do it perfectly. You do not need to replicate school. What your child needs most is a regulated, safe, loving adult who knows them better than anyone. That is you.</p>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">🔋</div><div class="tip-title">Recognise your own warning signs</div><div class="tip-body">Burnout as a SEN parent creeps up slowly. Watch for: resentment of your child's needs, loss of patience that's unusual for you, feeling like you're failing, physical exhaustion, and losing interest in things you used to enjoy. These are signs you need rest, not that you're a bad parent.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">🤝</div><div class="tip-title">Find your people</div><div class="tip-body">Isolation is one of the biggest challenges for SEN home-ed families. Seek out local or online SEN home-education communities. Other parents who truly get it are invaluable — for practical advice, for solidarity, and for knowing you are not alone.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">📉</div><div class="tip-title">Low-demand days are not wasted days</div><div class="tip-body">There will be days — many of them — where formal learning simply doesn't happen. These are not failures. A day of films, building, walks, and cooking is a day of learning. Rest and recovery are not wasted. They are essential.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">📊</div><div class="tip-title">Track the good stuff</div><div class="tip-body">SEN progress often comes in tiny increments and can be invisible day-to-day. Keep a simple note of small wins — a word read for the first time, a new food tried, a transition that went smoothly. Looking back over a month reveals progress that felt invisible in the moment.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">🚨</div><div class="tip-title">Know when to ask for help</div><div class="tip-body">There is no shame in reaching out. IPSEA for EHCP help. ADDISS for ADHD support. Contact for families of disabled children. SOS!SEN for legal guidance. Your GP for your own mental health. Asking for help is strength, not weakness.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+        <div class="tip-card"><div class="tip-icon">🎉</div><div class="tip-title">Celebrate what you've built</div><div class="tip-body">Look at what you have created for your child — a safe, loving, tailored learning environment that the school system couldn't provide. That is extraordinary. You chose your child when the system didn't. That matters more than any worksheet completed.</div><span class="tip-tag tt-wellbeing">Wellbeing</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="background:var(--forest-deep);color:rgba(255,255,255,.55);padding:2.5rem 1.75rem;text-align:center;">
+    <div style="font-family:'Lora',serif;font-size:1.2rem;color:var(--forest-light);margin-bottom:.35rem;">The SEN Home Hub</div>
+    <div style="font-size:.82rem;margin-bottom:1.3rem;">Supporting UK families on their home education journey 💚</div>
+    <div style="font-size:.7rem;opacity:.35;">© 2026 The SEN Home Hub · Free forever · Not affiliated with the UK Government</div>
+  </footer>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.acc-q').forEach(q=>{
+    q.addEventListener('click',()=>q.closest('.acc-item').classList.toggle('open'));
+  });
+</script>
+</body>
+</html>

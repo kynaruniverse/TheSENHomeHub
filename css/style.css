@@ -219,6 +219,7 @@ h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
   border-radius: var(--r-full); padding: 0.4rem 1rem;
   font-size: 0.8rem; font-weight: 700; color: var(--text-mid);
   cursor: pointer; transition: all 0.15s;
+  text-decoration: none;
 }
 .pill:hover, .pill.active {
   background: var(--forest); color: #fff; border-color: var(--forest);

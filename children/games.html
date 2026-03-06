@@ -1,14 +1,658 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Games | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: #f8f4ec; }
+    .page-hero {
+      background: linear-gradient(150deg, #6a3010, #b06030, #c87840);
+      padding: 2.2rem 1.75rem 2.8rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:36px;
+      background:#f8f4ec; clip-path:ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display:inline-flex; align-items:center; gap:.4rem;
+      color:rgba(255,255,255,.72); text-decoration:none;
+      font-size:.82rem; font-weight:700; margin-bottom:1rem;
+      transition:color .15s; position:relative; z-index:1;
+    }
+    .back-link:hover { color:#fff; }
+    .hero-icon { font-size:3rem; margin:0 auto .8rem; position:relative; z-index:1; animation:bounce 2.5s ease-in-out infinite; }
+    .page-hero h1 { font-size:clamp(1.7rem,4vw,2.5rem); margin-bottom:.45rem; position:relative; z-index:1; }
+    .page-hero p  { font-size:.92rem; opacity:.8; position:relative; z-index:1; max-width:440px; margin:0 auto; }
+
+    .tab-bar {
+      background:#fff; border-bottom:2px solid var(--linen-dark);
+      display:flex; overflow-x:auto; scrollbar-width:none;
+      position:sticky; top:var(--topbar-h); z-index:10;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      flex-shrink:0; background:none; border:none;
+      border-bottom:3px solid transparent;
+      padding:.85rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
+      color:var(--text-mid); cursor:pointer; transition:all .18s;
+    }
+    .tab-btn:hover  { color:var(--clay); }
+    .tab-btn.active { color:var(--clay); border-bottom-color:var(--clay); }
+    .tab-panel { display:none; padding:1.75rem; }
+    .tab-panel.active { display:block; animation:fadeUp .35s ease both; }
+    .sec-h { font-family:'Lora',serif; color:#5a2010; font-size:1.2rem; margin-bottom:.4rem; }
+    .sec-p { font-size:.83rem; color:var(--text-mid); margin-bottom:1.25rem; }
+
+    .game-score {
+      background:#fff; border-radius:var(--r-lg);
+      border:2px solid var(--linen-dark); padding:.85rem 1.25rem;
+      display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem;
+    }
+    .gs-num { font-family:'Lora',serif; font-size:1.5rem; font-weight:700; color:#5a2010; }
+    .gs-lbl { font-size:.72rem; color:var(--text-mid); }
+    .game-btn {
+      border:none; border-radius:var(--r-full); padding:.65rem 1.3rem;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:.9rem;
+      cursor:pointer; transition:all .15s;
+    }
+    .gb-primary { background:var(--clay); color:#fff; }
+    .gb-primary:hover { background:#8a3a10; }
+    .gb-ghost   { background:var(--linen-dark); color:var(--text-mid); }
+
+    /* ── WORD MATCH ── */
+    .match-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+      gap:.65rem; margin-bottom:1.25rem;
+    }
+    .match-card {
+      aspect-ratio:1; border-radius:var(--r-lg);
+      background:#fff; border:3px solid var(--linen-dark);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer; font-family:'Lora',serif; font-weight:700;
+      transition:all .2s; -webkit-tap-highlight-color:transparent;
+      padding:.4rem;
+    }
+    .match-card .card-face { font-size:.95rem; text-align:center; color:#5a2010; }
+    .match-card .card-icon { font-size:2rem; }
+    .match-card.selected { border-color:var(--clay); background:#fde8d8; transform:scale(1.05); }
+    .match-card.matched  { border-color:#50a030; background:#d0eec0; cursor:default; }
+    .match-card.wrong    { border-color:#c04030; background:#f8d8d0; animation:shake .3s ease; }
+    .match-card.face-down { background:linear-gradient(135deg,var(--clay),#8a3a10); }
+    .match-card.face-down .card-face,.match-card.face-down .card-icon { visibility:hidden; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    .match-feedback {
+      text-align:center; font-weight:800; font-size:1rem; padding:.6rem;
+      border-radius:var(--r-md); margin-bottom:.75rem; display:none;
+    }
+    .match-feedback.correct { background:#d0eec0; color:#1a4010; display:block; }
+    .match-feedback.wrong   { background:#f8d8d0; color:#601010; display:block; }
+    .match-feedback.win     { background:#fff0c0; color:#503010; display:block; font-size:1.2rem; }
+
+    /* ── MEMORY GAME ── */
+    .memory-grid {
+      display:grid; gap:.5rem;
+      margin-bottom:1.25rem;
+    }
+    .mem-card {
+      aspect-ratio:1; border-radius:var(--r-md);
+      cursor:pointer; transition:transform .2s;
+      position:relative; transform-style:preserve-3d;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .mem-card.flipped { transform:rotateY(180deg); }
+    .mem-card.matched .mem-front { background:#d0eec0; border-color:#50a030; }
+    .mem-front,.mem-back {
+      position:absolute; inset:0; border-radius:var(--r-md);
+      display:flex; align-items:center; justify-content:center;
+      backface-visibility:hidden; -webkit-backface-visibility:hidden;
+      font-size:1.8rem; font-weight:700; border:2.5px solid var(--linen-dark);
+    }
+    .mem-back  { background:linear-gradient(135deg,#c07030,#8a4010); color:transparent; transform:rotateY(0); }
+    .mem-front { background:#fff; transform:rotateY(180deg); }
+    .mem-back::after { content:'?'; font-family:'Lora',serif; font-size:1.4rem; color:rgba(255,255,255,.6); }
+
+    /* ── NUMBER BUGS ── */
+    .bug-arena {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid var(--linen-dark); padding:1.25rem;
+      text-align:center; margin-bottom:1.25rem; min-height:200px;
+      position:relative; overflow:hidden;
+    }
+    .bug-question { font-family:'Lora',serif; font-size:clamp(1.5rem,5vw,2.5rem); font-weight:700; color:#5a2010; margin-bottom:.75rem; }
+    .bugs-display {
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:.3rem; margin-bottom:.75rem; min-height:60px;
+    }
+    .bug-emoji { font-size:1.8rem; animation:popIn .2s ease both; }
+    @keyframes popIn { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
+    .bug-choices {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:.6rem; max-width:300px; margin:0 auto;
+    }
+    .bug-choice {
+      background:#fff; border:3px solid var(--linen-dark);
+      border-radius:var(--r-lg); padding:.9rem;
+      font-family:'Lora',serif; font-size:1.6rem; font-weight:700;
+      color:#5a2010; cursor:pointer; transition:all .18s;
+    }
+    .bug-choice:hover  { border-color:var(--clay); background:#fdf0e8; transform:scale(1.04); }
+    .bug-choice.correct { background:#d0eec0; border-color:#50a030; }
+    .bug-choice.wrong   { background:#f8d8d0; border-color:#c04030; }
+
+    /* ── COLOUR & DRAW ── */
+    #draw-canvas {
+      width:100%; max-width:500px; height:340px;
+      border-radius:var(--r-xl); border:3px solid var(--linen-dark);
+      display:block; margin:0 auto; touch-action:none; cursor:crosshair;
+      background:#fff;
+    }
+    .draw-palette {
+      display:flex; gap:.5rem; flex-wrap:wrap;
+      justify-content:center; margin:.75rem 0;
+    }
+    .draw-colour {
+      width:36px; height:36px; border-radius:50%; cursor:pointer;
+      border:3px solid transparent; transition:all .15s;
+    }
+    .draw-colour.active { border-color:#333; transform:scale(1.15); }
+    .draw-sizes { display:flex; gap:.5rem; justify-content:center; margin-bottom:.75rem; align-items:center; }
+    .draw-size-btn {
+      width:32px; height:32px; border-radius:50%; background:#fff;
+      border:2px solid var(--linen-dark); cursor:pointer; display:flex;
+      align-items:center; justify-content:center; transition:all .15s;
+    }
+    .draw-size-btn.active { border-color:var(--clay); background:#fde8d8; }
+    .draw-size-dot { border-radius:50%; background:#333; pointer-events:none; }
+    .draw-controls { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+
+    /* ── SHAPES ── */
+    .shapes-game-wrap { max-width:560px; margin:0 auto; }
+    .shapes-q {
+      background:#fff; border-radius:var(--r-xl);
+      border:3px solid var(--linen-dark); padding:1.5rem;
+      text-align:center; margin-bottom:1.25rem;
+    }
+    .shapes-q-text { font-family:'Lora',serif; font-size:1.1rem; color:#5a2010; margin-bottom:1rem; font-weight:700; }
+    .shapes-choices {
+      display:grid; grid-template-columns:repeat(2,1fr); gap:.75rem;
+    }
+    .shape-choice {
+      background:#fff; border:3px solid var(--linen-dark);
+      border-radius:var(--r-lg); padding:1rem; cursor:pointer;
+      text-align:center; transition:all .18s;
+    }
+    .shape-choice:hover  { border-color:var(--clay); transform:scale(1.03); }
+    .shape-choice.correct { border-color:#50a030; background:#d0eec0; }
+    .shape-choice.wrong   { border-color:#c04030; background:#f8d8d0; }
+    .shape-choice svg { margin-bottom:.35rem; }
+    .shape-choice span { font-size:.85rem; font-weight:800; color:#5a2010; }
+  </style>
 </head>
-
 <body>
-  
-</body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
 
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">🎯</div>
+    <h1>Learning Games</h1>
+    <p>Word Match · Memory · Number Bugs · Colour &amp; Draw · Shapes Quiz</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="wordmatch">🃏 Word Match</button>
+    <button class="tab-btn" data-tab="memory">🧠 Memory</button>
+    <button class="tab-btn" data-tab="numberbugs">🐛 Number Bugs</button>
+    <button class="tab-btn" data-tab="draw" id="draw-tab-btn">🎨 Colour &amp; Draw</button>
+    <button class="tab-btn" data-tab="shapesquiz">🔷 Shapes Quiz</button>
+  </div>
+
+  <!-- WORD MATCH -->
+  <div class="tab-panel active" id="tab-wordmatch">
+    <h2 class="sec-h">🃏 Word Match</h2>
+    <p class="sec-p">Match each word to its picture — tap a word, then tap the matching picture!</p>
+    <div class="game-score">
+      <div><div class="gs-num" id="wm-score">0</div><div class="gs-lbl">matched</div></div>
+      <div><div class="gs-num" id="wm-left">0</div><div class="gs-lbl">left</div></div>
+      <button class="game-btn gb-primary" style="margin-left:auto" onclick="newWordMatch()">▶ New Game</button>
+    </div>
+    <div class="match-feedback" id="wm-feedback"></div>
+    <div class="match-grid" id="wm-grid"></div>
+  </div>
+
+  <!-- MEMORY -->
+  <div class="tab-panel" id="tab-memory">
+    <h2 class="sec-h">🧠 Memory Game</h2>
+    <p class="sec-p">Flip two cards at a time — find all the matching pairs!</p>
+    <div class="game-score">
+      <div><div class="gs-num" id="mem-pairs">0</div><div class="gs-lbl">pairs found</div></div>
+      <div><div class="gs-num" id="mem-flips">0</div><div class="gs-lbl">flips</div></div>
+      <div style="margin-left:auto;display:flex;gap:.5rem;">
+        <button class="game-btn gb-ghost" onclick="newMemory(4)">4×3</button>
+        <button class="game-btn gb-ghost" onclick="newMemory(6)">4×4</button>
+        <button class="game-btn gb-primary" onclick="newMemory(currentMemSize)">▶ Restart</button>
+      </div>
+    </div>
+    <div class="memory-grid" id="memory-grid"></div>
+    <div class="match-feedback" id="mem-feedback"></div>
+  </div>
+
+  <!-- NUMBER BUGS -->
+  <div class="tab-panel" id="tab-numberbugs">
+    <h2 class="sec-h">🐛 Number Bugs</h2>
+    <p class="sec-p">Count the bugs and pick the right number!</p>
+    <div class="game-score">
+      <div><div class="gs-num" id="bug-score">0</div><div class="gs-lbl">correct</div></div>
+      <div><div class="gs-num" id="bug-total">0</div><div class="gs-lbl">tried</div></div>
+      <div style="margin-left:auto;display:flex;gap:.5rem;">
+        <button class="game-btn gb-ghost" onclick="setBugMax(5,this)">1–5</button>
+        <button class="game-btn gb-ghost" onclick="setBugMax(10,this)">1–10</button>
+        <button class="game-btn gb-ghost" onclick="setBugMax(20,this)">1–20</button>
+      </div>
+    </div>
+    <div class="bug-arena" id="bug-arena">
+      <div class="bug-question" id="bug-question">How many bugs?</div>
+      <div class="bugs-display" id="bugs-display"></div>
+      <div class="match-feedback" id="bug-feedback"></div>
+      <div class="bug-choices" id="bug-choices"></div>
+    </div>
+  </div>
+
+  <!-- COLOUR & DRAW -->
+  <div class="tab-panel" id="tab-draw">
+    <h2 class="sec-h">🎨 Colour &amp; Draw</h2>
+    <p class="sec-p">Draw anything you like — pick a colour and get creative!</p>
+    <canvas id="draw-canvas" width="500" height="340"></canvas>
+    <div class="draw-palette" id="draw-palette"></div>
+    <div class="draw-sizes" id="draw-sizes"></div>
+    <div class="draw-controls">
+      <button class="game-btn gb-ghost" onclick="setDrawMode('eraser')">⬜ Eraser</button>
+      <button class="game-btn gb-ghost" onclick="clearCanvas()">🗑️ Clear</button>
+      <button class="game-btn gb-primary" onclick="downloadDrawing()">💾 Save picture</button>
+    </div>
+  </div>
+
+  <!-- SHAPES QUIZ -->
+  <div class="tab-panel" id="tab-shapesquiz">
+    <h2 class="sec-h">🔷 Shapes Quiz</h2>
+    <p class="sec-p">Look at the description and choose the right shape!</p>
+    <div class="game-score">
+      <div><div class="gs-num" id="sq-score">0</div><div class="gs-lbl">correct</div></div>
+      <div><div class="gs-num" id="sq-total">0</div><div class="gs-lbl">tried</div></div>
+      <button class="game-btn gb-primary" style="margin-left:auto" onclick="newShapeQ()">▶ Next</button>
+    </div>
+    <div class="shapes-game-wrap">
+      <div class="shapes-q">
+        <div class="shapes-q-text" id="sq-question">Loading…</div>
+        <div class="match-feedback" id="sq-feedback"></div>
+        <div class="shapes-choices" id="sq-choices"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ════════════════════════════
+   WORD MATCH
+════════════════════════════ */
+const WM_PAIRS=[
+  {word:'cat',icon:'🐱'},{word:'dog',icon:'🐶'},{word:'sun',icon:'☀️'},
+  {word:'hat',icon:'🎩'},{word:'bus',icon:'🚌'},{word:'frog',icon:'🐸'},
+  {word:'cake',icon:'🎂'},{word:'fish',icon:'🐟'},{word:'star',icon:'⭐'},
+  {word:'tree',icon:'🌳'},{word:'bird',icon:'🐦'},{word:'book',icon:'📚'},
+  {word:'ball',icon:'⚽'},{word:'moon',icon:'🌙'},{word:'rain',icon:'🌧️'},
+];
+
+let wmSelected=null, wmScore=0, wmLeft=0;
+
+function newWordMatch(){
+  wmSelected=null; wmScore=0;
+  const pairs=WM_PAIRS.sort(()=>Math.random()-.5).slice(0,6);
+  wmLeft=pairs.length;
+  document.getElementById('wm-score').textContent=0;
+  document.getElementById('wm-left').textContent=wmLeft;
+  document.getElementById('wm-feedback').className='match-feedback';
+
+  const cards=[];
+  pairs.forEach(p=>{
+    cards.push({id:p.word+'_w',type:'word',value:p.word,pair:p.word});
+    cards.push({id:p.word+'_i',type:'icon',value:p.icon,pair:p.word});
+  });
+  cards.sort(()=>Math.random()-.5);
+
+  document.getElementById('wm-grid').innerHTML=cards.map(c=>`
+    <div class="match-card" id="wmc-${c.id}" data-pair="${c.pair}" data-type="${c.type}" onclick="tapWMCard('${c.id}','${c.pair}','${c.type}')">
+      ${c.type==='icon'?`<span class="card-icon">${c.value}</span>`:`<span class="card-face">${c.value}</span>`}
+    </div>`).join('');
+}
+
+function tapWMCard(id,pair,type){
+  const el=document.getElementById('wmc-'+id);
+  if(el.classList.contains('matched')) return;
+  if(!wmSelected){
+    wmSelected={id,pair,type};
+    el.classList.add('selected');
+    return;
+  }
+  if(wmSelected.id===id){
+    el.classList.remove('selected');
+    wmSelected=null;
+    return;
+  }
+  const prev=document.getElementById('wmc-'+wmSelected.id);
+  if(wmSelected.pair===pair && wmSelected.type!==type){
+    el.classList.add('matched'); prev.classList.add('matched');
+    el.classList.remove('selected'); prev.classList.remove('selected');
+    wmScore++; wmLeft--;
+    document.getElementById('wm-score').textContent=wmScore;
+    document.getElementById('wm-left').textContent=wmLeft;
+    const fb=document.getElementById('wm-feedback');
+    if(wmLeft===0){
+      fb.textContent='🎉 Amazing! You matched them all!';
+      fb.className='match-feedback win';
+    } else {
+      fb.textContent='✅ Match!';
+      fb.className='match-feedback correct';
+      setTimeout(()=>fb.className='match-feedback',900);
+    }
+  } else {
+    el.classList.add('wrong'); prev.classList.add('wrong');
+    document.getElementById('wm-feedback').textContent='Not a match — try again!';
+    document.getElementById('wm-feedback').className='match-feedback wrong';
+    setTimeout(()=>{
+      el.classList.remove('wrong','selected');
+      prev.classList.remove('wrong','selected');
+      document.getElementById('wm-feedback').className='match-feedback';
+    },800);
+  }
+  wmSelected=null;
+}
+
+/* ════════════════════════════
+   MEMORY GAME
+════════════════════════════ */
+const MEM_EMOJIS=['🐱','🐶','☀️','🎩','🐸','🎂','🐟','⭐','🌳','🐦','📚','⚽'];
+let memFlipped=[], memMatched=0, memFlips=0, memLocked=false, currentMemSize=6;
+
+function newMemory(pairs){
+  currentMemSize=pairs;
+  memFlipped=[]; memMatched=0; memFlips=0; memLocked=false;
+  document.getElementById('mem-pairs').textContent=0;
+  document.getElementById('mem-flips').textContent=0;
+  document.getElementById('mem-feedback').className='match-feedback';
+
+  const emojis=MEM_EMOJIS.slice(0,pairs);
+  const cards=[...emojis,...emojis].sort(()=>Math.random()-.5).map((e,i)=>({id:i,emoji:e,matched:false}));
+  const cols=pairs<=6?4:4;
+  const grid=document.getElementById('memory-grid');
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  grid.innerHTML=cards.map(c=>`
+    <div class="mem-card" id="memc-${c.id}" data-emoji="${c.emoji}" onclick="flipMemCard(${c.id},'${c.emoji}')">
+      <div class="mem-back"></div>
+      <div class="mem-front">${c.emoji}</div>
+    </div>`).join('');
+}
+
+function flipMemCard(id,emoji){
+  if(memLocked) return;
+  const el=document.getElementById('memc-'+id);
+  if(el.classList.contains('flipped')||el.classList.contains('matched')) return;
+  el.classList.add('flipped');
+  memFlipped.push({id,emoji,el});
+  if(memFlipped.length===2){
+    memFlips++;
+    document.getElementById('mem-flips').textContent=memFlips;
+    memLocked=true;
+    const [a,b]=memFlipped;
+    if(a.emoji===b.emoji){
+      a.el.classList.add('matched'); b.el.classList.add('matched');
+      memMatched++;
+      document.getElementById('mem-pairs').textContent=memMatched;
+      const total=parseInt(document.getElementById('memory-grid').children.length)/2;
+      if(memMatched===total){
+        document.getElementById('mem-feedback').textContent=`🎉 You found all ${memMatched} pairs in ${memFlips} flips!`;
+        document.getElementById('mem-feedback').className='match-feedback win';
+      }
+      memFlipped=[]; memLocked=false;
+    } else {
+      setTimeout(()=>{
+        a.el.classList.remove('flipped'); b.el.classList.remove('flipped');
+        memFlipped=[]; memLocked=false;
+      },900);
+    }
+  }
+}
+
+/* ════════════════════════════
+   NUMBER BUGS
+════════════════════════════ */
+const BUG_EMOJIS=['🐛','🐝','🐞','🦋','🐜','🪲','🦗','🪳'];
+let bugMax=10, bugAnswer=0, bugScore=0, bugTotal=0, bugLocked=false;
+
+function setBugMax(m,btn){
+  bugMax=m;
+  document.querySelectorAll('#tab-numberbugs .gb-ghost').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  newBugQ();
+}
+
+function newBugQ(){
+  bugLocked=false;
+  bugAnswer=Math.floor(Math.random()*bugMax)+1;
+  const emoji=BUG_EMOJIS[Math.floor(Math.random()*BUG_EMOJIS.length)];
+  document.getElementById('bug-question').textContent='How many bugs?';
+  document.getElementById('bugs-display').innerHTML=
+    Array(bugAnswer).fill(0).map((_,i)=>`<span class="bug-emoji" style="animation-delay:${i*.05}s">${emoji}</span>`).join('');
+  document.getElementById('bug-feedback').className='match-feedback';
+
+  const choices=new Set([bugAnswer]);
+  while(choices.size<4){
+    const w=bugAnswer+Math.floor(Math.random()*5)-2;
+    if(w>=1&&w<=bugMax+3&&w!==bugAnswer) choices.add(w);
+  }
+  const shuffled=[...choices].sort(()=>Math.random()-.5);
+  document.getElementById('bug-choices').innerHTML=shuffled.map(c=>`
+    <button class="bug-choice" onclick="checkBug(${c},this)">${c}</button>`).join('');
+}
+
+function checkBug(n,btn){
+  if(bugLocked) return;
+  bugLocked=true; bugTotal++;
+  document.querySelectorAll('.bug-choice').forEach(b=>{
+    if(parseInt(b.textContent)===bugAnswer) b.classList.add('correct');
+  });
+  const fb=document.getElementById('bug-feedback');
+  if(n===bugAnswer){
+    bugScore++;
+    btn.classList.add('correct');
+    fb.textContent='🎉 Yes! '+bugAnswer+'!';
+    fb.className='match-feedback correct';
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent='There were '+bugAnswer+' bugs!';
+    fb.className='match-feedback wrong';
+  }
+  document.getElementById('bug-score').textContent=bugScore;
+  document.getElementById('bug-total').textContent=bugTotal;
+  setTimeout(newBugQ,1400);
+}
+
+/* ════════════════════════════
+   COLOUR & DRAW
+════════════════════════════ */
+const PALETTE=['#e84040','#f07020','#f0c020','#50b030','#2060c0','#8030c0',
+               '#c030a0','#40b0c0','#3a5a40','#9a5230','#333333','#ffffff'];
+let drawColor='#333333', brushSize=8, drawing=false, drawMode='draw';
+let lastX=0,lastY=0;
+
+function initCanvas(){
+  const canvas=document.getElementById('draw-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+
+  function getPos(e){
+    const r=canvas.getBoundingClientRect();
+    const scaleX=canvas.width/r.width, scaleY=canvas.height/r.height;
+    if(e.touches){ return [(e.touches[0].clientX-r.left)*scaleX,(e.touches[0].clientY-r.top)*scaleY]; }
+    return [(e.clientX-r.left)*scaleX,(e.clientY-r.top)*scaleY];
+  }
+
+  function startDraw(e){
+    drawing=true; [lastX,lastY]=getPos(e);
+    e.preventDefault();
+  }
+  function doDraw(e){
+    if(!drawing) return;
+    const [x,y]=getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY); ctx.lineTo(x,y);
+    ctx.strokeStyle=drawMode==='eraser'?'#ffffff':drawColor;
+    ctx.lineWidth=drawMode==='eraser'?brushSize*3:brushSize;
+    ctx.stroke();
+    [lastX,lastY]=[x,y];
+    e.preventDefault();
+  }
+  function stopDraw(){ drawing=false; }
+
+  canvas.addEventListener('mousedown',startDraw);
+  canvas.addEventListener('mousemove',doDraw);
+  canvas.addEventListener('mouseup',stopDraw);
+  canvas.addEventListener('touchstart',startDraw,{passive:false});
+  canvas.addEventListener('touchmove',doDraw,{passive:false});
+  canvas.addEventListener('touchend',stopDraw);
+}
+
+function renderPalette(){
+  const p=document.getElementById('draw-palette');
+  p.innerHTML=PALETTE.map(c=>`
+    <div class="draw-colour ${c===drawColor?'active':''}" style="background:${c};box-shadow:0 2px 4px rgba(0,0,0,.2)" onclick="setDrawColor('${c}')"></div>`).join('');
+}
+function setDrawColor(c){ drawColor=c; drawMode='draw'; renderPalette(); renderSizes(); }
+function setDrawMode(m){ drawMode=m; }
+function clearCanvas(){
+  const canvas=document.getElementById('draw-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+function downloadDrawing(){
+  const canvas=document.getElementById('draw-canvas');
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL(); a.download='my-drawing.png'; a.click();
+}
+
+function renderSizes(){
+  const SIZES=[4,8,14,22];
+  document.getElementById('draw-sizes').innerHTML=
+    SIZES.map(s=>`<button class="draw-size-btn ${s===brushSize?'active':''}" onclick="setBrushSize(${s})"><div class="draw-size-dot" style="width:${s*.9}px;height:${s*.9}px"></div></button>`).join('')
+    +'<span style="font-size:.75rem;color:var(--text-mid);margin-left:.3rem">Brush size</span>';
+}
+function setBrushSize(s){ brushSize=s; renderSizes(); }
+
+/* ════════════════════════════
+   SHAPES QUIZ
+════════════════════════════ */
+const SHAPES_QS=[
+  {q:'Which shape has 3 sides and 3 corners?',answer:'Triangle',
+   choices:['Circle','Triangle','Square','Pentagon'],
+   svgs:{Circle:`<circle cx="30" cy="30" r="25" fill="#f0d8a0" stroke="#b08030" stroke-width="2"/>`,
+         Triangle:`<polygon points="30,5 55,55 5,55" fill="#f0a0a0" stroke="#a03030" stroke-width="2"/>`,
+         Square:`<rect x="5" y="5" width="50" height="50" fill="#a0d0a0" stroke="#308030" stroke-width="2" rx="2"/>`,
+         Pentagon:`<polygon points="30,5 55,22 46,52 14,52 5,22" fill="#a0c0f0" stroke="#3060a0" stroke-width="2"/>`}},
+  {q:'Which shape has 4 equal sides?',answer:'Square',
+   choices:['Rectangle','Square','Oval','Triangle'],
+   svgs:{Rectangle:`<rect x="4" y="16" width="52" height="28" fill="#b0d0f0" stroke="#3060a0" stroke-width="2" rx="2"/>`,
+         Square:`<rect x="8" y="8" width="44" height="44" fill="#a0d0a0" stroke="#308030" stroke-width="2" rx="2"/>`,
+         Oval:`<ellipse cx="30" cy="30" rx="26" ry="18" fill="#f0d0c0" stroke="#b06030" stroke-width="2"/>`,
+         Triangle:`<polygon points="30,5 55,55 5,55" fill="#f0a0a0" stroke="#a03030" stroke-width="2"/>`}},
+  {q:'Which shape has no corners and no straight sides?',answer:'Circle',
+   choices:['Circle','Square','Triangle','Pentagon'],
+   svgs:{Circle:`<circle cx="30" cy="30" r="25" fill="#f0d8a0" stroke="#b08030" stroke-width="2"/>`,
+         Square:`<rect x="5" y="5" width="50" height="50" fill="#a0d0a0" stroke="#308030" stroke-width="2" rx="2"/>`,
+         Triangle:`<polygon points="30,5 55,55 5,55" fill="#f0a0a0" stroke="#a03030" stroke-width="2"/>`,
+         Pentagon:`<polygon points="30,5 55,22 46,52 14,52 5,22" fill="#a0c0f0" stroke="#3060a0" stroke-width="2"/>`}},
+  {q:'Which shape looks like a stretched circle?',answer:'Oval',
+   choices:['Oval','Circle','Diamond','Rectangle'],
+   svgs:{Oval:`<ellipse cx="30" cy="30" rx="26" ry="18" fill="#f0d0c0" stroke="#b06030" stroke-width="2"/>`,
+         Circle:`<circle cx="30" cy="30" r="25" fill="#f0d8a0" stroke="#b08030" stroke-width="2"/>`,
+         Diamond:`<polygon points="30,5 55,30 30,55 5,30" fill="#f0a0e0" stroke="#a030a0" stroke-width="2"/>`,
+         Rectangle:`<rect x="4" y="16" width="52" height="28" fill="#b0d0f0" stroke="#3060a0" stroke-width="2" rx="2"/>`}},
+  {q:'Which shape has 6 sides, like a honeycomb?',answer:'Hexagon',
+   choices:['Pentagon','Hexagon','Octagon','Diamond'],
+   svgs:{Pentagon:`<polygon points="30,5 55,22 46,52 14,52 5,22" fill="#a0c0f0" stroke="#3060a0" stroke-width="2"/>`,
+         Hexagon:`<polygon points="30,5 53,17.5 53,42.5 30,55 7,42.5 7,17.5" fill="#b0e0c0" stroke="#308050" stroke-width="2"/>`,
+         Octagon:`<polygon points="19,5 41,5 56,20 56,40 41,55 19,55 4,40 4,20" fill="#f0c0a0" stroke="#a06020" stroke-width="2"/>`,
+         Diamond:`<polygon points="30,5 55,30 30,55 5,30" fill="#f0a0e0" stroke="#a030a0" stroke-width="2"/>`}},
+];
+let sqScore=0,sqTotal=0;
+
+function newShapeQ(){
+  const q=SHAPES_QS[Math.floor(Math.random()*SHAPES_QS.length)];
+  document.getElementById('sq-question').textContent=q.q;
+  document.getElementById('sq-feedback').className='match-feedback';
+  const shuffled=q.choices.sort(()=>Math.random()-.5);
+  document.getElementById('sq-choices').innerHTML=shuffled.map(c=>`
+    <div class="shape-choice" onclick="checkShape('${c}','${q.answer}',this)">
+      <svg width="60" height="60" viewBox="0 0 60 60">${q.svgs[c]||''}</svg>
+      <span>${c}</span>
+    </div>`).join('');
+}
+
+function checkShape(chosen,answer,el){
+  document.querySelectorAll('.shape-choice').forEach(c=>{
+    c.onclick=null;
+    if(c.querySelector('span').textContent===answer) c.classList.add('correct');
+  });
+  sqTotal++;
+  const fb=document.getElementById('sq-feedback');
+  if(chosen===answer){
+    sqScore++;
+    el.classList.add('correct');
+    fb.textContent='🎉 Correct! That\'s a '+answer+'!';
+    fb.className='match-feedback correct';
+  } else {
+    el.classList.add('wrong');
+    fb.textContent='The answer was '+answer+'!';
+    fb.className='match-feedback wrong';
+  }
+  document.getElementById('sq-score').textContent=sqScore;
+  document.getElementById('sq-total').textContent=sqTotal;
+  setTimeout(newShapeQ,1600);
+}
+
+/* tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* init */
+newWordMatch();
+newMemory(6);
+setBugMax(10,null);
+renderPalette(); renderSizes(); initCanvas();
+newShapeQ();
+</script>
+</body>
 </html>
