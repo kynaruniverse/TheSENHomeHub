@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <meta name="description" content="The SEN Home Hub — free UK home education resources for children with special educational needs. Lesson plans, printables, interactive learning and more."/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="SHH"/>
+  <title>The SEN Home Hub | Free UK SEN Home Education</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    /* ── PAGE-SPECIFIC STYLES ── */
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(155deg, var(--forest-deep) 0%, var(--forest) 55%, var(--forest-mid) 100%);
+      padding: 3.5rem 1.75rem 4.5rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero.hero-pattern::before { z-index: 0; }
+    .hero > * { position: relative; z-index: 1; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-full); padding: 0.35rem 1rem;
+      font-size: 0.75rem; font-weight: 700; color: var(--forest-light);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 { color: #fff; margin-bottom: 0.9rem; }
+    .hero h1 em { font-style: italic; color: var(--clay-light); }
+    .hero-sub {
+      color: rgba(255,255,255,0.72);
+      font-size: 1rem; max-width: 500px;
+      margin: 0 auto 2rem; line-height: 1.7;
+    }
+
+    /* Zone toggle */
+    .zone-toggle {
+      display: inline-flex;
+      background: rgba(0,0,0,0.28); border-radius: var(--r-full);
+      padding: 5px; gap: 4px;
+      margin-bottom: 0;
+    }
+    .zone-toggle-btn {
+      border: none; border-radius: var(--r-full); padding: 0.65rem 1.6rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.22s;
+      color: rgba(255,255,255,0.6); background: transparent;
+    }
+    .zone-toggle-btn.active {
+      background: var(--linen); color: var(--forest-deep);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+    }
+
+    /* Trust strip */
+    .trust-strip {
+      background: var(--forest-deep);
+      padding: 1.1rem 1.75rem;
+      display: flex; align-items: center; justify-content: center;
+      gap: 2.5rem; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 700; color: var(--forest-light);
+    }
+    .trust-item span.icon { font-size: 1rem; }
+
+    /* ── PARENT ZONE ── */
+    .parent-zone { background: var(--linen); }
+
+    .zone-intro {
+      padding: 2.2rem 1.75rem 0.5rem;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .zone-intro h2 { color: var(--forest-deep); margin-bottom: 0.3rem; }
+    .zone-intro p  { color: var(--text-mid); font-size: 0.9rem; }
+
+    /* Saved bar */
+    .saved-bar {
+      margin: 1rem 1.75rem;
+      background: var(--white); border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark);
+      padding: 1rem 1.4rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .saved-bar-icon { font-size: 1.4rem; }
+    .saved-bar-text strong { display: block; font-size: 0.93rem; font-weight: 800; color: var(--forest-deep); }
+    .saved-bar-text span   { font-size: 0.78rem; color: var(--text-mid); }
+    .saved-bar-count {
+      margin-left: auto;
+      background: var(--forest); color: #fff;
+      border-radius: var(--r-full); padding: 0.22rem 0.85rem;
+      font-size: 0.78rem; font-weight: 800;
+    }
+    .saved-bar-btn {
+      background: transparent; border: 2px solid var(--forest-light);
+      border-radius: var(--r-full); padding: 0.3rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.78rem;
+      color: var(--forest); cursor: pointer; transition: all 0.15s;
+    }
+    .saved-bar-btn:hover { background: var(--forest); color: #fff; border-color: var(--forest); }
+
+    /* Parent cards grid */
+    .parent-cards {
+      padding: 1rem 1.75rem 1.5rem;
+    }
+
+    /* SEN types */
+    .sen-area {
+      padding: 0 1.75rem 2rem;
+    }
+    .sen-area h3 {
+      font-family: 'Lora', serif; font-size: 1.15rem;
+      color: var(--forest-deep); margin-bottom: 1rem;
+    }
+    .sen-pills-wrap { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+
+    /* ── CHILDREN ZONE ── */
+    .children-zone { background: var(--story-bg); }
+
+    .kids-hero {
+      background: linear-gradient(150deg, #4a7a3a, #6fa060, #90c080);
+      padding: 2.2rem 1.75rem 3rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .kids-hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: var(--story-bg);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .mascot-wrap {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: #fff; margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+    .kids-hero h2 { color: #fff; margin-bottom: 0.5rem; font-size: clamp(1.4rem, 3vw, 2rem); }
+    .kids-hero p  { color: rgba(255,255,255,0.82); font-size: 0.92rem; }
+
+    .kids-area {
+      padding: 1.5rem 1.75rem 0.5rem;
+    }
+    .kids-area-title {
+      font-family: 'Lora', serif; font-size: 1.15rem;
+      color: #3a5030; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--forest-deep);
+      color: rgba(255,255,255,0.55);
+      padding: 2.5rem 1.75rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Lora', serif; font-size: 1.2rem;
+      color: var(--forest-light); margin-bottom: 0.35rem;
+    }
+    .footer-tagline { font-size: 0.82rem; margin-bottom: 1.3rem; }
+    .footer-links {
+      display: flex; justify-content: center;
+      gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+    }
+    .footer-links a {
+      color: rgba(255,255,255,0.5); text-decoration: none;
+      font-size: 0.8rem; font-weight: 700; transition: color 0.18s;
+    }
+    .footer-links a:hover { color: var(--forest-light); }
+    .footer-copy { font-size: 0.7rem; opacity: 0.35; }
+
+    /* install banner */
+    .install-banner {
+      position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 400;
+      background: var(--forest-deep); color: #fff;
+      border-radius: var(--r-lg); padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.4s ease both;
+    }
+    .install-banner.hidden { display: none; }
+    .install-banner-text { flex: 1; }
+    .install-banner-text strong { display: block; font-size: 0.9rem; font-weight: 800; }
+    .install-banner-text span   { font-size: 0.78rem; opacity: 0.75; }
+    .install-banner-btns { display: flex; gap: 0.5rem; }
+    .install-yes {
+      background: var(--forest-mid); color: #fff;
+      border: none; border-radius: var(--r-full); padding: 0.45rem 1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .install-dismiss {
+      background: transparent; color: rgba(255,255,255,0.5);
+      border: none; font-size: 1.2rem; cursor: pointer; line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">
+      The SEN Home Hub
+      <small>🇬🇧 UK Home Education</small>
+    </div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">
+      ♡ <span data-fav-count>0 saved</span>
+    </button>
+    <button class="topbar-pill hidden" id="install-btn">📲 Install App</button>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ══════════ HERO ══════════ -->
+  <section class="hero hero-pattern">
+    <div class="hero-eyebrow">🌿 Free · Trusted · For UK Families</div>
+    <h1 class="anim-fade-up">Your home education <em>hub</em>,<br/>built for every mind</h1>
+    <p class="hero-sub anim-fade-up anim-delay-2">
+      Free resources, interactive learning, and tools for UK parents home educating children with special educational needs.
+    </p>
+    <div class="zone-toggle anim-fade-up anim-delay-3">
+      <button class="zone-toggle-btn active" data-zone-btn="parent">👩 Parent Zone</button>
+      <button class="zone-toggle-btn" data-zone-btn="children">🧒 Children's Zone</button>
+    </div>
+  </section>
+
+  <!-- Trust strip -->
+  <div class="trust-strip">
+    <div class="trust-item"><span class="icon">✓</span> Always free</div>
+    <div class="trust-item"><span class="icon">🇬🇧</span> UK-focused</div>
+    <div class="trust-item"><span class="icon">🔒</span> No ads</div>
+    <div class="trust-item"><span class="icon">📱</span> Works offline</div>
+    <div class="trust-item"><span class="icon">🌱</span> Always growing</div>
+  </div>
+
+  <!-- ══════════ PARENT ZONE ══════════ -->
+  <div data-zone="parent" class="parent-zone">
+
+    <div class="zone-intro">
+      <div>
+        <h2>Parent Zone</h2>
+        <p>Everything you need to plan, teach, and support your child at home</p>
+      </div>
+    </div>
+
+    <!-- Saved bar -->
+    <div class="saved-bar">
+      <div class="saved-bar-icon">♡</div>
+      <div class="saved-bar-text">
+        <strong>Saved Resources</strong>
+        <span>Tap ♡ on any resource to save it — stored on your device, no account needed</span>
+      </div>
+      <div class="saved-bar-count" data-fav-count>0 saved</div>
+      <button class="saved-bar-btn" onclick="SHH.openModal('modal-saved')">View saved</button>
+    </div>
+
+    <!-- Main resource cards -->
+    <div class="parent-cards">
+      <div class="grid-auto-lg container">
+
+        <a class="card card-forest" href="/parent/resources.html">
+          <button class="fav-heart" data-fav="res-lessons" data-fav-title="Lesson Plans" data-fav-url="/parent/resources.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">📚</span>
+          <div class="card-title">Lesson Plans</div>
+          <div class="card-desc">Flexible, adaptable lesson plans for literacy, numeracy, and life skills — designed for SEN learners aged 3–11.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+        <a class="card card-clay-lt" href="/parent/printables.html">
+          <button class="fav-heart" data-fav="res-printables" data-fav-title="Printables" data-fav-url="/parent/printables.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">🖨️</span>
+          <div class="card-title">Printables</div>
+          <div class="card-desc">Worksheets, visual schedules, reward charts, and sensory-friendly activity sheets — ready to print and use today.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+        <a class="card card-pale" href="/parent/ehcp.html">
+          <button class="fav-heart" data-fav="res-ehcp" data-fav-title="EHCP & Legal Guides" data-fav-url="/parent/ehcp.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">📋</span>
+          <div class="card-title">EHCP &amp; Legal Guides</div>
+          <div class="card-desc">Plain-English guides to EHCPs, your legal rights, and home education law in England and Wales.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+        <a class="card card-mid" href="/parent/sen-types.html">
+          <button class="fav-heart" data-fav="res-sentypes" data-fav-title="SEN Type Guides" data-fav-url="/parent/sen-types.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">🧩</span>
+          <div class="card-title">SEN Type Guides</div>
+          <div class="card-desc">Detailed guidance for each type of SEN — strategies, tips, and what to expect at each age.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+        <a class="card card-clay" href="/parent/support.html">
+          <button class="fav-heart" data-fav="res-support" data-fav-title="UK SEN Support Links" data-fav-url="/parent/support.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">🔗</span>
+          <div class="card-title">UK SEN Support</div>
+          <div class="card-desc">Trusted UK charities, helplines, and parent communities. You are not alone in this journey.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+        <a class="card card-linen" href="/parent/tips.html">
+          <button class="fav-heart" data-fav="res-tips" data-fav-title="Teaching Tips" data-fav-url="/parent/tips.html" data-fav-zone="parent">♡</button>
+          <span class="card-icon">💡</span>
+          <div class="card-title">Teaching Tips</div>
+          <div class="card-desc">Multi-sensory teaching, structured routines, and practical advice for working alongside tutors.</div>
+          <div class="card-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+
+    <hr class="divider" style="margin: 0 1.75rem 1.75rem;"/>
+
+    <!-- SEN type pills -->
+    <div class="sen-area container">
+      <h3>Browse by SEN Type</h3>
+      <div class="sen-pills-wrap">
+        <div class="pill" data-sen-pill>🧩 Autism / ASC</div>
+        <div class="pill" data-sen-pill>⚡ ADHD</div>
+        <div class="pill" data-sen-pill>📖 Dyslexia</div>
+        <div class="pill" data-sen-pill>🖊️ Dyspraxia</div>
+        <div class="pill" data-sen-pill>🔢 Dyscalculia</div>
+        <div class="pill" data-sen-pill>🗣️ Speech &amp; Language</div>
+        <div class="pill" data-sen-pill>🧠 AuDHD</div>
+        <div class="pill" data-sen-pill>🌟 PDA</div>
+        <div class="pill" data-sen-pill>😟 Anxiety</div>
+        <div class="pill" data-sen-pill>👁️ Visual Impairment</div>
+        <div class="pill" data-sen-pill>👂 Hearing Loss</div>
+        <div class="pill" data-sen-pill>💙 Down Syndrome</div>
+        <div class="pill" data-sen-pill>🤍 Global Delay</div>
+        <div class="pill" data-sen-pill>➕ View all</div>
+      </div>
+    </div>
+
+  </div><!-- /parent zone -->
+
+  <!-- ══════════ CHILDREN ZONE ══════════ -->
+  <div data-zone="children" class="children-zone hidden">
+
+    <div class="kids-hero">
+      <div class="mascot-wrap">🦔</div>
+      <h2>Hello! Ready to learn today?</h2>
+      <p>Pick something fun to do 🌟</p>
+    </div>
+
+    <!-- Learn -->
+    <div class="kids-area">
+      <div class="kids-area-title">📖 Let's Learn!</div>
+      <div class="grid-auto-sm">
+        <a class="kids-card kc-green" href="/children/phonics.html">
+          <span class="kids-card-icon">🔤</span>
+          <div class="kids-card-title">Phonics &amp; Reading</div>
+          <div class="kids-card-sub">Sounds &amp; letters</div>
+        </a>
+        <a class="kids-card kc-amber" href="/children/maths.html">
+          <span class="kids-card-icon">🔢</span>
+          <div class="kids-card-title">Maths Fun</div>
+          <div class="kids-card-sub">Adding &amp; counting</div>
+        </a>
+        <a class="kids-card kc-sky" href="/children/feelings.html">
+          <span class="kids-card-icon">💛</span>
+          <div class="kids-card-title">Feelings &amp; Me</div>
+          <div class="kids-card-sub">Emotions &amp; routines</div>
+        </a>
+        <a class="kids-card kc-rose" href="/children/spelling.html">
+          <span class="kids-card-icon">✏️</span>
+          <div class="kids-card-title">Spelling</div>
+          <div class="kids-card-sub">Practice words</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Games -->
+    <div class="kids-area">
+      <div class="kids-area-title">🎮 Games!</div>
+      <div class="grid-auto-sm">
+        <a class="kids-card kc-gold" href="/children/games.html#word-match">
+          <span class="kids-card-icon">🎯</span>
+          <div class="kids-card-title">Word Match</div>
+          <div class="kids-card-sub">Match the words</div>
+        </a>
+        <a class="kids-card kc-sage" href="/children/games.html#number-bugs">
+          <span class="kids-card-icon">🧮</span>
+          <div class="kids-card-title">Number Bugs</div>
+          <div class="kids-card-sub">Count the bugs!</div>
+        </a>
+        <a class="kids-card kc-peach" href="/children/games.html#colour">
+          <span class="kids-card-icon">🎨</span>
+          <div class="kids-card-title">Colour &amp; Draw</div>
+          <div class="kids-card-sub">Get creative</div>
+        </a>
+        <a class="kids-card kc-plum" href="/children/games.html#shapes">
+          <span class="kids-card-icon">🧩</span>
+          <div class="kids-card-title">Shapes &amp; Patterns</div>
+          <div class="kids-card-sub">Puzzle time</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Fidget tools -->
+    <div class="kids-area">
+      <div class="fidget-strip">
+        <h3>🤲 Need a moment? Try a fidget tool</h3>
+        <div class="fidget-tools">
+          <a class="fidget-tool" href="/children/fidget.html#spinner">
+            <span class="fidget-tool-icon">🌀</span>
+            <div class="fidget-tool-name">Spinner</div>
+          </a>
+          <a class="fidget-tool" href="/children/fidget.html#clicker">
+            <span class="fidget-tool-icon">🔘</span>
+            <div class="fidget-tool-name">Clicker</div>
+          </a>
+          <a class="fidget-tool" href="/children/fidget.html#timer">
+            <span class="fidget-tool-icon">⏳</span>
+            <div class="fidget-tool-name">Sand Timer</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Print & Do -->
+    <div class="kids-area" style="padding-bottom: 2.5rem;">
+      <div class="kids-area-title">🖨️ Print &amp; Do!</div>
+      <div class="grid-auto-sm">
+        <a class="kids-card kc-sky" href="/parent/printables.html#reward">
+          <span class="kids-card-icon">⭐</span>
+          <div class="kids-card-title">Reward Charts</div>
+          <div class="kids-card-sub">Sticker charts</div>
+        </a>
+        <a class="kids-card kc-green" href="/parent/printables.html#schedule">
+          <span class="kids-card-icon">🗓️</span>
+          <div class="kids-card-title">My Schedule</div>
+          <div class="kids-card-sub">Visual timetable</div>
+        </a>
+        <a class="kids-card kc-peach" href="/parent/printables.html#colouring">
+          <span class="kids-card-icon">🖍️</span>
+          <div class="kids-card-title">Colouring</div>
+          <div class="kids-card-sub">Fun sheets</div>
+        </a>
+        <a class="kids-card kc-gold" href="/parent/printables.html#writing">
+          <span class="kids-card-icon">📝</span>
+          <div class="kids-card-title">Worksheets</div>
+          <div class="kids-card-sub">Writing practice</div>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /children zone -->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">The SEN Home Hub</div>
+    <div class="footer-tagline">Supporting UK families on their home education journey 💚</div>
+    <div class="footer-links">
+      <a href="/index.html">Home</a>
+      <a href="/parent/resources.html">Resources</a>
+      <a href="/parent/sen-types.html">SEN Types</a>
+      <a href="/children/index.html">Kids Zone</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/privacy.html">Privacy</a>
+    </div>
+    <div class="footer-copy">© 2026 The SEN Home Hub · Free forever · Not affiliated with the UK Government</div>
+  </footer>
+
+</div><!-- /page -->
+
+<!-- ══ MODAL: SAVED RESOURCES ══ -->
+<div class="modal-overlay" id="modal-saved">
+  <div class="modal">
+    <button class="modal-close" data-modal-close>✕</button>
+    <h3>♥ Saved Resources</h3>
+    <div id="saved-list" style="margin-top:0.5rem;"></div>
+  </div>
+</div>
+
+<!-- PWA Install Banner -->
+<div class="install-banner hidden" id="install-banner">
+  <div class="install-banner-text">
+    <strong>📲 Add to your home screen</strong>
+    <span>Use SHH offline, any time</span>
+  </div>
+  <div class="install-banner-btns">
+    <button class="install-yes" id="install-yes">Install</button>
+    <button class="install-dismiss" id="install-dismiss">✕</button>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  /* Saved modal content */
+  document.getElementById('modal-saved').addEventListener('click', function() {
+    const list = document.getElementById('saved-list');
+    const favs = SHH.getFavs();
+    if (!favs.length) {
+      list.innerHTML = '<p style="color:var(--text-mid);font-size:0.9rem;">You haven\'t saved anything yet.<br/>Tap ♡ on any resource to save it here.</p>';
+    } else {
+      list.innerHTML = favs.map(f => `
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0;border-bottom:1px solid var(--linen-dark);">
+          <a href="${f.url}" style="flex:1;font-weight:700;font-size:0.9rem;color:var(--forest);text-decoration:none;">${f.title}</a>
+          <button onclick="SHH.toggleFav('${f.id}','${f.title}','${f.url}','${f.zone}');SHH.updateFavCounters();this.closest('div').remove();"
+            style="background:none;border:none;color:var(--clay);cursor:pointer;font-size:0.8rem;font-weight:700;">Remove</button>
+        </div>`).join('');
+    }
+  });
+
+  /* PWA install prompt */
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-banner').classList.remove('hidden');
+    document.getElementById('install-btn').classList.remove('hidden');
+  });
+  document.getElementById('install-yes').addEventListener('click', () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+    document.getElementById('install-banner').classList.add('hidden');
+  });
+  document.getElementById('install-dismiss').addEventListener('click', () => {
+    document.getElementById('install-banner').classList.add('hidden');
+  });
+  document.getElementById('install-btn').addEventListener('click', () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); }
+  });
+</script>
+</body>
+</html>

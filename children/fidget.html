@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Fidget Tools | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: #f0f5ee; }
+
+    /* ── HERO ── */
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), var(--forest), #6a9a60);
+      padding: 2.2rem 1.75rem 3rem;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: #f0f5ee; clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem;
+      transition: color 0.15s; position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+    .page-hero h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); margin-bottom: 0.45rem; position: relative; z-index: 1; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.8; position: relative; z-index: 1; max-width: 440px; margin: 0 auto; }
+    .hero-mascot {
+      font-size: 3rem; margin: 0 auto 0.8rem;
+      animation: bounce 2.5s ease-in-out infinite;
+      position: relative; z-index: 1;
+    }
+
+    /* ── TOOL GRID ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem 1.75rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── TOOL CARD ── */
+    .tool-card {
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: #fff;
+      display: flex; flex-direction: column;
+    }
+    .tool-header {
+      padding: 1.2rem 1.5rem 0.8rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .tool-header-icon { font-size: 1.8rem; }
+    .tool-header h2 { font-family: 'Lora', serif; font-size: 1.15rem; margin: 0; }
+    .tool-header p  { font-size: 0.78rem; color: var(--text-mid); margin: 0.15rem 0 0; }
+    .tool-body {
+      flex: 1; padding: 0 1.5rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* ══════════════════════════════
+       1. FIDGET SPINNER
+    ══════════════════════════════ */
+    .spinner-card .tool-header { background: linear-gradient(135deg, #d8f0e8, #eaf8f0); }
+    .spinner-canvas-wrap {
+      position: relative; width: 220px; height: 220px;
+      margin: 1rem auto;
+      cursor: grab;
+      touch-action: none;
+    }
+    .spinner-canvas-wrap:active { cursor: grabbing; }
+    #spinner-canvas { border-radius: 50%; display: block; }
+    .spinner-glow {
+      position: absolute; inset: -8px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(111,160,96,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .spinner-speed-label {
+      font-size: 0.78rem; font-weight: 700; color: var(--text-mid);
+      margin-bottom: 0.75rem;
+    }
+    .spinner-btns { display: flex; gap: 0.6rem; width: 100%; }
+    .spin-btn {
+      flex: 1; border: none; border-radius: var(--r-full); padding: 0.75rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .spin-btn:active { transform: scale(0.97); }
+    .spin-go   { background: var(--forest); color: #fff; box-shadow: 0 3px 10px rgba(58,90,64,0.3); }
+    .spin-fast { background: var(--clay-mid); color: #fff; box-shadow: 0 3px 10px rgba(192,120,72,0.3); }
+
+    /* ══════════════════════════════
+       2. CLICKER / COUNTER
+    ══════════════════════════════ */
+    .clicker-card .tool-header { background: linear-gradient(135deg, #f8ecd8, #fdf4e8); }
+    .clicker-wrap {
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; gap: 0.5rem; padding-top: 0.5rem;
+    }
+    .clicker-num-display {
+      font-family: 'Lora', serif;
+      font-size: clamp(4rem, 12vw, 6.5rem);
+      font-weight: 700; color: #5a3010; line-height: 1;
+      min-height: 1.2em; text-align: center;
+      transition: transform 0.08s;
+      user-select: none;
+    }
+    .clicker-num-display.pop { animation: clickPop 0.18s ease; }
+    @keyframes clickPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.14)} }
+    .clicker-label-txt { font-size: 0.8rem; color: var(--text-mid); font-weight: 700; margin-bottom: 0.5rem; }
+    .big-clicker-btn {
+      width: 100%; max-width: 280px;
+      background: var(--clay); color: #fff;
+      border: none; border-radius: var(--r-lg);
+      padding: 1.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #7a3a18;
+      transition: transform 0.08s, box-shadow 0.08s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .big-clicker-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #7a3a18;
+    }
+    .clicker-sub-btns { display: flex; gap: 0.6rem; margin-top: 0.75rem; width: 100%; max-width: 280px; }
+    .clicker-sub-btn {
+      flex: 1; border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+      color: var(--text-mid); background: #fff; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .clicker-sub-btn:hover { border-color: var(--clay-light); color: var(--clay); }
+    .clicker-milestone {
+      font-size: 1.5rem; min-height: 2rem; text-align: center;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    /* ══════════════════════════════
+       3. SAND TIMER
+    ══════════════════════════════ */
+    .timer-card .tool-header { background: linear-gradient(135deg, #e8d8f8, #f4eeff); }
+    .timer-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .timer-presets { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin: 0.75rem 0; }
+    .timer-preset-btn {
+      background: #fff; border: 2.5px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.38rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .timer-preset-btn:hover, .timer-preset-btn.active {
+      background: #8870a8; color: #fff; border-color: #8870a8;
+    }
+    .timer-svg-container {
+      position: relative; width: 180px; height: 180px; margin: 0.5rem auto;
+    }
+    .timer-ring-bg  { fill: none; stroke: #e8e0f0; stroke-width: 14; }
+    .timer-ring-fill{
+      fill: none; stroke: #8870a8; stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 471; stroke-dashoffset: 0;
+      transform: rotate(-90deg); transform-origin: 50% 50%;
+      transition: stroke-dashoffset 1s linear, stroke 0.5s;
+    }
+    .timer-ring-fill.warning { stroke: var(--clay-mid); }
+    .timer-ring-fill.done    { stroke: var(--story-green); }
+    .timer-center-text {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .timer-digits {
+      font-family: 'Lora', serif; font-size: 2.4rem; font-weight: 700;
+      color: #3a1a60; line-height: 1;
+    }
+    .timer-status { font-size: 0.72rem; font-weight: 700; color: var(--text-mid); margin-top: 0.2rem; }
+    .timer-btn-row { display: flex; gap: 0.6rem; width: 100%; margin-top: 0.75rem; }
+    .timer-action-btn {
+      flex: 1; border: none; border-radius: var(--r-full); padding: 0.75rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .timer-start { background: #8870a8; color: #fff; }
+    .timer-start:hover { background: #6a5090; }
+    .timer-reset { background: var(--linen-dark); color: var(--text-mid); }
+    .timer-reset:hover { background: var(--linen-mid); }
+    .timer-done-msg {
+      font-size: 1.4rem; font-weight: 800; color: var(--story-green);
+      text-align: center; padding: 0.5rem;
+      display: none;
+    }
+    .timer-done-msg.show { display: block; animation: popBig 0.4s ease; }
+    @keyframes popBig { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+    /* ══════════════════════════════
+       4. BUBBLE WRAP
+    ══════════════════════════════ */
+    .bubble-card .tool-header { background: linear-gradient(135deg, #d8ecf8, #eaf4ff); }
+    .bubble-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 5px;
+      padding: 0.75rem 0;
+      width: 100%;
+    }
+    .bubble {
+      aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #d8f0ff, #9ad0f0);
+      border: 2px solid #6aaccc;
+      cursor: pointer;
+      transition: transform 0.12s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .bubble:hover { transform: scale(1.08); }
+    .bubble.popped {
+      background: #e8f0f8;
+      border-color: #c0d8e8;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      transform: scale(0.88);
+      cursor: default;
+    }
+    .bubble.popping {
+      animation: bubblePop 0.2s ease forwards;
+    }
+    @keyframes bubblePop {
+      0%   { transform: scale(1.15); background: radial-gradient(circle at 35% 35%, #fff, #c0e8ff); }
+      50%  { transform: scale(0.75); }
+      100% { transform: scale(0.88); background: #e8f0f8; }
+    }
+    .bubble-stats {
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%; padding: 0.5rem 0;
+    }
+    .bubble-count { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700; color: #3a6080; }
+    .bubble-refill {
+      background: #6aaccc; color: #fff;
+      border: none; border-radius: var(--r-full); padding: 0.4rem 1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .bubble-refill:hover { background: #4a8aaa; }
+
+    /* ══════════════════════════════
+       5. BREATHING TOOL
+    ══════════════════════════════ */
+    .breathing-card .tool-header { background: linear-gradient(135deg, #d8f0e8, #eafaf0); }
+    .breathing-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .breath-circle-wrap {
+      position: relative; width: 180px; height: 180px;
+      margin: 1rem auto; display: flex; align-items: center; justify-content: center;
+    }
+    .breath-outer {
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, #c8f0d8, #9ad8b8);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s linear;
+      box-shadow: 0 0 0 0 rgba(111,160,96,0.4);
+    }
+    .breath-outer.inhale {
+      animation: breatheIn 4s ease-in-out forwards;
+    }
+    .breath-outer.hold {
+      animation: breatheHold 0.5s ease forwards;
+    }
+    .breath-outer.exhale {
+      animation: breatheOut 6s ease-in-out forwards;
+    }
+    @keyframes breatheIn {
+      from { transform: scale(0.7); box-shadow: 0 0 0 0 rgba(111,160,96,0.4); }
+      to   { transform: scale(1.25); box-shadow: 0 0 0 20px rgba(111,160,96,0); }
+    }
+    @keyframes breatheHold {
+      from { transform: scale(1.25); }
+      to   { transform: scale(1.25); }
+    }
+    @keyframes breatheOut {
+      from { transform: scale(1.25); }
+      to   { transform: scale(0.7); }
+    }
+    .breath-inner {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: radial-gradient(circle, #fff, #d0f0e0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+    }
+    .breath-instruction {
+      font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 600;
+      color: var(--forest-deep); text-align: center; margin-bottom: 0.3rem;
+      min-height: 2rem;
+    }
+    .breath-countdown {
+      font-size: 2rem; font-weight: 900; color: var(--forest);
+      min-height: 2.5rem; text-align: center; font-family: 'Lora', serif;
+    }
+    .breath-pattern-row { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin: 0.6rem 0; }
+    .breath-pattern-btn {
+      background: #fff; border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.85rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.78rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .breath-pattern-btn:hover, .breath-pattern-btn.active {
+      background: var(--story-green); color: #fff; border-color: var(--story-green);
+    }
+    .breath-start-btn {
+      width: 100%; border: none; border-radius: var(--r-full); padding: 0.8rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
+      background: var(--forest); color: #fff; cursor: pointer;
+      transition: background 0.15s; margin-top: 0.5rem;
+    }
+    .breath-start-btn:hover { background: var(--forest-deep); }
+    .breath-cycles {
+      font-size: 0.78rem; color: var(--text-mid); margin-top: 0.4rem;
+    }
+
+    /* ══════════════════════════════
+       6. SWITCH / TOGGLE COUNTER
+    ══════════════════════════════ */
+    .switch-card .tool-header { background: linear-gradient(135deg, #f0e8d8, #faf4ea); }
+    .switch-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .switch-big-count {
+      font-family: 'Lora', serif; font-size: clamp(5rem, 15vw, 8rem);
+      font-weight: 700; color: #5a3010; line-height: 1;
+      text-align: center; user-select: none;
+      transition: transform 0.06s;
+    }
+    .switch-big-count.flick { animation: flickAnim 0.15s ease; }
+    @keyframes flickAnim { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1) translateY(-4px)} }
+    .switch-label { font-size: 0.78rem; color: var(--text-mid); font-weight: 700; margin-bottom: 0.75rem; }
+    .switch-toggle-wrap {
+      display: flex; align-items: center; gap: 1.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .switch-toggle {
+      width: 90px; height: 50px; border-radius: 999px;
+      background: #ddd; border: none; cursor: pointer;
+      position: relative; transition: background 0.25s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    .switch-toggle.on { background: var(--clay); }
+    .switch-toggle::after {
+      content: '';
+      position: absolute; top: 5px; left: 5px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .switch-toggle.on::after { transform: translateX(40px); }
+    .switch-toggle-label {
+      font-family: 'Lora', serif; font-size: 1rem; font-weight: 600; color: var(--text-mid);
+    }
+    .switch-toggle.on + .switch-toggle-label { color: var(--clay); }
+    .switch-sub-row { display: flex; gap: 0.6rem; }
+    .switch-sub-btn {
+      border: 2px solid var(--linen-dark); background: #fff;
+      border-radius: var(--r-full); padding: 0.4rem 1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .switch-sub-btn:hover { border-color: var(--clay-light); color: var(--clay); }
+    .switch-milestone { font-size: 1.5rem; min-height: 2rem; text-align: center; }
+
+    /* ── PARENT NOTE BANNER ── */
+    .parent-note {
+      background: var(--forest-pale); border-left: 4px solid var(--forest-mid);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      padding: 1rem 1.25rem; margin: 0 1.75rem 1.75rem;
+      font-size: 0.83rem; color: var(--forest-deep); line-height: 1.6;
+    }
+    .parent-note strong { display: block; font-size: 0.9rem; margin-bottom: 0.3rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .bubble-grid { grid-template-columns: repeat(6, 1fr); }
+      .tools-grid { padding: 1.25rem 1rem; gap: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-mascot">🤲</div>
+    <h1>Fidget &amp; Focus Tools</h1>
+    <p>Sensory tools to help with focus, calm, and regulation — use whenever you need a moment</p>
+  </div>
+
+  <!-- Parent note -->
+  <div class="parent-note">
+    <strong>👩 For parents &amp; carers</strong>
+    These tools support self-regulation for SEN children. They work best when used proactively — before a task, during a break, or when a child signals they need help to focus or calm. All tools work offline once the app is installed.
+  </div>
+
+  <!-- ── TOOL GRID ── -->
+  <div class="tools-grid">
+
+    <!-- 1. FIDGET SPINNER -->
+    <div class="tool-card spinner-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">🌀</div>
+        <div>
+          <h2>Fidget Spinner</h2>
+          <p>Tap Spin or drag to spin — watch it slow down naturally</p>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="spinner-canvas-wrap" id="spinner-wrap">
+          <canvas id="spinner-canvas" width="220" height="220"></canvas>
+          <div class="spinner-glow" id="spinner-glow"></div>
+        </div>
+        <div class="spinner-speed-label" id="spinner-speed">Tap Spin to start</div>
+        <div class="spinner-btns">
+          <button class="spin-btn spin-go"   onclick="spinGo(0.22)">🌀 Spin</button>
+          <button class="spin-btn spin-fast" onclick="spinGo(0.42)">⚡ Fast!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. CLICKER -->
+    <div class="tool-card clicker-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">🔘</div>
+        <div>
+          <h2>Clicker Counter</h2>
+          <p>Tap the big button — watch the number grow!</p>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="clicker-wrap">
+          <div class="clicker-num-display" id="clicker-num">0</div>
+          <div class="clicker-label-txt">clicks</div>
+          <div class="clicker-milestone" id="clicker-milestone"></div>
+          <button class="big-clicker-btn" id="clicker-btn" onclick="doClick()">
+            CLICK!
+          </button>
+          <div class="clicker-sub-btns">
+            <button class="clicker-sub-btn" onclick="undoClick()">⌫ Undo</button>
+            <button class="clicker-sub-btn" onclick="resetClicker()">✕ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SAND TIMER -->
+    <div class="tool-card timer-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">⏳</div>
+        <div>
+          <h2>Sand Timer</h2>
+          <p>Set a timer — great for transitions and tasks</p>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="timer-wrap">
+          <div class="timer-presets">
+            <button class="timer-preset-btn active" onclick="setTimer(1,this)">1 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(2,this)">2 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(3,this)">3 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(5,this)">5 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(10,this)">10 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(15,this)">15 min</button>
+          </div>
+          <div class="timer-svg-container">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle class="timer-ring-bg"   cx="90" cy="90" r="75"/>
+              <circle class="timer-ring-fill" cx="90" cy="90" r="75" id="timer-ring"/>
+            </svg>
+            <div class="timer-center-text">
+              <div class="timer-digits" id="timer-digits">1:00</div>
+              <div class="timer-status" id="timer-status">Ready</div>
+            </div>
+          </div>
+          <div class="timer-done-msg" id="timer-done">🎉 Time's up!</div>
+          <div class="timer-btn-row">
+            <button class="timer-action-btn timer-start" id="timer-toggle-btn" onclick="toggleTimer()">▶ Start</button>
+            <button class="timer-action-btn timer-reset" onclick="resetTimer()">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. BUBBLE WRAP -->
+    <div class="tool-card bubble-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">🫧</div>
+        <div>
+          <h2>Bubble Wrap</h2>
+          <p>Pop every bubble — tap or click to pop!</p>
+        </div>
+      </div>
+      <div class="tool-body" style="width:100%">
+        <div class="bubble-stats">
+          <div class="bubble-count">🫧 <span id="bubble-remaining">48</span> left</div>
+          <button class="bubble-refill" onclick="refillBubbles()">↺ Refill</button>
+        </div>
+        <div class="bubble-grid" id="bubble-grid"></div>
+      </div>
+    </div>
+
+    <!-- 5. BREATHING TOOL -->
+    <div class="tool-card breathing-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">🌬️</div>
+        <div>
+          <h2>Breathing Helper</h2>
+          <p>Follow the circle — breathe in, hold, breathe out</p>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="breathing-wrap">
+          <div class="breath-pattern-row">
+            <button class="breath-pattern-btn active" onclick="setBreathPattern('4-2-6',this)">Calm (4-2-6)</button>
+            <button class="breath-pattern-btn" onclick="setBreathPattern('4-4-4',this)">Box (4-4-4)</button>
+            <button class="breath-pattern-btn" onclick="setBreathPattern('3-0-3',this)">Easy (3-3)</button>
+          </div>
+          <div class="breath-circle-wrap">
+            <div class="breath-outer" id="breath-outer">
+              <div class="breath-inner">🌿</div>
+            </div>
+          </div>
+          <div class="breath-instruction" id="breath-instruction">Press Start to begin</div>
+          <div class="breath-countdown" id="breath-countdown"></div>
+          <button class="breath-start-btn" id="breath-start-btn" onclick="toggleBreathing()">▶ Start</button>
+          <div class="breath-cycles" id="breath-cycles"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SWITCH COUNTER -->
+    <div class="tool-card switch-card">
+      <div class="tool-header">
+        <div class="tool-header-icon">🔁</div>
+        <div>
+          <h2>Switch Counter</h2>
+          <p>Flick the switch — every flick counts up!</p>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="switch-wrap">
+          <div class="switch-big-count" id="switch-count">0</div>
+          <div class="switch-label">flicks</div>
+          <div class="switch-milestone" id="switch-milestone"></div>
+          <div class="switch-toggle-wrap">
+            <button class="switch-toggle" id="switch-toggle" onclick="flickSwitch()"></button>
+            <span class="switch-toggle-label" id="switch-state-label">OFF</span>
+          </div>
+          <div class="switch-sub-row">
+            <button class="switch-sub-btn" onclick="resetSwitch()">✕ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tools-grid -->
+
+</div><!-- /page -->
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ═══════════════════════════════════
+   1. FIDGET SPINNER
+═══════════════════════════════════ */
+const canvas  = document.getElementById('spinner-canvas');
+const ctx     = canvas.getContext('2d');
+const CX = 110, CY = 110, R = 95;
+let spinAngle = 0, spinVel = 0, spinRAF = null;
+let isDragging = false, lastAngle = 0, lastTime = 0;
+
+const SPIN_COLORS = [
+  ['#a3b18a','#588157'],
+  ['#d4a574','#9a5230'],
+  ['#b0c8d8','#5a8090'],
+];
+
+function drawSpinner(angle) {
+  ctx.clearRect(0, 0, 220, 220);
+  const arms = 3;
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.rotate(angle);
+
+  for (let i = 0; i < arms; i++) {
+    const a = (i / arms) * Math.PI * 2;
+    const gradient = ctx.createRadialGradient(0, 0, 10, R * 0.6 * Math.cos(a + Math.PI/arms), R * 0.6 * Math.sin(a + Math.PI/arms), R * 0.85);
+    gradient.addColorStop(0, SPIN_COLORS[i][0]);
+    gradient.addColorStop(1, SPIN_COLORS[i][1]);
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, R, a - Math.PI / arms * 0.9, a + Math.PI / arms * 0.9);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // lobe circle
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * R * 0.72, Math.sin(a) * R * 0.72, 22, 0, Math.PI * 2);
+    ctx.fillStyle = SPIN_COLORS[i][0];
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // centre cap
+  ctx.beginPath();
+  ctx.arc(0, 0, 22, 0, Math.PI * 2);
+  const capGrad = ctx.createRadialGradient(-5, -5, 2, 0, 0, 22);
+  capGrad.addColorStop(0, '#fff');
+  capGrad.addColorStop(1, '#dde8d8');
+  ctx.fillStyle = capGrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function spinLoop() {
+  if (Math.abs(spinVel) > 0.0015) {
+    spinAngle += spinVel;
+    spinVel *= 0.982;
+    drawSpinner(spinAngle);
+    const rpm = Math.abs(spinVel) * 60 / (Math.PI * 2) * 60;
+    const speedLabel = document.getElementById('spinner-speed');
+    if (rpm > 30) speedLabel.textContent = '⚡ Super fast!';
+    else if (rpm > 15) speedLabel.textContent = '💨 Fast!';
+    else if (rpm > 6)  speedLabel.textContent = '🌀 Spinning…';
+    else if (rpm > 1)  speedLabel.textContent = '🍃 Slowing…';
+    else               speedLabel.textContent = '😴 Almost stopped';
+    spinRAF = requestAnimationFrame(spinLoop);
+  } else {
+    spinVel = 0;
+    document.getElementById('spinner-speed').textContent = 'Tap Spin to start';
+    drawSpinner(spinAngle);
+  }
+}
+
+function spinGo(vel) {
+  cancelAnimationFrame(spinRAF);
+  spinVel = vel + Math.random() * 0.06;
+  spinLoop();
+}
+
+// drag to spin
+const wrap = document.getElementById('spinner-wrap');
+
+function getAngle(e, el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - cx;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - cy;
+  return Math.atan2(y, x);
+}
+
+canvas.addEventListener('mousedown',  e => { isDragging = true; lastAngle = getAngle(e, canvas); lastTime = Date.now(); cancelAnimationFrame(spinRAF); spinVel = 0; });
+canvas.addEventListener('touchstart', e => { isDragging = true; lastAngle = getAngle(e, canvas); lastTime = Date.now(); cancelAnimationFrame(spinRAF); spinVel = 0; e.preventDefault(); }, {passive:false});
+
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const a = getAngle(e, canvas);
+  const delta = a - lastAngle;
+  const dt = Math.max(1, Date.now() - lastTime);
+  spinVel = delta / dt * 16;
+  spinAngle += delta;
+  lastAngle = a; lastTime = Date.now();
+  drawSpinner(spinAngle);
+});
+canvas.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const a = getAngle(e, canvas);
+  const delta = a - lastAngle;
+  const dt = Math.max(1, Date.now() - lastTime);
+  spinVel = delta / dt * 16;
+  spinAngle += delta;
+  lastAngle = a; lastTime = Date.now();
+  drawSpinner(spinAngle);
+  e.preventDefault();
+}, {passive:false});
+
+window.addEventListener('mouseup',  () => { if (isDragging) { isDragging = false; spinLoop(); } });
+window.addEventListener('touchend', () => { if (isDragging) { isDragging = false; spinLoop(); } });
+
+drawSpinner(0);
+
+/* ═══════════════════════════════════
+   2. CLICKER
+═══════════════════════════════════ */
+let clickCount = 0;
+const CLICK_MILESTONES = {
+  10:'🎉 10!', 25:'⭐ 25!', 50:'🌟 50!', 100:'🏆 100!',
+  200:'🚀 200!', 500:'👑 500!', 1000:'🔥 1000!'
+};
+
+function doClick() {
+  clickCount++;
+  const el = document.getElementById('clicker-num');
+  el.textContent = clickCount;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  const ms = document.getElementById('clicker-milestone');
+  if (CLICK_MILESTONES[clickCount]) {
+    ms.textContent = CLICK_MILESTONES[clickCount];
+    ms.style.animation = 'none'; void ms.offsetWidth;
+    ms.style.animation = '';
+  }
+  // Haptic feedback on mobile
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+
+function undoClick() {
+  if (clickCount > 0) {
+    clickCount--;
+    document.getElementById('clicker-num').textContent = clickCount;
+    document.getElementById('clicker-milestone').textContent = '';
+  }
+}
+
+function resetClicker() {
+  clickCount = 0;
+  document.getElementById('clicker-num').textContent = '0';
+  document.getElementById('clicker-milestone').textContent = '';
+}
+
+// Also listen for spacebar / enter
+document.addEventListener('keydown', e => {
+  if ((e.code === 'Space' || e.code === 'Enter') && document.activeElement.id !== 'clicker-btn') return;
+  if (e.code === 'Space') { e.preventDefault(); doClick(); }
+});
+
+/* ═══════════════════════════════════
+   3. SAND TIMER
+═══════════════════════════════════ */
+const CIRCUMFERENCE = 2 * Math.PI * 75; // 471.24
+let timerDuration = 60, timerRemaining = 60;
+let timerInterval = null, timerRunning = false;
+
+function setTimer(mins, btn) {
+  if (timerRunning) return;
+  document.querySelectorAll('.timer-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  timerDuration = mins * 60;
+  timerRemaining = timerDuration;
+  updateTimerDisplay();
+  document.getElementById('timer-done').classList.remove('show');
+  document.getElementById('timer-ring').className = 'timer-ring-fill';
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timer-digits').textContent = m + ':' + String(s).padStart(2, '0');
+  const progress = timerRemaining / timerDuration;
+  const offset = CIRCUMFERENCE * (1 - progress);
+  document.getElementById('timer-ring').style.strokeDashoffset = offset;
+
+  const ring = document.getElementById('timer-ring');
+  const pct = timerRemaining / timerDuration;
+  ring.classList.remove('warning','done');
+  if (pct <= 0.2 && pct > 0) ring.classList.add('warning');
+
+  document.getElementById('timer-status').textContent =
+    timerRunning ? 'Running…' : timerRemaining === timerDuration ? 'Ready' : 'Paused';
+}
+
+function toggleTimer() {
+  const btn = document.getElementById('timer-toggle-btn');
+  if (!timerRunning) {
+    if (timerRemaining <= 0) { timerRemaining = timerDuration; }
+    timerRunning = true;
+    btn.textContent = '⏸ Pause';
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      updateTimerDisplay();
+      if (timerRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.textContent = '▶ Start';
+        document.getElementById('timer-digits').textContent = '✓';
+        document.getElementById('timer-status').textContent = 'Done!';
+        document.getElementById('timer-done').classList.add('show');
+        document.getElementById('timer-ring').classList.add('done');
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      }
+    }, 1000);
+  } else {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    btn.textContent = '▶ Start';
+    updateTimerDisplay();
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = timerDuration;
+  document.getElementById('timer-toggle-btn').textContent = '▶ Start';
+  document.getElementById('timer-done').classList.remove('show');
+  document.getElementById('timer-ring').className = 'timer-ring-fill';
+  updateTimerDisplay();
+}
+
+updateTimerDisplay();
+
+/* ═══════════════════════════════════
+   4. BUBBLE WRAP
+═══════════════════════════════════ */
+const BUBBLE_COUNT = 48;
+let bubblesPopped = 0;
+
+function buildBubbles() {
+  const grid = document.getElementById('bubble-grid');
+  grid.innerHTML = '';
+  bubblesPopped = 0;
+  updateBubbleCount();
+  for (let i = 0; i < BUBBLE_COUNT; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.addEventListener('click', () => popBubble(b));
+    b.addEventListener('touchstart', e => { e.preventDefault(); popBubble(b); }, {passive:false});
+    grid.appendChild(b);
+  }
+}
+
+function popBubble(el) {
+  if (el.classList.contains('popped')) return;
+  el.classList.add('popping');
+  if (navigator.vibrate) navigator.vibrate(8);
+  setTimeout(() => {
+    el.classList.remove('popping');
+    el.classList.add('popped');
+    bubblesPopped++;
+    updateBubbleCount();
+    if (bubblesPopped === BUBBLE_COUNT) {
+      setTimeout(() => {
+        if (confirm('🎉 All bubbles popped! Refill?')) refillBubbles();
+      }, 300);
+    }
+  }, 200);
+}
+
+function updateBubbleCount() {
+  document.getElementById('bubble-remaining').textContent = BUBBLE_COUNT - bubblesPopped;
+}
+
+function refillBubbles() { buildBubbles(); }
+
+buildBubbles();
+
+/* ═══════════════════════════════════
+   5. BREATHING
+═══════════════════════════════════ */
+const BREATH_PATTERNS = {
+  '4-2-6': { in: 4, hold: 2, out: 6, name: 'Calm breathing' },
+  '4-4-4': { in: 4, hold: 4, out: 4, name: 'Box breathing' },
+  '3-0-3': { in: 3, hold: 0, out: 3, name: 'Easy breathing' },
+};
+let breathPattern = '4-2-6';
+let breathRunning = false, breathTimer = null, breathCycles = 0;
+
+function setBreathPattern(key, btn) {
+  if (breathRunning) stopBreathing();
+  breathPattern = key;
+  document.querySelectorAll('.breath-pattern-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('breath-instruction').textContent = 'Press Start to begin';
+  document.getElementById('breath-countdown').textContent = '';
+}
+
+function toggleBreathing() {
+  if (breathRunning) stopBreathing();
+  else startBreathing();
+}
+
+function stopBreathing() {
+  breathRunning = false;
+  clearTimeout(breathTimer);
+  const btn = document.getElementById('breath-start-btn');
+  btn.textContent = '▶ Start';
+  const outer = document.getElementById('breath-outer');
+  outer.className = 'breath-outer';
+  document.getElementById('breath-instruction').textContent = 'Press Start to begin';
+  document.getElementById('breath-countdown').textContent = '';
+}
+
+function startBreathing() {
+  breathRunning = true;
+  breathCycles = 0;
+  document.getElementById('breath-start-btn').textContent = '⏹ Stop';
+  runBreathPhase();
+}
+
+function runBreathPhase() {
+  if (!breathRunning) return;
+  const p = BREATH_PATTERNS[breathPattern];
+  breathCycles++;
+  document.getElementById('breath-cycles').textContent = `Cycle ${breathCycles}`;
+  runPhase('inhale', p.in, 'Breathe in…', () => {
+    if (p.hold > 0) {
+      runPhase('hold', p.hold, 'Hold…', () => {
+        runPhase('exhale', p.out, 'Breathe out…', () => {
+          breathTimer = setTimeout(runBreathPhase, 400);
+        });
+      });
+    } else {
+      runPhase('exhale', p.out, 'Breathe out…', () => {
+        breathTimer = setTimeout(runBreathPhase, 400);
+      });
+    }
+  });
+}
+
+function runPhase(phase, secs, label, onDone) {
+  if (!breathRunning) return;
+  const outer = document.getElementById('breath-outer');
+  const instrEl = document.getElementById('breath-instruction');
+  const countEl = document.getElementById('breath-countdown');
+
+  outer.className = 'breath-outer ' + phase;
+  instrEl.textContent = label;
+
+  let remaining = secs;
+  countEl.textContent = remaining;
+
+  const tick = () => {
+    remaining--;
+    if (remaining > 0) {
+      countEl.textContent = remaining;
+      breathTimer = setTimeout(tick, 1000);
+    } else {
+      countEl.textContent = '';
+      onDone();
+    }
+  };
+  breathTimer = setTimeout(tick, 1000);
+}
+
+/* ═══════════════════════════════════
+   6. SWITCH COUNTER
+═══════════════════════════════════ */
+let switchCount = 0, switchState = false;
+const SWITCH_MILESTONES = {
+  10:'🎉 10 flicks!', 25:'⭐ 25!', 50:'🌟 50!',
+  100:'🏆 100 flicks!', 200:'🚀 200!', 500:'👑 500!'
+};
+
+function flickSwitch() {
+  switchState = !switchState;
+  const toggle = document.getElementById('switch-toggle');
+  const label  = document.getElementById('switch-state-label');
+  toggle.classList.toggle('on', switchState);
+  label.textContent = switchState ? 'ON' : 'OFF';
+
+  switchCount++;
+  const el = document.getElementById('switch-count');
+  el.textContent = switchCount;
+  el.classList.remove('flick'); void el.offsetWidth; el.classList.add('flick');
+
+  const ms = document.getElementById('switch-milestone');
+  if (SWITCH_MILESTONES[switchCount]) {
+    ms.textContent = SWITCH_MILESTONES[switchCount];
+  }
+  if (navigator.vibrate) navigator.vibrate(switchState ? 20 : 10);
+}
+
+function resetSwitch() {
+  switchCount = 0;
+  switchState = false;
+  document.getElementById('switch-count').textContent = '0';
+  document.getElementById('switch-toggle').classList.remove('on');
+  document.getElementById('switch-state-label').textContent = 'OFF';
+  document.getElementById('switch-milestone').textContent = '';
+}
+</script>
+</body>
+</html>

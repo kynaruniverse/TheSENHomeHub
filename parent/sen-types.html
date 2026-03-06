@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>SEN Type Guides | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: var(--linen); }
+
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), var(--forest-mid), #7a9a60);
+      padding: 2.2rem 1.75rem 3rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: var(--linen); clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; transition: color 0.15s;
+      position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+    .hero-icon { font-size: 3rem; margin: 0 auto 0.8rem; position: relative; z-index: 1; }
+    .page-hero h1 { font-size: clamp(1.7rem,4vw,2.5rem); margin-bottom: 0.45rem; position: relative; z-index: 1; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.8; position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+    /* search + filter */
+    .search-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      padding: 1rem 1.75rem;
+      display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;
+      position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .search-input {
+      flex: 1; min-width: 180px;
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif; font-size: 0.88rem; color: var(--text);
+      outline: none; transition: border-color 0.18s;
+    }
+    .search-input:focus { border-color: var(--forest-mid); }
+    .cat-filter-btn {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.85rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.78rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .cat-filter-btn:hover, .cat-filter-btn.active {
+      background: var(--forest); color: #fff; border-color: var(--forest);
+    }
+
+    /* SEN grid */
+    .sen-grid-wrap { padding: 1.75rem; max-width: 1160px; margin: 0 auto; }
+    .sen-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .sen-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2.5px solid var(--linen-dark);
+      padding: 1.2rem; cursor: pointer;
+      transition: all 0.18s; text-align: left;
+    }
+    .sen-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .sen-card.hidden { display: none; }
+    .sen-card-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .sen-card-name { font-family: 'Lora', serif; font-size: 1rem; font-weight: 700; color: var(--forest-deep); margin-bottom: 0.25rem; }
+    .sen-card-short { font-size: 0.78rem; color: var(--text-mid); line-height: 1.5; }
+    .sen-card-tag {
+      display: inline-block; margin-top: 0.5rem;
+      border-radius: var(--r-full); padding: 0.18rem 0.65rem;
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    /* detail panel */
+    .detail-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(20,35,22,0.5); backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .detail-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+    .detail-panel {
+      background: var(--linen); border-radius: var(--r-xl);
+      width: 100%; max-width: 640px; max-height: 88vh;
+      overflow-y: auto; box-shadow: var(--shadow-lg);
+      animation: slideUp 0.28s ease both;
+    }
+    .dp-header {
+      padding: 1.4rem 1.5rem 1rem;
+      display: flex; align-items: flex-start; gap: 1rem;
+      border-bottom: 2px solid var(--linen-dark);
+    }
+    .dp-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .dp-title { flex: 1; }
+    .dp-title h2 { font-family: 'Lora', serif; color: var(--forest-deep); font-size: 1.3rem; margin-bottom: 0.15rem; }
+    .dp-title p  { font-size: 0.82rem; color: var(--text-mid); }
+    .dp-close {
+      background: var(--linen-dark); border: none; border-radius: 50%;
+      width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-mid); flex-shrink: 0; transition: background 0.18s;
+    }
+    .dp-close:hover { background: var(--clay-pale); }
+    .dp-body { padding: 1.4rem 1.5rem 1.75rem; }
+    .dp-section { margin-bottom: 1.25rem; }
+    .dp-section h3 { font-family: 'Lora', serif; color: var(--forest-deep); font-size: 0.98rem; margin-bottom: 0.5rem; }
+    .dp-section p  { font-size: 0.83rem; color: var(--text-mid); line-height: 1.65; }
+    .dp-section ul { padding-left: 1.2rem; }
+    .dp-section li { font-size: 0.83rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 0.25rem; }
+    .dp-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .dp-tag {
+      border-radius: var(--r-full); padding: 0.22rem 0.75rem;
+      font-size: 0.72rem; font-weight: 800;
+    }
+    .dp-resources {
+      background: var(--forest-pale); border-radius: var(--r-md);
+      padding: 1rem 1.1rem; margin-top: 1rem;
+    }
+    .dp-resources h4 { font-family: 'Lora', serif; font-size: 0.9rem; color: var(--forest-deep); margin-bottom: 0.5rem; }
+    .dp-resources a {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.8rem; font-weight: 700; color: var(--forest);
+      text-decoration: none; margin-right: 0.75rem; margin-bottom: 0.3rem;
+    }
+    .dp-resources a:hover { color: var(--forest-deep); text-decoration: underline; }
+
+    .no-results-msg { text-align: center; padding: 3rem 1rem; color: var(--text-mid); display: none; }
+    .no-results-msg.show { display: block; }
+
+    @media (max-width: 480px) {
+      .sen-cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .sen-grid-wrap { padding: 1.25rem 1rem; }
+      .search-bar { padding: 0.75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">🧩</div>
+    <h1>SEN Type Guides</h1>
+    <p>Plain-English guides to each type of SEN — what it means, how it affects learning, and how to help at home</p>
+  </div>
+
+  <div class="search-bar">
+    <input class="search-input" id="sen-search" placeholder="🔍 Search SEN types…" oninput="filterSEN()"/>
+    <button class="cat-filter-btn active" data-cat="all" onclick="setCat('all',this)">All</button>
+    <button class="cat-filter-btn" data-cat="neurodevelopmental" onclick="setCat('neurodevelopmental',this)">Neurodevelopmental</button>
+    <button class="cat-filter-btn" data-cat="learning" onclick="setCat('learning',this)">Learning</button>
+    <button class="cat-filter-btn" data-cat="emotional" onclick="setCat('emotional',this)">Social &amp; Emotional</button>
+    <button class="cat-filter-btn" data-cat="sensory" onclick="setCat('sensory',this)">Sensory &amp; Physical</button>
+  </div>
+
+  <div class="sen-grid-wrap">
+    <div class="sen-cards-grid" id="sen-cards-grid"></div>
+    <div class="no-results-msg" id="sen-no-results">No SEN types found matching your search. Try different words.</div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-panel" id="detail-panel">
+    <div class="dp-header">
+      <div class="dp-icon" id="dp-icon"></div>
+      <div class="dp-title">
+        <h2 id="dp-name"></h2>
+        <p id="dp-subtitle"></p>
+      </div>
+      <button class="dp-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="dp-body" id="dp-body"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+const SEN_DATA = [
+  {
+    id:'autism', icon:'🧩', name:'Autism / ASC', subtitle:'Autism Spectrum Condition',
+    cat:'neurodevelopmental',
+    tagBg:'#d8f0c8', tagColor:'#1a4010', tagLabel:'Neurodevelopmental',
+    short:'Affects how a person communicates, perceives the world, and processes sensory information.',
+    what:'Autism (also called Autism Spectrum Condition or ASC) is a lifelong neurodevelopmental condition that affects how a person communicates, interacts socially, and experiences the world. It is a spectrum — no two autistic people are the same.',
+    signs:['Difficulty with social communication and interaction','Strong preference for routine and predictability','Sensory sensitivities (over- or under-sensitive to sound, light, texture, taste)','Intense, focused interests','Literal thinking and difficulty with abstract language','May find changes to routine distressing'],
+    home_ed:['Structure and visual schedules can greatly reduce anxiety','Use of timers and advance warning before transitions','Reduce sensory overload in the learning environment','Follow the child\'s interests — they learn best through their passions','Break tasks into small steps','Allow movement breaks — many autistic children learn better when moving'],
+    resources:[{label:'Phonics Board',url:'/children/phonics.html'},{label:'Visual Schedule Printable',url:'/parent/printables.html#schedule'},{label:'Fidget Tools',url:'/children/fidget.html'},{label:'Feelings & Me',url:'/children/feelings.html'}],
+  },
+  {
+    id:'adhd', icon:'⚡', name:'ADHD', subtitle:'Attention Deficit Hyperactivity Disorder',
+    cat:'neurodevelopmental',
+    tagBg:'#fff0c0', tagColor:'#5a4010', tagLabel:'Neurodevelopmental',
+    short:'Affects attention, impulse control and activity levels. Can be inattentive, hyperactive, or combined.',
+    what:'ADHD is a neurodevelopmental condition characterised by difficulties with attention, impulse control, and regulation of activity levels. There are three presentations: predominantly inattentive (sometimes called ADD), predominantly hyperactive-impulsive, and combined type.',
+    signs:['Difficulty sustaining attention on tasks','Easily distracted by external stimuli','Forgetfulness and losing things','Impulsive decision-making','Difficulty waiting or taking turns','Hyperactivity — fidgeting, leaving seat, talking excessively','Difficulty starting or completing tasks'],
+    home_ed:['Short, frequent sessions work far better than long blocks','Movement breaks every 20–30 minutes are essential','Use timers (visual sand timers work well) to make time concrete','Break all tasks into the smallest possible steps','Reduce visual clutter in the learning environment','Fidget tools can help channel physical energy whilst listening','Reward effort and progress, not just outcomes'],
+    resources:[{label:'Sand Timer',url:'/children/fidget.html#timer'},{label:'Maths Board',url:'/children/maths.html'},{label:'Reward Charts',url:'/parent/printables.html#reward'},{label:'Clicker Counter',url:'/children/fidget.html#clicker'}],
+  },
+  {
+    id:'audhd', icon:'🧠', name:'AuDHD', subtitle:'Co-occurring Autism and ADHD',
+    cat:'neurodevelopmental',
+    tagBg:'#e8d8f8', tagColor:'#3a1a60', tagLabel:'Neurodevelopmental',
+    short:'The combination of Autism and ADHD, which can present uniquely and require tailored support.',
+    what:'AuDHD refers to the co-occurrence of Autism and ADHD in the same person. This is more common than previously thought — around 50–70% of autistic people also meet the criteria for ADHD. The combination can present very differently from either condition alone, and can sometimes cause features of each to mask the other.',
+    signs:['May appear to "mask" or suppress autistic traits in some settings','Intense focus on preferred topics (autistic) alongside difficulty focusing on non-preferred ones (ADHD)','Strong need for routine (autistic) alongside impulsivity that disrupts it (ADHD)','High emotional dysregulation','Burnout — particularly after masking periods','Sensory sensitivities combined with impulsivity'],
+    home_ed:['Home education often suits AuDHD children very well — the flexibility removes many school-based triggers','Allow child-led learning around special interests','Build in regular sensory and movement breaks','Use a loose visual structure that allows for flexibility within predictability','Be aware of burnout — some days will need to be very low-demand','Celebrate wins loudly and frequently'],
+    resources:[{label:'Fidget Tools',url:'/children/fidget.html'},{label:'Feelings & Me',url:'/children/feelings.html'},{label:'Phonics Board',url:'/children/phonics.html'},{label:'Visual Schedule',url:'/parent/printables.html'}],
+  },
+  {
+    id:'dyslexia', icon:'📖', name:'Dyslexia', subtitle:'Specific Learning Difficulty — literacy',
+    cat:'learning',
+    tagBg:'#fde8d8', tagColor:'#6a2a10', tagLabel:'Learning Difficulty',
+    short:'Affects reading, spelling and writing. Not related to intelligence — many dyslexic people are highly creative and capable.',
+    what:'Dyslexia is a specific learning difficulty that primarily affects the skills involved in reading and spelling. It is characterised by difficulties with phonological processing, working memory, and the speed of processing written information. It exists on a spectrum and is unrelated to intelligence.',
+    signs:['Difficulty sounding out unfamiliar words','Poor spelling that does not improve with practice','Reading slowly or with significant effort','Difficulty remembering sequences (e.g. alphabet, months)','Confusion between similar-looking letters (b/d, p/q)','Strong verbal ability contrasting with written difficulties','Good comprehension when text is read aloud'],
+    home_ed:['Multi-sensory phonics approaches are highly effective (see, say, hear, touch)','Use the interactive phonics board daily','Never penalise spelling in written work — separate skills','Audiobooks alongside print allow access to age-appropriate content','Allow typing instead of handwriting where possible','Use coloured overlays or dyslexia-friendly fonts (e.g. OpenDyslexic)','Praise verbal answers highly — dyslexic children are often very articulate'],
+    resources:[{label:'Phonics Board',url:'/children/phonics.html'},{label:'Phonics Mat Printable',url:'/parent/printables.html'},{label:'Spelling Board',url:'/children/spelling.html'},{label:'Alphabet Handwriting Sheet',url:'/parent/printables.html'}],
+  },
+  {
+    id:'dyspraxia', icon:'🖊️', name:'Dyspraxia / DCD', subtitle:'Developmental Co-ordination Disorder',
+    cat:'learning',
+    tagBg:'#d8ecf8', tagColor:'#1a3a60', tagLabel:'Learning Difficulty',
+    short:'Affects physical co-ordination and planning of movement. Can also impact organisation and working memory.',
+    what:'Dyspraxia (also known as Developmental Co-ordination Disorder or DCD) affects the planning and co-ordination of movement. It can affect gross motor skills (running, jumping), fine motor skills (writing, drawing), and also organisation, memory, and processing speed.',
+    signs:['Poor handwriting that requires significant effort','Difficulty with buttons, laces, or cutlery','Clumsiness — bumping into things, dropping items','Difficulty organising thoughts into written form','Poor sense of direction','Takes longer than peers to complete physical tasks','May appear disorganised or forgetful'],
+    home_ed:['Use pencil grips and thick pens to ease writing','Allow typing or voice-to-text wherever possible','Break multi-step tasks into clear visual sequences','Chunky art tools and wide-ruled paper help','Occupational therapist exercises can be woven into daily routines','Home education removes time pressures that cause significant stress for DCD children','Handwriting practice little and often is better than long sessions'],
+    resources:[{label:'Alphabet Handwriting Sheet',url:'/parent/printables.html'},{label:'Drawing Frame',url:'/parent/printables.html'},{label:'Maths Board',url:'/children/maths.html'}],
+  },
+  {
+    id:'dyscalculia', icon:'🔢', name:'Dyscalculia', subtitle:'Specific Learning Difficulty — maths',
+    cat:'learning',
+    tagBg:'#f0e8d8', tagColor:'#5a3010', tagLabel:'Learning Difficulty',
+    short:'Affects the ability to understand and work with numbers. Like dyslexia but for maths.',
+    what:'Dyscalculia is a specific learning difficulty that affects a person\'s ability to understand, remember, and use numbers. It goes beyond finding maths hard — children with dyscalculia have difficulty understanding the concept of quantity and the meaning of numbers.',
+    signs:['Difficulty counting reliably even with small numbers','Poor number sense — numbers feel abstract','Struggles to remember basic number facts (e.g. times tables)','Difficulty telling the time or handling money','Reverses or confuses digits (e.g. 6 and 9, 17 and 71)','Loses track when counting even with fingers','Anxiety around maths tasks'],
+    home_ed:['Always use concrete objects before abstract numbers (counters, blocks, objects)','The counting board with physical objects is ideal','Number lines on desk for constant reference','Do not expect rote memorisation — focus on understanding','Maths through real life (cooking, shopping, measuring) is highly effective','Short, regular practice is better than long sessions','Never convey that maths "should" be easy — this creates shame'],
+    resources:[{label:'Maths Board — Counting',url:'/children/maths.html'},{label:'Number Line Sheet',url:'/parent/printables.html'},{label:'Number Line — interactive',url:'/children/maths.html'}],
+  },
+  {
+    id:'speech-language', icon:'🗣️', name:'Speech & Language', subtitle:'Speech, Language and Communication Needs (SLCN)',
+    cat:'neurodevelopmental',
+    tagBg:'#d8f0e8', tagColor:'#1a4030', tagLabel:'Communication',
+    short:'Affects the ability to talk, understand language, or both. The most common SEN in primary-age children.',
+    what:'Speech, Language and Communication Needs (SLCN) is a broad term covering difficulties with talking, understanding language, or both. This can include speech sound difficulties, language processing difficulties, word-finding problems, and difficulties understanding complex or abstract language.',
+    signs:['Delayed or limited speech','Difficulty understanding instructions','Word-finding difficulties — knows the word but can\'t retrieve it','Talks in shorter sentences than peers','Difficulty following multi-step instructions','Frustration when not understood','May understand more than they can express'],
+    home_ed:['Narrate daily activities — "Now I\'m going to put the water on to boil…"','Use simple, clear language and give processing time (10 seconds minimum after asking a question)','Reduce background noise when communicating','Use visual supports alongside spoken language','Speech and Language Therapy (SALT) exercises can be embedded into daily learning','Reading aloud and listening to audiobooks builds vocabulary','Singing, rhymes and word games are powerful language builders'],
+    resources:[{label:'Phonics Board',url:'/children/phonics.html'},{label:'Feelings Check-In',url:'/parent/printables.html'},{label:'Feelings & Me',url:'/children/feelings.html'}],
+  },
+  {
+    id:'pda', icon:'🌟', name:'PDA', subtitle:'Pathological Demand Avoidance',
+    cat:'neurodevelopmental',
+    tagBg:'#fff0d8', tagColor:'#5a3810', tagLabel:'Neurodevelopmental',
+    short:'A profile on the autism spectrum where anxiety drives an extreme need to avoid demands and control.',
+    what:'PDA (Pathological Demand Avoidance) is increasingly understood as a profile on the autism spectrum. It is characterised by an extreme need to avoid everyday demands and expectations, driven by high anxiety and a need for control. Traditional autism strategies often do not work — or make things worse — for PDA children.',
+    signs:['Resists and avoids the ordinary demands of life','Uses social strategies to avoid demands (e.g. distracting, negotiating, excuses)','Appears sociable but with difficulties','Extreme mood swings','Comfortable in role play or fictional settings','Prone to meltdowns when demands build up','Often described as controlling'],
+    home_ed:['Reduce demands as much as possible — low demand does not mean low aspiration','Offer genuine choices and share control','Frame activities as invitations, not instructions','Interest-led, child-directed learning works far better than structured curriculum','Avoid reward and punishment systems — they escalate anxiety','Collaborative problem-solving (not telling)','Reducing anxiety IS the work — when anxiety is low, learning happens naturally'],
+    resources:[{label:'Fidget Tools',url:'/children/fidget.html'},{label:'Breathing Helper',url:'/children/fidget.html'},{label:'Feelings & Me',url:'/children/feelings.html'},{label:'Calm-Down Toolkit',url:'/parent/printables.html'}],
+  },
+  {
+    id:'anxiety', icon:'😟', name:'Anxiety', subtitle:'Anxiety Disorders in children',
+    cat:'emotional',
+    tagBg:'#f0e8f8', tagColor:'#3a1a60', tagLabel:'Social & Emotional',
+    short:'Anxiety is very common in SEN children and can significantly impact learning and daily life.',
+    what:'Anxiety in children can take many forms — generalised anxiety, separation anxiety, social anxiety, school-based anxiety (sometimes called school refusal or Emotionally Based School Avoidance, EBSA), OCD, and phobias. It is extremely common in autistic, ADHD, and PDA children. Anxiety can be the primary presentation or secondary to another SEN.',
+    signs:['Excessive worry about everyday things','Physical symptoms — stomach aches, headaches, nausea before activities','Avoidance of situations or places','Clinginess or difficulty separating from parents','Sleep difficulties','Frequent need for reassurance','Meltdowns or shutdowns in response to anxiety'],
+    home_ed:['Home education often dramatically reduces anxiety by removing school-based triggers','Build predictability and routine — it reduces the unknown','The breathing tool is a great practical skill to teach','Validate the feeling before problem-solving: "I can see you feel scared. That makes sense."','Do not push through anxiety — work around it and reduce the trigger','Gradual, supported exposure helps over time','Therapy (especially CBT or play therapy) alongside home education can be transformative'],
+    resources:[{label:'Breathing Helper',url:'/children/fidget.html#breathing'},{label:'Fidget Tools',url:'/children/fidget.html'},{label:'Feelings Check-In',url:'/parent/printables.html'},{label:'Calm-Down Toolkit',url:'/parent/printables.html'},{label:'Feelings & Me',url:'/children/feelings.html'}],
+  },
+  {
+    id:'visual-impairment', icon:'👁️', name:'Visual Impairment', subtitle:'Vision loss and low vision',
+    cat:'sensory',
+    tagBg:'#e8e8f8', tagColor:'#2a2a60', tagLabel:'Sensory & Physical',
+    short:'Affects vision in ways that impact learning and daily activities, even with glasses or other correction.',
+    what:'Visual impairment covers a range of conditions that affect vision significantly enough to impact daily activities and learning — even with glasses or contact lenses. This includes conditions such as nystagmus, cortical visual impairment (CVI), and low vision from various causes.',
+    signs:['Difficulty reading standard print','Holds materials very close to their face','Avoids visually complex tasks','Difficulty with tasks requiring visual precision','Fatigue during reading or screen use','May have difficulty with depth perception or spatial awareness'],
+    home_ed:['Use large print materials and increase font size on screens','High contrast materials (black on white or yellow on black)','Allow more time for all activities','Reduce visual clutter on worksheets','Good lighting is essential','Technology: screen readers, magnification software, audiobooks','Contact the Royal National Institute for Blind People (RNIB) for specialist guidance'],
+    resources:[{label:'Phonics — audio-first',url:'/children/phonics.html'},{label:'Maths Board',url:'/children/maths.html'}],
+  },
+  {
+    id:'hearing-loss', icon:'👂', name:'Hearing Loss', subtitle:'Deafness and hearing impairment',
+    cat:'sensory',
+    tagBg:'#e0eef8', tagColor:'#1a3050', tagLabel:'Sensory & Physical',
+    short:'Affects hearing in ways that impact language, learning, and communication.',
+    what:'Hearing loss ranges from mild to profound and can be conductive (affecting the outer or middle ear) or sensorineural (affecting the inner ear or auditory nerve). Many children use hearing aids, cochlear implants, or British Sign Language (BSL). Some children have fluctuating hearing loss due to glue ear, which is very common in younger children.',
+    signs:['Difficulty following spoken instructions','Asking for repetition frequently','Watching faces and lips closely','Delayed speech or language development','Difficulty in noisy environments','Mishearing words (particularly those with similar sounds)','Appearing inattentive when background noise is present'],
+    home_ed:['Always face the child when speaking','Minimise background noise during learning','Check hearing aids are working at the start of each session','Use visual supports alongside verbal information','Subtitles on all video content','Contact the National Deaf Children\'s Society (NDCS) for specialist resources','BSL resources are available free online if relevant'],
+    resources:[{label:'Phonics Board — visual mode',url:'/children/phonics.html'},{label:'Visual Schedule',url:'/parent/printables.html'}],
+  },
+  {
+    id:'down-syndrome', icon:'💙', name:'Down Syndrome', subtitle:'Trisomy 21',
+    cat:'learning',
+    tagBg:'#d8eaf8', tagColor:'#1a3a60', tagLabel:'Learning Difficulty',
+    short:'A chromosomal condition affecting development, learning, and health in varied ways.',
+    what:'Down syndrome (Trisomy 21) occurs when a person has an extra copy of chromosome 21. It affects development and learning in diverse ways — no two people with Down syndrome are the same. Most people with Down syndrome have mild to moderate learning difficulties, and many learn to read, write, and live largely independently.',
+    signs:['Delayed speech and language development','Visual learning strengths — learn well from seeing and doing','Short-term verbal memory difficulties','May take longer to acquire skills but can reach significant milestones','Health considerations (heart, hearing, thyroid) may affect energy and learning','Strong social skills in many children'],
+    home_ed:['Visual and kinaesthetic learning approaches are highly effective','Use lots of photos, symbols, and visual aids','Short, varied activities work better than long tasks','Build on social strengths through group and collaborative activities','Reading — many children with Down syndrome learn to read well with the right approach','The Down Syndrome Association has excellent, free educational resources','Celebrate every single step forward'],
+    resources:[{label:'Phonics Board',url:'/children/phonics.html'},{label:'Maths — Counting Board',url:'/children/maths.html'},{label:'Reward Charts',url:'/parent/printables.html'},{label:'Feelings & Me',url:'/children/feelings.html'}],
+  },
+  {
+    id:'global-delay', icon:'🤍', name:'Global Developmental Delay', subtitle:'GDD',
+    cat:'learning',
+    tagBg:'#f0f0f0', tagColor:'#3a3a3a', tagLabel:'Learning Difficulty',
+    short:'When a child reaches developmental milestones significantly later than expected across multiple areas.',
+    what:'Global Developmental Delay (GDD) is used when a child under 5 shows significant delays in two or more areas of development — motor skills, speech and language, cognition, social, and/or activities of daily living. It may later lead to a diagnosis of intellectual disability or another specific condition.',
+    signs:['Late motor milestones (sitting, walking)','Delayed speech and language','Difficulty with self-care tasks','Learning takes longer and requires more repetition','Short attention span','May have difficulty with abstract concepts'],
+    home_ed:['Repetition is key — revisit the same skills in many different ways','Use highly concrete, hands-on learning activities','Build on strengths — what does your child love and respond to?','Early intervention services (SALT, OT, physio) can work alongside home education','Break every skill into the tiniest possible steps','Celebrate all progress, however small'],
+    resources:[{label:'Counting Board',url:'/children/maths.html'},{label:'Phonics Board',url:'/children/phonics.html'},{label:'Feelings & Me',url:'/children/feelings.html'},{label:'Reward Charts',url:'/parent/printables.html'}],
+  },
+];
+
+let currentCat = 'all';
+
+function renderCards(data) {
+  const grid = document.getElementById('sen-cards-grid');
+  grid.innerHTML = data.map(s => `
+    <div class="sen-card" data-id="${s.id}" data-cat="${s.cat}" onclick="openDetail('${s.id}')">
+      <span class="sen-card-icon">${s.icon}</span>
+      <div class="sen-card-name">${s.name}</div>
+      <div class="sen-card-short">${s.short}</div>
+      <span class="sen-card-tag" style="background:${s.tagBg};color:${s.tagColor}">${s.tagLabel}</span>
+    </div>
+  `).join('');
+}
+
+function filterSEN() {
+  const q = document.getElementById('sen-search').value.toLowerCase();
+  const cards = document.querySelectorAll('.sen-card');
+  let visible = 0;
+  cards.forEach(card => {
+    const id   = card.dataset.id;
+    const cat  = card.dataset.cat;
+    const data = SEN_DATA.find(s => s.id === id);
+    const matchCat = currentCat === 'all' || cat === currentCat;
+    const matchQ   = !q || data.name.toLowerCase().includes(q) || data.short.toLowerCase().includes(q);
+    const show = matchCat && matchQ;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.getElementById('sen-no-results').classList.toggle('show', visible === 0);
+}
+
+function setCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterSEN();
+}
+
+function openDetail(id) {
+  const s = SEN_DATA.find(d => d.id === id);
+  if (!s) return;
+  document.getElementById('dp-icon').textContent = s.icon;
+  document.getElementById('dp-name').textContent = s.name;
+  document.getElementById('dp-subtitle').textContent = s.subtitle;
+  document.getElementById('dp-body').innerHTML = `
+    <div class="dp-tags">
+      <span class="dp-tag" style="background:${s.tagBg};color:${s.tagColor}">${s.tagLabel}</span>
+    </div>
+    <div class="dp-section">
+      <h3>What is ${s.name}?</h3>
+      <p>${s.what}</p>
+    </div>
+    <div class="dp-section">
+      <h3>Signs to look out for</h3>
+      <ul>${s.signs.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+    <div class="dp-section">
+      <h3>Home education tips</h3>
+      <ul>${s.home_ed.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+    <div class="dp-resources">
+      <h4>🔗 Useful resources on SHH</h4>
+      ${s.resources.map(r=>`<a href="${r.url}">→ ${r.label}</a>`).join('')}
+    </div>
+  `;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-panel').scrollTop = 0;
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+});
+
+renderCards(SEN_DATA);
+</script>
+</body>
+</html>

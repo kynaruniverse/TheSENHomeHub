@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Phonics &amp; Reading | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: var(--story-bg); }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      background: linear-gradient(150deg, #4a7a3a, #6fa060, #90c080);
+      padding: 2.2rem 1.75rem 2.5rem;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
+      background: var(--story-bg);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #fff; }
+    .page-hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 0.4rem; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.82; }
+    .mascot-sm {
+      width: 58px; height: 58px; border-radius: 50%; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 0.8rem;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.15);
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+
+    /* ── TAB BAR ── */
+    .tab-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      display: flex; overflow-x: auto; gap: 0;
+      scrollbar-width: none; position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      background: none; border: none; border-bottom: 3px solid transparent;
+      padding: 0.85rem 1.4rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .tab-btn:hover  { color: var(--story-green); }
+    .tab-btn.active { color: var(--story-green); border-bottom-color: var(--story-green); }
+
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; padding: 1.75rem; }
+    .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
+
+    /* ── SOUND BOARD ── */
+    .board-title {
+      font-family: 'Lora', serif; color: #3a5030;
+      margin-bottom: 0.4rem; font-size: 1.2rem;
+    }
+    .board-subtitle { font-size: 0.83rem; color: var(--text-mid); margin-bottom: 1.25rem; }
+
+    .phonics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 0.65rem; margin-bottom: 1.75rem;
+    }
+    .phonic-btn {
+      aspect-ratio: 1;
+      border: 3px solid transparent;
+      border-radius: var(--r-lg);
+      background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      cursor: pointer;
+      font-family: 'Lora', serif;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      box-shadow: var(--shadow-sm);
+      padding: 0.4rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .phonic-btn:hover  { transform: scale(1.06); box-shadow: var(--shadow-md); }
+    .phonic-btn.active { transform: scale(0.94); }
+    .phonic-btn.playing { background: #d2e8b4; border-color: #6fa060; animation: pop 0.3s ease; }
+    .phonic-letter {
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      font-weight: 700; line-height: 1; color: var(--forest-deep);
+    }
+    .phonic-word {
+      font-size: 0.58rem; font-weight: 800;
+      color: var(--text-mid); text-transform: uppercase;
+      letter-spacing: 0.05em; font-family: 'Nunito', sans-serif;
+    }
+
+    /* colour families for letter groups */
+    .ph-vowel  { border-color: #f0d060; background: #fdf8d8; }
+    .ph-cons   { border-color: #b0d4a0; background: #f0f8e8; }
+    .ph-digraph{ border-color: #a0c4d8; background: #e8f4f8; }
+    .ph-blend  { border-color: #d0a8d0; background: #f4eef8; }
+
+    /* ── DISPLAY PANEL ── */
+    .display-panel {
+      background: #fff; border-radius: var(--r-xl);
+      border: 3px solid var(--linen-dark);
+      padding: 1.5rem; text-align: center;
+      margin-bottom: 1.5rem;
+      min-height: 120px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .display-letter {
+      font-family: 'Lora', serif; font-size: 5rem; font-weight: 700;
+      color: var(--forest-deep); line-height: 1;
+      transition: all 0.2s;
+    }
+    .display-word  { font-size: 1.3rem; font-weight: 800; color: var(--text-mid); margin-top: 0.3rem; }
+    .display-sound { font-size: 0.85rem; color: var(--text-light); margin-top: 0.2rem; font-style: italic; }
+    .display-empty { color: var(--linen-mid); font-size: 0.9rem; }
+
+    /* ── WORD BUILDER ── */
+    .word-builder-area {
+      background: #fff; border-radius: var(--r-xl);
+      border: 3px solid var(--linen-dark);
+      padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .word-builder-area h3 { font-family: 'Lora', serif; color: #3a5030; margin-bottom: 1rem; font-size: 1.1rem; }
+    .word-slots {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      min-height: 70px; margin-bottom: 1rem;
+      padding: 0.5rem; border-radius: var(--r-md);
+      background: var(--linen); border: 2px dashed var(--linen-mid);
+      align-items: center;
+    }
+    .word-slot-letter {
+      width: 52px; height: 62px; border-radius: var(--r-md);
+      background: #fff; border: 2px solid var(--forest-light);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 700;
+      color: var(--forest-deep); cursor: pointer;
+      transition: transform 0.15s; position: relative;
+      box-shadow: var(--shadow-xs);
+    }
+    .word-slot-letter:hover { transform: scale(1.08); }
+    .word-slot-letter small {
+      font-size: 0.5rem; font-family: 'Nunito', sans-serif;
+      font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-top: 2px;
+    }
+    .word-placeholder { color: var(--linen-mid); font-size: 0.85rem; font-style: italic; align-self: center; }
+    .word-builder-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+    /* ── SPELLING WORDS ── */
+    .spelling-word-list { display: flex; flex-direction: column; gap: 0.65rem; }
+    .spelling-word-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      cursor: pointer; transition: all 0.18s;
+    }
+    .spelling-word-card:hover { border-color: var(--story-green); box-shadow: var(--shadow-sm); }
+    .spelling-word-card.played { border-color: #a0d080; background: #f0fce8; }
+    .swc-word { font-family: 'Lora', serif; font-size: 1.4rem; font-weight: 700; color: var(--forest-deep); flex: 1; }
+    .swc-phonics { font-size: 0.78rem; color: var(--text-mid); margin-top: 0.15rem; }
+    .swc-play {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--story-green); color: #fff;
+      border: none; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .swc-play:hover { transform: scale(1.1); background: var(--forest); }
+
+    /* ── SENTENCES ── */
+    .sentence-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark); padding: 1.25rem;
+      margin-bottom: 0.75rem; cursor: pointer;
+      transition: all 0.18s;
+    }
+    .sentence-card:hover { border-color: var(--story-green); }
+    .sentence-card.played { border-color: #a0d080; background: #f4fdf0; }
+    .sc-text { font-family: 'Lora', serif; font-size: 1.1rem; color: var(--forest-deep); margin-bottom: 0.35rem; }
+    .sc-phonics { font-size: 0.78rem; color: var(--text-mid); }
+    .sc-btn {
+      margin-top: 0.75rem;
+      background: var(--story-green); color: #fff;
+      border: none; border-radius: var(--r-full); padding: 0.45rem 1.1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .sc-btn:hover { background: var(--forest); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin-bottom: 1.25rem; }
+    .progress-label { font-size: 0.8rem; font-weight: 700; color: var(--text-mid); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+    .progress-bar { height: 10px; background: var(--linen-dark); border-radius: var(--r-full); overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--story-green), #90c070); border-radius: var(--r-full); transition: width 0.4s ease; }
+
+    /* ── PHASE SELECTOR ── */
+    .phase-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .phase-btn {
+      background: #fff; border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .phase-btn:hover, .phase-btn.active {
+      background: var(--story-green); color: #fff; border-color: var(--story-green);
+    }
+
+    /* speaking indicator */
+    .speaking-ring {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #d2e8b4; border: 4px solid var(--story-green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 0.5rem;
+      animation: pulse-ring 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-ring {
+      from { transform: scale(1); box-shadow: 0 0 0 0 rgba(111,160,96,0.4); }
+      to   { transform: scale(1.06); box-shadow: 0 0 0 10px rgba(111,160,96,0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="mascot-sm">🔤</div>
+    <h1>Phonics &amp; Reading</h1>
+    <p>Tap the letters to hear their sounds · Build words · Read sentences</p>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="sound-board">🔊 Sound Board</button>
+    <button class="tab-btn" data-tab="word-builder">🏗️ Word Builder</button>
+    <button class="tab-btn" data-tab="word-list">📖 Word List</button>
+    <button class="tab-btn" data-tab="sentences">📝 Sentences</button>
+  </div>
+
+  <!-- ══ TAB: SOUND BOARD ══ -->
+  <div class="tab-panel active" id="tab-sound-board">
+    <div class="display-panel" id="display-panel">
+      <div class="display-empty">Tap a letter to hear its sound 👆</div>
+    </div>
+
+    <div class="phase-selector">
+      <button class="phase-btn active" data-phase="1">Phase 1</button>
+      <button class="phase-btn" data-phase="2">Phase 2</button>
+      <button class="phase-btn" data-phase="3">Phase 3</button>
+      <button class="phase-btn" data-phase="4">Phase 4</button>
+      <button class="phase-btn" data-phase="5">Phase 5</button>
+    </div>
+
+    <div class="board-title">Letters &amp; Sounds</div>
+    <div class="board-subtitle">Tap any letter — hear the sound, see the word 🎵</div>
+
+    <div class="phonics-grid" id="phonics-grid"></div>
+
+    <div class="board-title" style="margin-top:0.5rem;">Digraphs &amp; Blends</div>
+    <div class="board-subtitle">Two letters, one sound</div>
+    <div class="phonics-grid" id="digraph-grid"></div>
+  </div>
+
+  <!-- ══ TAB: WORD BUILDER ══ -->
+  <div class="tab-panel" id="tab-word-builder">
+    <h2 class="board-title">🏗️ Build a Word</h2>
+    <p class="board-subtitle">Tap letters below to build a word, then press Speak to hear it!</p>
+
+    <div class="word-builder-area">
+      <h3>Your word:</h3>
+      <div class="word-slots" id="word-slots">
+        <span class="word-placeholder">Tap letters to start building…</span>
+      </div>
+      <div class="word-builder-btns">
+        <button class="btn btn-primary" onclick="speakWord()">🔊 Speak Word</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteLastLetter()">⌫ Delete</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearWord()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="board-title">Tap letters to add them:</div>
+    <div class="phonics-grid" id="builder-grid" style="margin-top:0.75rem;"></div>
+  </div>
+
+  <!-- ══ TAB: WORD LIST ══ -->
+  <div class="tab-panel" id="tab-word-list">
+    <h2 class="board-title">📖 Phonics Word List</h2>
+    <p class="board-subtitle" style="margin-bottom:1.25rem;">Tap any word to hear it spoken aloud</p>
+
+    <div class="phase-selector" id="word-phase-selector">
+      <button class="phase-btn active" data-word-phase="cvc">CVC Words</button>
+      <button class="phase-btn" data-word-phase="digraph">Digraphs</button>
+      <button class="phase-btn" data-word-phase="blend">Blends</button>
+      <button class="phase-btn" data-word-phase="tricky">Tricky Words</button>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Words heard today</span><span id="words-heard">0 / 0</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="words-progress" style="width:0%"></div></div>
+    </div>
+
+    <div class="spelling-word-list" id="word-list-container"></div>
+  </div>
+
+  <!-- ══ TAB: SENTENCES ══ -->
+  <div class="tab-panel" id="tab-sentences">
+    <h2 class="board-title">📝 Read a Sentence</h2>
+    <p class="board-subtitle" style="margin-bottom:1.25rem;">Tap the button to hear the sentence read aloud</p>
+    <div id="sentences-container"></div>
+  </div>
+
+</div><!-- /page -->
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+const PHASES = {
+  1: [
+    {l:'s',w:'sun',  cls:'ph-cons'},  {l:'a',w:'ant',  cls:'ph-vowel'},
+    {l:'t',w:'top',  cls:'ph-cons'},  {l:'p',w:'pin',  cls:'ph-cons'},
+    {l:'i',w:'ink',  cls:'ph-vowel'}, {l:'n',w:'net',  cls:'ph-cons'},
+    {l:'m',w:'map',  cls:'ph-cons'},  {l:'d',w:'dog',  cls:'ph-cons'},
+    {l:'g',w:'got',  cls:'ph-cons'},  {l:'o',w:'on',   cls:'ph-vowel'},
+    {l:'c',w:'cat',  cls:'ph-cons'},  {l:'k',w:'kit',  cls:'ph-cons'},
+    {l:'e',w:'egg',  cls:'ph-vowel'}, {l:'u',w:'up',   cls:'ph-vowel'},
+    {l:'r',w:'run',  cls:'ph-cons'},  {l:'h',w:'hat',  cls:'ph-cons'},
+    {l:'b',w:'bat',  cls:'ph-cons'},  {l:'f',w:'fox',  cls:'ph-cons'},
+    {l:'l',w:'log',  cls:'ph-cons'},  {l:'j',w:'jet',  cls:'ph-cons'},
+    {l:'v',w:'van',  cls:'ph-cons'},  {l:'w',w:'web',  cls:'ph-cons'},
+    {l:'x',w:'box',  cls:'ph-cons'},  {l:'y',w:'yes',  cls:'ph-cons'},
+    {l:'z',w:'zip',  cls:'ph-cons'},  {l:'q',w:'quiz', cls:'ph-cons'},
+  ],
+  2: [
+    {l:'s',w:'sun',cls:'ph-cons'},{l:'a',w:'ant',cls:'ph-vowel'},
+    {l:'t',w:'top',cls:'ph-cons'},{l:'p',w:'pin',cls:'ph-cons'},
+    {l:'i',w:'ink',cls:'ph-vowel'},{l:'n',w:'net',cls:'ph-cons'},
+    {l:'m',w:'map',cls:'ph-cons'},{l:'d',w:'dog',cls:'ph-cons'},
+    {l:'g',w:'got',cls:'ph-cons'},{l:'o',w:'on', cls:'ph-vowel'},
+    {l:'c',w:'cat',cls:'ph-cons'},{l:'k',w:'kit',cls:'ph-cons'},
+  ],
+};
+
+const DIGRAPHS = [
+  {l:'ch',w:'chip', cls:'ph-digraph'}, {l:'sh',w:'ship', cls:'ph-digraph'},
+  {l:'th',w:'that', cls:'ph-digraph'}, {l:'ng',w:'ring', cls:'ph-digraph'},
+  {l:'ai',w:'rain', cls:'ph-digraph'}, {l:'ee',w:'feet', cls:'ph-digraph'},
+  {l:'igh',w:'night',cls:'ph-digraph'},{l:'oa',w:'boat', cls:'ph-digraph'},
+  {l:'oo',w:'moon', cls:'ph-digraph'}, {l:'ar',w:'farm', cls:'ph-digraph'},
+  {l:'or',w:'corn', cls:'ph-digraph'}, {l:'ur',w:'burn', cls:'ph-digraph'},
+  {l:'ow',w:'cow',  cls:'ph-blend'},   {l:'oi',w:'coin', cls:'ph-blend'},
+  {l:'ear',w:'hear',cls:'ph-blend'},   {l:'air',w:'fair',cls:'ph-blend'},
+];
+
+const WORD_SETS = {
+  cvc: [
+    {word:'cat',phonics:'c-a-t'},{word:'dog',phonics:'d-o-g'},
+    {word:'sit',phonics:'s-i-t'},{word:'cup',phonics:'c-u-p'},
+    {word:'pin',phonics:'p-i-n'},{word:'hat',phonics:'h-a-t'},
+    {word:'big',phonics:'b-i-g'},{word:'mud',phonics:'m-u-d'},
+    {word:'net',phonics:'n-e-t'},{word:'fox',phonics:'f-o-x'},
+    {word:'run',phonics:'r-u-n'},{word:'bed',phonics:'b-e-d'},
+  ],
+  digraph: [
+    {word:'chip',phonics:'ch-i-p'},{word:'ship',phonics:'sh-i-p'},
+    {word:'thin',phonics:'th-i-n'},{word:'ring',phonics:'r-i-ng'},
+    {word:'rain',phonics:'r-ai-n'},{word:'feet',phonics:'f-ee-t'},
+    {word:'night',phonics:'n-igh-t'},{word:'boat',phonics:'b-oa-t'},
+  ],
+  blend: [
+    {word:'clap',phonics:'cl-a-p'},{word:'frog',phonics:'fr-o-g'},
+    {word:'stop',phonics:'st-o-p'},{word:'drip',phonics:'dr-i-p'},
+    {word:'plan',phonics:'pl-a-n'},{word:'swim',phonics:'sw-i-m'},
+    {word:'trip',phonics:'tr-i-p'},{word:'slug',phonics:'sl-u-g'},
+  ],
+  tricky: [
+    {word:'the', phonics:'tricky word'},{word:'I',   phonics:'tricky word'},
+    {word:'go',  phonics:'tricky word'},{word:'no',  phonics:'tricky word'},
+    {word:'to',  phonics:'tricky word'},{word:'into',phonics:'tricky word'},
+    {word:'he',  phonics:'tricky word'},{word:'she', phonics:'tricky word'},
+    {word:'we',  phonics:'tricky word'},{word:'me',  phonics:'tricky word'},
+    {word:'be',  phonics:'tricky word'},{word:'was', phonics:'tricky word'},
+  ],
+};
+
+const SENTENCES = [
+  {text:"The cat sat on the mat.", phonics:"CVC practice"},
+  {text:"A big dog ran in the mud.", phonics:"CVC blends"},
+  {text:"She can chip and ship the box.", phonics:"Digraphs: ch, sh"},
+  {text:"The rain in Spain falls on the plain.", phonics:"Digraph: ai"},
+  {text:"Stop! The frog is on the log.", phonics:"Consonant blends"},
+  {text:"I went to the shop with Mum.", phonics:"Tricky words"},
+  {text:"He put the thin book on the bed.", phonics:"Digraph: th"},
+  {text:"The night owl flew past the bright moon.", phonics:"Digraphs: igh, oo"},
+];
+
+/* ══════════════════════════════════════
+   SPEECH
+══════════════════════════════════════ */
+const synth = window.speechSynthesis;
+
+function speak(text, rate = 0.85, pitch = 1.1) {
+  if (!synth) return;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB';
+  utt.rate = rate;
+  utt.pitch = pitch;
+  // Prefer a child-friendly UK voice
+  const voices = synth.getVoices();
+  const preferred = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.startsWith('en'));
+  if (preferred) utt.voice = preferred;
+  synth.speak(utt);
+}
+
+function speakPhoneme(letter) {
+  // Map letters to their phoneme sound hints
+  const phonemeMap = {
+    a:'ah',b:'buh',c:'cuh',d:'duh',e:'eh',f:'fuh',g:'guh',h:'huh',
+    i:'ih',j:'juh',k:'kuh',l:'luh',m:'mmm',n:'nnn',o:'oh',p:'puh',
+    q:'kwuh',r:'rrr',s:'sss',t:'tuh',u:'uh',v:'vvv',w:'wuh',
+    x:'eks',y:'yuh',z:'zzz',
+    ch:'chuh',sh:'shh',th:'thh',ng:'nng',ai:'ay',ee:'ee',
+    igh:'eye',oa:'oh',oo:'oo',ar:'ar',or:'or',ur:'er',
+    ow:'ow',oi:'oy',ear:'ear',air:'air',
+  };
+  const phoneme = phonemeMap[letter.toLowerCase()] || letter;
+  speak(phoneme, 0.7, 1.2);
+}
+
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+let currentPhase = 1;
+let wordProgress = {};
+
+function renderPhonicsGrid(data, containerId) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = data.map(p => `
+    <button class="phonic-btn ${p.cls}" onclick="tapLetter('${p.l}','${p.w}',this)">
+      <span class="phonic-letter">${p.l}</span>
+      <span class="phonic-word">${p.w}</span>
+    </button>
+  `).join('');
+}
+
+function tapLetter(letter, word, btn) {
+  // Update display
+  const panel = document.getElementById('display-panel');
+  panel.innerHTML = `
+    <div class="speaking-ring">${letter}</div>
+    <div class="display-word">${word}</div>
+    <div class="display-sound">/${letter}/ as in "${word}"</div>
+  `;
+  // Play sound
+  speakPhoneme(letter);
+  // Visual feedback
+  document.querySelectorAll('.phonic-btn').forEach(b => b.classList.remove('playing'));
+  btn.classList.add('playing');
+  setTimeout(() => btn.classList.remove('playing'), 600);
+}
+
+function renderPhase(phase) {
+  const data = PHASES[phase] || PHASES[1];
+  renderPhonicsGrid(data, 'phonics-grid');
+  renderPhonicsGrid(DIGRAPHS, 'digraph-grid');
+}
+
+// Phase buttons
+document.querySelectorAll('[data-phase]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-phase]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPhase = parseInt(btn.dataset.phase);
+    renderPhase(currentPhase);
+  });
+});
+
+/* ══ WORD BUILDER ══ */
+let builtWord = [];
+
+function renderBuilderGrid() {
+  const allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('').map(l => ({l, w:'', cls:'ph-cons ph-vowel'.includes(l) ? 'ph-vowel' : 'ph-cons'}));
+  const vowels = ['a','e','i','o','u'];
+  const data = 'abcdefghijklmnopqrstuvwxyz'.split('').map(l => ({
+    l, w: '', cls: vowels.includes(l) ? 'ph-vowel' : 'ph-cons'
+  }));
+  const grid = document.getElementById('builder-grid');
+  grid.innerHTML = data.map(p => `
+    <button class="phonic-btn ${p.cls}" onclick="addLetterToWord('${p.l}')">
+      <span class="phonic-letter">${p.l}</span>
+    </button>
+  `).join('');
+}
+
+function addLetterToWord(letter) {
+  if (builtWord.length >= 12) return;
+  builtWord.push(letter);
+  renderWordSlots();
+  speak(letter, 0.7, 1.2);
+}
+
+function deleteLastLetter() {
+  builtWord.pop();
+  renderWordSlots();
+}
+
+function clearWord() {
+  builtWord = [];
+  renderWordSlots();
+}
+
+function speakWord() {
+  if (!builtWord.length) return;
+  const word = builtWord.join('');
+  speak(word, 0.75, 1.1);
+}
+
+function renderWordSlots() {
+  const container = document.getElementById('word-slots');
+  if (!builtWord.length) {
+    container.innerHTML = '<span class="word-placeholder">Tap letters to start building…</span>';
+    return;
+  }
+  container.innerHTML = builtWord.map((l, i) => `
+    <div class="word-slot-letter" onclick="removeLetter(${i})">
+      ${l}<small>tap to remove</small>
+    </div>
+  `).join('');
+}
+
+function removeLetter(idx) {
+  builtWord.splice(idx, 1);
+  renderWordSlots();
+}
+
+/* ══ WORD LIST ══ */
+let currentWordSet = 'cvc';
+let heardWords = new Set();
+
+function renderWordList(setKey) {
+  currentWordSet = setKey;
+  const words = WORD_SETS[setKey] || [];
+  const container = document.getElementById('word-list-container');
+  container.innerHTML = words.map((w, i) => `
+    <div class="spelling-word-card ${heardWords.has(w.word) ? 'played' : ''}" id="wc-${i}">
+      <div style="flex:1">
+        <div class="swc-word">${w.word}</div>
+        <div class="swc-phonics">${w.phonics}</div>
+      </div>
+      <button class="swc-play" onclick="hearWord('${w.word}', ${i})">▶</button>
+    </div>
+  `).join('');
+  updateWordProgress(words.length);
+}
+
+function hearWord(word, idx) {
+  speak(word, 0.7, 1.1);
+  heardWords.add(word);
+  const card = document.getElementById('wc-' + idx);
+  if (card) card.classList.add('played');
+  updateWordProgress(WORD_SETS[currentWordSet].length);
+}
+
+function updateWordProgress(total) {
+  const heard = document.querySelectorAll('.spelling-word-card.played').length;
+  document.getElementById('words-heard').textContent = `${heard} / ${total}`;
+  document.getElementById('words-progress').style.width = total ? `${(heard/total)*100}%` : '0%';
+}
+
+document.querySelectorAll('[data-word-phase]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-word-phase]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderWordList(btn.dataset.wordPhase);
+  });
+});
+
+/* ══ SENTENCES ══ */
+function renderSentences() {
+  const container = document.getElementById('sentences-container');
+  container.innerHTML = SENTENCES.map((s, i) => `
+    <div class="sentence-card" id="sc-${i}">
+      <div class="sc-text">${s.text}</div>
+      <div class="sc-phonics">Focus: ${s.phonics}</div>
+      <button class="sc-btn" onclick="readSentence('${s.text.replace(/'/g,"\\'")}', ${i})">🔊 Read aloud</button>
+    </div>
+  `).join('');
+}
+
+function readSentence(text, idx) {
+  speak(text, 0.75, 1.05);
+  const card = document.getElementById('sc-' + idx);
+  if (card) card.classList.add('played');
+}
+
+/* ══ TABS ══ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ══ INIT ══ */
+// Wait for voices to load
+if (synth) {
+  synth.onvoiceschanged = () => {};
+}
+renderPhase(1);
+renderPhonicsGrid(DIGRAPHS, 'digraph-grid');
+renderBuilderGrid();
+renderWordList('cvc');
+renderSentences();
+</script>
+</body>
+</html>

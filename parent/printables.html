@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Printables | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+
+    /* ── HERO ── */
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), var(--forest), var(--clay));
+      padding: 2.2rem 1.75rem 3rem;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: var(--linen); clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem;
+      transition: color 0.15s; position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+    .hero-icon {
+      font-size: 3rem; margin: 0 auto 0.8rem;
+      animation: bounce 2.5s ease-in-out infinite;
+      position: relative; z-index: 1;
+    }
+    .page-hero h1 { font-size: clamp(1.7rem,4vw,2.5rem); margin-bottom: 0.45rem; position: relative; z-index: 1; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.8; position: relative; z-index: 1; max-width: 440px; margin: 0 auto; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      padding: 0.9rem 1.75rem;
+      display: flex; gap: 0.55rem; flex-wrap: wrap; align-items: center;
+      position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .filter-label { font-size: 0.78rem; font-weight: 800; color: var(--text-mid); margin-right: 0.3rem; }
+    .filter-btn {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.78rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--forest-light); color: var(--forest); }
+    .filter-btn.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+
+    /* ── MAIN LAYOUT ── */
+    .main-wrap {
+      max-width: 1160px; margin: 0 auto;
+      padding: 2rem 1.75rem 3rem;
+    }
+
+    /* ── SECTION HEADING ── */
+    .cat-heading {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 2rem 0 1.1rem;
+    }
+    .cat-heading:first-of-type { margin-top: 0; }
+    .cat-icon-badge {
+      width: 40px; height: 40px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .cat-heading h2 { font-family: 'Lora', serif; font-size: 1.2rem; color: var(--forest-deep); margin: 0; }
+    .cat-heading p  { font-size: 0.8rem; color: var(--text-mid); margin: 0; }
+
+    /* ── PRINTABLE CARD ── */
+    .printables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.2rem;
+    }
+    .print-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark);
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .print-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+    /* preview area — renders a mini SVG thumbnail of the printable */
+    .print-preview {
+      aspect-ratio: 3/4; max-height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .print-preview svg { width: 100%; height: 100%; }
+
+    .print-info { padding: 1rem 1.1rem 0.9rem; flex: 1; display: flex; flex-direction: column; }
+    .print-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .print-tag {
+      border-radius: var(--r-full); padding: 0.18rem 0.6rem;
+      font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .tag-free      { background: #d8f0c8; color: #2a6010; }
+    .tag-visual    { background: #dce8f8; color: #1a4070; }
+    .tag-literacy  { background: #f8e8d8; color: #6a3010; }
+    .tag-maths     { background: #f0e8d8; color: #5a3010; }
+    .tag-wellbeing { background: #e8d8f8; color: #4a1a70; }
+    .tag-routine   { background: #d8f0e0; color: #1a5030; }
+    .tag-reward    { background: #fff0c8; color: #5a4010; }
+    .tag-sen       { background: #f8d8d8; color: #6a1a1a; }
+    .tag-creative  { background: #fde8c8; color: #703010; }
+    .tag-ks1       { background: #e8e8f8; color: #2a2a60; }
+    .tag-ks2       { background: #e8f0e8; color: #1a4020; }
+    .tag-eyfs      { background: #fff8d8; color: #504010; }
+
+    .print-title { font-family: 'Lora', serif; font-size: 0.98rem; font-weight: 700; color: var(--forest-deep); margin-bottom: 0.3rem; }
+    .print-desc  { font-size: 0.78rem; color: var(--text-mid); line-height: 1.55; flex: 1; }
+
+    .print-actions {
+      display: flex; gap: 0.5rem; padding: 0.8rem 1.1rem;
+      border-top: 1.5px solid var(--linen-dark);
+    }
+    .print-btn {
+      flex: 1; border: none; border-radius: var(--r-full); padding: 0.55rem 0.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center;
+      justify-content: center; gap: 0.3rem;
+    }
+    .btn-print    { background: var(--forest); color: #fff; }
+    .btn-print:hover { background: var(--forest-deep); }
+    .btn-preview  { background: var(--linen-dark); color: var(--text-mid); }
+    .btn-preview:hover { background: var(--linen-mid); }
+    .btn-save-p {
+      width: 36px; height: 36px; flex: none; border-radius: 50%;
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      font-size: 0.95rem; color: var(--text-mid); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .btn-save-p:hover { border-color: var(--clay-light); color: var(--clay); }
+    .btn-save-p.saved { background: var(--clay-pale); border-color: var(--clay-light); color: var(--clay); }
+
+    /* ── PRINT MODAL ── */
+    .print-modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(20,35,22,0.55); backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .print-modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+    .print-modal {
+      background: var(--linen); border-radius: var(--r-xl);
+      width: 100%; max-width: 580px; max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.28s ease both;
+    }
+    .pm-header {
+      padding: 1.4rem 1.5rem 1rem;
+      border-bottom: 2px solid var(--linen-dark);
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 1rem;
+    }
+    .pm-header h3 { font-family: 'Lora', serif; color: var(--forest-deep); font-size: 1.2rem; }
+    .pm-header p  { font-size: 0.8rem; color: var(--text-mid); margin-top: 0.2rem; }
+    .pm-close {
+      background: var(--linen-dark); border: none; border-radius: 50%;
+      width: 30px; height: 30px; flex-shrink: 0; cursor: pointer;
+      font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+      color: var(--text-mid); transition: background 0.2s;
+    }
+    .pm-close:hover { background: var(--clay-pale); }
+    .pm-preview-area {
+      padding: 1.5rem; background: #f8f8f4;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pm-preview-area svg { max-width: 400px; width: 100%; border: 1px solid #ddd; background: #fff; }
+    .pm-actions {
+      padding: 1.2rem 1.5rem;
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .pm-print-btn {
+      flex: 1; background: var(--forest); color: #fff;
+      border: none; border-radius: var(--r-full); padding: 0.8rem 1.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .pm-print-btn:hover { background: var(--forest-deep); }
+    .pm-tip {
+      padding: 0 1.5rem 1.5rem;
+      font-size: 0.78rem; color: var(--text-mid); line-height: 1.55;
+    }
+    .pm-tip strong { color: var(--forest-deep); }
+
+    /* ── NO RESULTS ── */
+    .no-results {
+      text-align: center; padding: 3rem 1rem;
+      color: var(--text-mid); font-size: 0.9rem; display: none;
+    }
+    .no-results.show { display: block; }
+
+    @media print {
+      .topbar, .filter-bar, .page-hero, .print-actions,
+      .cat-heading, .filter-bar, footer, .print-modal-overlay { display: none !important; }
+      body { background: #fff; }
+      .main-wrap { padding: 0; }
+    }
+
+    @media (max-width: 480px) {
+      .printables-grid { grid-template-columns: repeat(2, 1fr); }
+      .filter-bar { padding: 0.75rem 1rem; }
+      .main-wrap { padding: 1.5rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">🖨️</div>
+    <h1>Printables</h1>
+    <p>Free, ready-to-print worksheets, schedules, reward charts and more — all SEN-friendly</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="routine">📅 Routines</button>
+    <button class="filter-btn" data-filter="reward">⭐ Reward Charts</button>
+    <button class="filter-btn" data-filter="literacy">📖 Literacy</button>
+    <button class="filter-btn" data-filter="maths">🔢 Maths</button>
+    <button class="filter-btn" data-filter="wellbeing">💛 Wellbeing</button>
+    <button class="filter-btn" data-filter="creative">🎨 Creative</button>
+    <button class="filter-btn" data-filter="sen">🧩 SEN Tools</button>
+  </div>
+
+  <div class="main-wrap">
+    <div class="no-results" id="no-results">No printables found for that filter. Try another category!</div>
+
+    <!-- ── ROUTINES & SCHEDULES ── -->
+    <div class="cat-section" data-category="routine">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#d8f0e0;">📅</div>
+        <div><h2>Routines &amp; Schedules</h2><p>Visual schedules and daily routine cards to support structure</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="routine">
+          <div class="print-preview" style="background:#f0fce8;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f8fff4"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#a3b18a" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="28" rx="6" fill="#3a5a40"/>
+              <text x="105" y="37" text-anchor="middle" fill="white" font-size="11" font-family="serif" font-weight="bold">My Daily Schedule</text>
+              <!-- rows -->
+              <g font-size="9" font-family="sans-serif">
+                <rect x="20" y="52" width="170" height="26" rx="4" fill="#e8f8e0"/>
+                <text x="55" y="69" fill="#3a5a40" font-weight="bold">🌅  Morning</text>
+                <rect x="155" y="56" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+                <text x="170" y="68" text-anchor="middle" fill="#888" font-size="8">done</text>
+
+                <rect x="20" y="84" width="170" height="26" rx="4" fill="#fdf8e8"/>
+                <text x="55" y="101" fill="#3a5a40" font-weight="bold">🍳  Breakfast</text>
+                <rect x="155" y="88" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+
+                <rect x="20" y="116" width="170" height="26" rx="4" fill="#e8f0f8"/>
+                <text x="55" y="133" fill="#3a5a40" font-weight="bold">📚  Learning time</text>
+                <rect x="155" y="120" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+
+                <rect x="20" y="148" width="170" height="26" rx="4" fill="#f8e8f0"/>
+                <text x="55" y="165" fill="#3a5a40" font-weight="bold">🍎  Snack</text>
+                <rect x="155" y="152" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+
+                <rect x="20" y="180" width="170" height="26" rx="4" fill="#f0e8f8"/>
+                <text x="55" y="197" fill="#3a5a40" font-weight="bold">🎮  Free time</text>
+                <rect x="155" y="184" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+
+                <rect x="20" y="212" width="170" height="26" rx="4" fill="#e8f8f0"/>
+                <text x="55" y="229" fill="#3a5a40" font-weight="bold">🍽️  Lunch</text>
+                <rect x="155" y="216" width="30" height="18" rx="3" fill="white" stroke="#a3b18a" stroke-width="1"/>
+
+                <rect x="20" y="244" width="170" height="20" rx="4" fill="#f8f0e0"/>
+                <text x="55" y="258" fill="#3a5a40" font-weight="bold">🌙  Bedtime routine</text>
+              </g>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-routine">Routine</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">Daily Visual Schedule</div>
+            <div class="print-desc">A clear tick-off daily schedule with visual icons. Ideal for children who need structure and predictability.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('daily-schedule')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('daily-schedule')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-daily-schedule" data-fav-title="Daily Visual Schedule" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+        <div class="print-card" data-tags="routine">
+          <div class="print-preview" style="background:#eaf4ff;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f4f8ff"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#90b8d8" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="28" rx="6" fill="#4a7090"/>
+              <text x="105" y="37" text-anchor="middle" fill="white" font-size="11" font-family="serif" font-weight="bold">Morning Routine</text>
+              <g font-size="9" font-family="sans-serif">
+                <g transform="translate(20,54)"><rect width="170" height="38" rx="5" fill="#e0f0ff"/><text x="46" y="15" fill="#1a3a50" font-size="18">🪥</text><text x="72" y="16" fill="#1a3a50" font-weight="bold" font-size="10">Brush teeth</text><rect x="130" y="8" width="28" height="22" rx="4" fill="white" stroke="#90b8d8" stroke-width="1"/><text x="144" y="23" text-anchor="middle" fill="#90b8d8" font-size="14">☐</text></g>
+                <g transform="translate(20,98)"><rect width="170" height="38" rx="5" fill="#e8f8e8"/><text x="46" y="15" fill="#1a3a50" font-size="18">👕</text><text x="72" y="16" fill="#1a3a50" font-weight="bold" font-size="10">Get dressed</text><rect x="130" y="8" width="28" height="22" rx="4" fill="white" stroke="#90b8d8" stroke-width="1"/><text x="144" y="23" text-anchor="middle" fill="#90b8d8" font-size="14">☐</text></g>
+                <g transform="translate(20,142)"><rect width="170" height="38" rx="5" fill="#fdf8e8"/><text x="46" y="15" fill="#1a3a50" font-size="18">🍳</text><text x="72" y="16" fill="#1a3a50" font-weight="bold" font-size="10">Have breakfast</text><rect x="130" y="8" width="28" height="22" rx="4" fill="white" stroke="#90b8d8" stroke-width="1"/><text x="144" y="23" text-anchor="middle" fill="#90b8d8" font-size="14">☐</text></g>
+                <g transform="translate(20,186)"><rect width="170" height="38" rx="5" fill="#f4e8f8"/><text x="46" y="15" fill="#1a3a50" font-size="18">🎒</text><text x="72" y="16" fill="#1a3a50" font-weight="bold" font-size="10">Pack my bag</text><rect x="130" y="8" width="28" height="22" rx="4" fill="white" stroke="#90b8d8" stroke-width="1"/><text x="144" y="23" text-anchor="middle" fill="#90b8d8" font-size="14">☐</text></g>
+                <g transform="translate(20,230)"><rect width="170" height="28" rx="5" fill="#e8fff0"/><text x="46" y="13" fill="#1a3a50" font-size="18">😊</text><text x="72" y="15" fill="#1a3a50" font-weight="bold" font-size="10">Ready! Great job!</text></g>
+              </g>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-routine">Routine</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">Morning Routine Checklist</div>
+            <div class="print-desc">Step-by-step morning routine with large emoji icons and tick boxes. Builds independence and reduces anxiety.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('morning-routine')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('morning-routine')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-morning-routine" data-fav-title="Morning Routine Checklist" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+        <div class="print-card" data-tags="routine">
+          <div class="print-preview" style="background:#fff8e8;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#fff8ee"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#d4a574" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="28" rx="6" fill="#9a5230"/>
+              <text x="105" y="37" text-anchor="middle" fill="white" font-size="11" font-family="serif" font-weight="bold">🌙 Bedtime Routine</text>
+              <g font-size="9" font-family="sans-serif">
+                <g transform="translate(20,54)"><rect width="170" height="34" rx="5" fill="#f0e8ff"/><text x="36" y="22" fill="#5a1a70" font-size="16">🛁</text><text x="60" y="23" fill="#5a1a70" font-weight="bold">Bath or wash</text></g>
+                <g transform="translate(20,94)"><rect width="170" height="34" rx="5" fill="#e8f8e8"/><text x="36" y="22" fill="#1a5030" font-size="16">🪥</text><text x="60" y="23" fill="#1a5030" font-weight="bold">Brush teeth</text></g>
+                <g transform="translate(20,134)"><rect width="170" height="34" rx="5" fill="#fde8d8"/><text x="36" y="22" fill="#6a2a10" font-size="16">👚</text><text x="60" y="23" fill="#6a2a10" font-weight="bold">Pyjamas on</text></g>
+                <g transform="translate(20,174)"><rect width="170" height="34" rx="5" fill="#e8f0ff"/><text x="36" y="22" fill="#1a2a60" font-size="16">📖</text><text x="60" y="23" fill="#1a2a60" font-weight="bold">Story time</text></g>
+                <g transform="translate(20,214)"><rect width="170" height="34" rx="5" fill="#f8f0e0"/><text x="36" y="22" fill="#5a4010" font-size="16">💡</text><text x="60" y="23" fill="#5a4010" font-weight="bold">Lights down</text></g>
+                <g transform="translate(20,254)"><rect width="170" height="18" rx="5" fill="#d4e8c8"/><text x="105" y="13" text-anchor="middle" fill="#2a4010" font-size="8" font-weight="bold">Sleep tight! 🌙⭐</text></g>
+              </g>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-routine">Routine</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">Bedtime Routine Chart</div>
+            <div class="print-desc">Calming bedtime routine sequence with soothing colours. Helps SEN children wind down and transition to sleep.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('bedtime-routine')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('bedtime-routine')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-bedtime-routine" data-fav-title="Bedtime Routine Chart" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── REWARD CHARTS ── -->
+    <div class="cat-section" data-category="reward">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#fff0c8;">⭐</div>
+        <div><h2>Reward Charts</h2><p>Motivating charts and sticker boards</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="reward">
+          <div class="print-preview" style="background:#fffde8;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#fffde8"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#f0c030" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="30" rx="6" fill="#c08020"/>
+              <text x="105" y="38" text-anchor="middle" fill="white" font-size="12" font-family="serif" font-weight="bold">⭐ My Star Chart ⭐</text>
+              <text x="105" y="65" text-anchor="middle" fill="#5a4010" font-size="9" font-family="sans-serif">Name: ___________________</text>
+              <!-- 5x5 star grid -->
+              <g font-size="20">
+                <text x="38" y="100">☆</text><text x="68" y="100">☆</text><text x="98" y="100">☆</text><text x="128" y="100">☆</text><text x="158" y="100">☆</text>
+                <text x="38" y="132">☆</text><text x="68" y="132">☆</text><text x="98" y="132">☆</text><text x="128" y="132">☆</text><text x="158" y="132">☆</text>
+                <text x="38" y="164">☆</text><text x="68" y="164">☆</text><text x="98" y="164">☆</text><text x="128" y="164">☆</text><text x="158" y="164">☆</text>
+                <text x="38" y="196">☆</text><text x="68" y="196">☆</text><text x="98" y="196">☆</text><text x="128" y="196">☆</text><text x="158" y="196">☆</text>
+                <text x="38" y="228">☆</text><text x="68" y="228">☆</text><text x="98" y="228">☆</text><text x="128" y="228">☆</text><text x="158" y="228">☆</text>
+              </g>
+              <rect x="20" y="240" width="170" height="24" rx="6" fill="#f8e8a0"/>
+              <text x="105" y="256" text-anchor="middle" fill="#5a4010" font-size="9" font-family="sans-serif">My reward: _____________________</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-reward">Reward</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">5×5 Star Reward Chart</div>
+            <div class="print-desc">25-star chart for stickers or stamps. Space for child's name and reward goal. Simple and effective.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('star-chart')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('star-chart')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-star-chart" data-fav-title="5×5 Star Reward Chart" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+        <div class="print-card" data-tags="reward">
+          <div class="print-preview" style="background:#f0fce8;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f4fde8"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#90c060" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="30" rx="6" fill="#3a6020"/>
+              <text x="105" y="38" text-anchor="middle" fill="white" font-size="11" font-family="serif" font-weight="bold">🌱 My Kindness Tree 🌱</text>
+              <!-- tree trunk -->
+              <rect x="95" y="220" width="20" height="40" rx="4" fill="#a07050"/>
+              <!-- tree canopy -->
+              <ellipse cx="105" cy="170" rx="55" ry="60" fill="#6a9a40"/>
+              <ellipse cx="105" cy="155" rx="45" ry="50" fill="#80b050"/>
+              <!-- leaf spots for stickers -->
+              <circle cx="80" cy="145" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="105" cy="130" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="130" cy="145" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="72" cy="170" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="138" cy="170" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="90" cy="192" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <circle cx="118" cy="192" r="12" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <text x="105" y="254" text-anchor="middle" fill="#5a3010" font-size="8" font-family="sans-serif">Add a sticker for every kind thing!</text>
+              <text x="105" y="266" text-anchor="middle" fill="#3a6020" font-size="8" font-family="sans-serif" font-weight="bold">Name: ______________</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-reward">Reward</span><span class="print-tag tag-wellbeing">Wellbeing</span><span class="print-tag tag-free">Free</span></div>
+            <div class="print-title">Kindness Tree Sticker Chart</div>
+            <div class="print-desc">A growing tree with sticker spots for every kind action. Builds social and emotional skills alongside reward.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('kindness-tree')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('kindness-tree')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-kindness-tree" data-fav-title="Kindness Tree Sticker Chart" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── LITERACY ── -->
+    <div class="cat-section" data-category="literacy">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#f8e8d8;">📖</div>
+        <div><h2>Literacy</h2><p>Phonics, handwriting, spelling and reading support sheets</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="literacy">
+          <div class="print-preview" style="background:#fdf8ee;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#fdf8ee"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#d4a574" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="26" rx="6" fill="#9a5230"/>
+              <text x="105" y="35" text-anchor="middle" fill="white" font-size="10" font-family="serif" font-weight="bold">Alphabet Handwriting Practice</text>
+              <g font-family="serif" font-size="16" fill="#3a2a10">
+                <text x="30" y="68">Aa</text><text x="80" y="68">Bb</text><text x="130" y="68">Cc</text><text x="175" y="68">Dd</text>
+                <line x1="20" y1="75" x2="195" y2="75" stroke="#d4a574" stroke-width="0.5"/>
+                <line x1="20" y1="83" x2="195" y2="83" stroke="#e8d0b8" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <text x="30" y="105">Ee</text><text x="80" y="105">Ff</text><text x="130" y="105">Gg</text><text x="175" y="105">Hh</text>
+                <line x1="20" y1="112" x2="195" y2="112" stroke="#d4a574" stroke-width="0.5"/>
+                <line x1="20" y1="120" x2="195" y2="120" stroke="#e8d0b8" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <text x="30" y="142">Ii</text><text x="80" y="142">Jj</text><text x="130" y="142">Kk</text><text x="175" y="142">Ll</text>
+                <line x1="20" y1="149" x2="195" y2="149" stroke="#d4a574" stroke-width="0.5"/>
+                <line x1="20" y1="157" x2="195" y2="157" stroke="#e8d0b8" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <text x="30" y="179">Mm</text><text x="80" y="179">Nn</text><text x="130" y="179">Oo</text><text x="175" y="179">Pp</text>
+                <line x1="20" y1="186" x2="195" y2="186" stroke="#d4a574" stroke-width="0.5"/>
+                <line x1="20" y1="194" x2="195" y2="194" stroke="#e8d0b8" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <text x="30" y="216">Qq</text><text x="80" y="216">Rr</text><text x="130" y="216">Ss</text><text x="175" y="216">Tt</text>
+                <line x1="20" y1="223" x2="195" y2="223" stroke="#d4a574" stroke-width="0.5"/>
+                <line x1="20" y1="231" x2="195" y2="231" stroke="#e8d0b8" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <text x="30" y="253">Uu</text><text x="70" y="253">Vv</text><text x="110" y="253">Ww</text><text x="160" y="253">Xx</text>
+                <text x="65" y="272">Yy</text><text x="120" y="272">Zz</text>
+              </g>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-literacy">Literacy</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS</span><span class="print-tag tag-ks1">KS1</span></div>
+            <div class="print-title">Alphabet Handwriting Sheet</div>
+            <div class="print-desc">Upper and lower case letters with dotted writing lines. Large, clear font ideal for early writers and children with dyspraxia.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('alphabet-hw')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('alphabet-hw')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-alphabet-hw" data-fav-title="Alphabet Handwriting Sheet" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+        <div class="print-card" data-tags="literacy">
+          <div class="print-preview" style="background:#f4f8ff;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f4f8ff"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#90b8d8" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="26" rx="6" fill="#3a6080"/>
+              <text x="105" y="35" text-anchor="middle" fill="white" font-size="10" font-family="serif" font-weight="bold">Phase 2 Phonics Mat</text>
+              <!-- phonics tiles -->
+              <g font-family="serif" font-weight="bold">
+                <rect x="20" y="52" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="34" y="72" text-anchor="middle" fill="#2a5010" font-size="16">s</text>
+                <rect x="52" y="52" width="28" height="28" rx="4" fill="#d8e8f8"/><text x="66" y="72" text-anchor="middle" fill="#1a3a60" font-size="16">a</text>
+                <rect x="84" y="52" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="98" y="72" text-anchor="middle" fill="#2a5010" font-size="16">t</text>
+                <rect x="116" y="52" width="28" height="28" rx="4" fill="#d8e8f8"/><text x="130" y="72" text-anchor="middle" fill="#1a3a60" font-size="16">p</text>
+                <rect x="148" y="52" width="28" height="28" rx="4" fill="#fde8d8"/><text x="162" y="72" text-anchor="middle" fill="#5a2a10" font-size="16">i</text>
+
+                <rect x="20" y="86" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="34" y="106" text-anchor="middle" fill="#2a5010" font-size="16">n</text>
+                <rect x="52" y="86" width="28" height="28" rx="4" fill="#d8e8f8"/><text x="66" y="106" text-anchor="middle" fill="#1a3a60" font-size="16">m</text>
+                <rect x="84" y="86" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="98" y="106" text-anchor="middle" fill="#2a5010" font-size="16">d</text>
+                <rect x="116" y="86" width="28" height="28" rx="4" fill="#fde8d8"/><text x="130" y="106" text-anchor="middle" fill="#5a2a10" font-size="16">g</text>
+                <rect x="148" y="86" width="28" height="28" rx="4" fill="#d8e8f8"/><text x="162" y="106" text-anchor="middle" fill="#1a3a60" font-size="16">o</text>
+
+                <rect x="20" y="120" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="34" y="140" text-anchor="middle" fill="#2a5010" font-size="16">c</text>
+                <rect x="52" y="120" width="28" height="28" rx="4" fill="#fde8d8"/><text x="66" y="140" text-anchor="middle" fill="#5a2a10" font-size="16">k</text>
+                <rect x="84" y="120" width="28" height="28" rx="4" fill="#d8e8f8"/><text x="98" y="140" text-anchor="middle" fill="#1a3a60" font-size="16">e</text>
+                <rect x="116" y="120" width="28" height="28" rx="4" fill="#d8f0c8"/><text x="130" y="140" text-anchor="middle" fill="#2a5010" font-size="16">u</text>
+                <rect x="148" y="120" width="28" height="28" rx="4" fill="#fde8d8"/><text x="162" y="140" text-anchor="middle" fill="#5a2a10" font-size="16">r</text>
+              </g>
+              <text x="105" y="170" text-anchor="middle" fill="#3a6080" font-size="7" font-family="sans-serif">Digraphs:</text>
+              <g font-family="serif" font-weight="bold">
+                <rect x="20" y="175" width="38" height="24" rx="4" fill="#e8d8f8"/><text x="39" y="191" text-anchor="middle" fill="#4a1a70" font-size="13">ch</text>
+                <rect x="62" y="175" width="38" height="24" rx="4" fill="#d8f0f8"/><text x="81" y="191" text-anchor="middle" fill="#1a4060" font-size="13">sh</text>
+                <rect x="104" y="175" width="38" height="24" rx="4" fill="#e8f8d8"/><text x="123" y="191" text-anchor="middle" fill="#1a4020" font-size="13">th</text>
+                <rect x="146" y="175" width="38" height="24" rx="4" fill="#fdf0d8"/><text x="165" y="191" text-anchor="middle" fill="#5a3010" font-size="13">ng</text>
+              </g>
+              <rect x="20" y="210" width="170" height="50" rx="5" fill="#f8f4e8" stroke="#d4a574" stroke-width="1"/>
+              <text x="105" y="228" text-anchor="middle" fill="#5a3010" font-size="7" font-family="sans-serif" font-weight="bold">Tricky words: the · I · go · no · to · into · he · she</text>
+              <text x="105" y="244" text-anchor="middle" fill="#5a3010" font-size="7" font-family="sans-serif">we · me · be · was · my · you · they · all · are · her</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-literacy">Literacy</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-ks1">KS1</span></div>
+            <div class="print-title">Phase 2 Phonics Reference Mat</div>
+            <div class="print-desc">A desk-top phonics mat covering Phase 2 letters, digraphs, and tricky words. Laminate for repeated use.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('phonics-mat')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('phonics-mat')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-phonics-mat" data-fav-title="Phase 2 Phonics Mat" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── MATHS ── -->
+    <div class="cat-section" data-category="maths">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#f0e8d8;">🔢</div>
+        <div><h2>Maths</h2><p>Number lines, counting sheets, addition grids and more</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="maths">
+          <div class="print-preview" style="background:#fff8f0;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#fff8f0"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#c8a070" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="26" rx="6" fill="#7a4820"/>
+              <text x="105" y="35" text-anchor="middle" fill="white" font-size="10" font-family="serif" font-weight="bold">Number Line 0–20</text>
+              <!-- number line -->
+              <line x1="20" y1="70" x2="190" y2="70" stroke="#c8a070" stroke-width="2"/>
+              <g font-family="serif" font-size="9" font-weight="bold">
+                <g transform="translate(20,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">0</text></g>
+                <g transform="translate(28.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">1</text></g>
+                <g transform="translate(37,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">2</text></g>
+                <g transform="translate(45.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">3</text></g>
+                <g transform="translate(54,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">4</text></g>
+                <g transform="translate(62.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">5</text></g>
+                <g transform="translate(71,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">6</text></g>
+                <g transform="translate(79.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">7</text></g>
+                <g transform="translate(88,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">8</text></g>
+                <g transform="translate(96.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">9</text></g>
+                <g transform="translate(105,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">10</text></g>
+                <g transform="translate(113.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">11</text></g>
+                <g transform="translate(122,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">12</text></g>
+                <g transform="translate(130.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">13</text></g>
+                <g transform="translate(139,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">14</text></g>
+                <g transform="translate(147.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">15</text></g>
+                <g transform="translate(156,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">16</text></g>
+                <g transform="translate(164.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">17</text></g>
+                <g transform="translate(173,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">18</text></g>
+                <g transform="translate(181.5,70)"><line x1="0" x2="0" y1="0" y2="-5" stroke="#c8a070" stroke-width="1"/><text y="16" text-anchor="middle" fill="#5a3010">19</text></g>
+                <g transform="translate(190,70)"><line x1="0" x2="0" y1="0" y2="-8" stroke="#7a4820" stroke-width="1.5"/><text y="16" text-anchor="middle" fill="#5a3010">20</text></g>
+              </g>
+              <!-- addition practice -->
+              <text x="105" y="110" text-anchor="middle" fill="#7a4820" font-size="8" font-family="sans-serif" font-weight="bold">Addition Practice — use the number line to help!</text>
+              <g font-family="serif" font-size="10">
+                <text x="30" y="132" fill="#5a3010">3 + 4 = ___</text>
+                <text x="115" y="132" fill="#5a3010">7 + 2 = ___</text>
+                <text x="30" y="155" fill="#5a3010">5 + 5 = ___</text>
+                <text x="115" y="155" fill="#5a3010">6 + 3 = ___</text>
+                <text x="30" y="178" fill="#5a3010">8 + 2 = ___</text>
+                <text x="115" y="178" fill="#5a3010">4 + 6 = ___</text>
+                <text x="30" y="201" fill="#5a3010">9 + 1 = ___</text>
+                <text x="115" y="201" fill="#5a3010">2 + 8 = ___</text>
+              </g>
+              <rect x="20" y="220" width="170" height="30" rx="5" fill="#f8e8d0"/>
+              <text x="105" y="238" text-anchor="middle" fill="#5a3010" font-size="8" font-family="sans-serif">Name: _________________ Date: _________</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-maths">Maths</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-ks1">KS1</span></div>
+            <div class="print-title">Number Line &amp; Addition Sheet</div>
+            <div class="print-desc">0–20 number line with 8 addition sums to solve. Perfect for visual learners and children who need concrete support.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('number-line-sheet')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('number-line-sheet')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-number-line" data-fav-title="Number Line & Addition Sheet" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── WELLBEING ── -->
+    <div class="cat-section" data-category="wellbeing">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#e8d8f8;">💛</div>
+        <div><h2>Wellbeing &amp; Emotions</h2><p>Feelings tools, worry journals, and calm-down supports</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="wellbeing sen">
+          <div class="print-preview" style="background:#f8f0ff;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f8f0ff"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#b898d8" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="26" rx="6" fill="#6a40a0"/>
+              <text x="105" y="35" text-anchor="middle" fill="white" font-size="10" font-family="serif" font-weight="bold">How Am I Feeling Today?</text>
+              <!-- emotion faces -->
+              <g font-size="28" font-family="serif">
+                <text x="30" y="78">😄</text><text x="80" y="78">😊</text><text x="130" y="78">😐</text><text x="175" y="78">😟</text>
+                <text x="30" y="115">😢</text><text x="80" y="115">😡</text><text x="130" y="115">😰</text><text x="175" y="115">🤩</text>
+                <text x="30" y="152">😴</text><text x="80" y="152">😔</text><text x="130" y="152">🥺</text><text x="175" y="152">🤗</text>
+              </g>
+              <g font-size="7" font-family="sans-serif" fill="#5a3a70" text-anchor="middle">
+                <text x="44" y="87">Happy</text><text x="93" y="87">OK</text><text x="143" y="87">Unsure</text><text x="190" y="87">Worried</text>
+                <text x="44" y="124">Sad</text><text x="93" y="124">Angry</text><text x="143" y="124">Scared</text><text x="190" y="124">Excited</text>
+                <text x="44" y="161">Tired</text><text x="93" y="161">Low</text><text x="143" y="161">Upset</text><text x="190" y="161">Loved</text>
+              </g>
+              <rect x="20" y="172" width="170" height="40" rx="6" fill="#ede0ff"/>
+              <text x="105" y="188" text-anchor="middle" fill="#5a3a70" font-size="8" font-family="sans-serif" font-weight="bold">Today I feel: ________________</text>
+              <text x="105" y="204" text-anchor="middle" fill="#5a3a70" font-size="7" font-family="sans-serif">Because: _____________________</text>
+              <rect x="20" y="220" width="170" height="42" rx="6" fill="#e8d8f8" stroke="#b898d8" stroke-width="1"/>
+              <text x="105" y="236" text-anchor="middle" fill="#5a3a70" font-size="8" font-family="sans-serif" font-weight="bold">To feel better I could:</text>
+              <text x="105" y="251" text-anchor="middle" fill="#5a3a70" font-size="7" font-family="sans-serif">_____________________________</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-wellbeing">Wellbeing</span><span class="print-tag tag-sen">SEN</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">Feelings Check-In Sheet</div>
+            <div class="print-desc">12 emotion faces with labels, plus space to write how they feel and what might help. Ideal for daily emotional check-ins.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('feelings-checkin')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('feelings-checkin')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-feelings-checkin" data-fav-title="Feelings Check-In Sheet" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+        <div class="print-card" data-tags="wellbeing sen">
+          <div class="print-preview" style="background:#f0fcf4;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#f0fcf4"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#80c090" stroke-width="2"/>
+              <rect x="20" y="18" width="170" height="26" rx="6" fill="#2a6040"/>
+              <text x="105" y="35" text-anchor="middle" fill="white" font-size="10" font-family="serif" font-weight="bold">🌿 My Calm-Down Toolkit</text>
+              <g font-size="8" font-family="sans-serif">
+                <rect x="20" y="52" width="170" height="40" rx="5" fill="#d8f0e0"/>
+                <text x="36" y="68" fill="#1a4030" font-size="14">🌬️</text>
+                <text x="58" y="67" fill="#1a4030" font-weight="bold">Breathing</text>
+                <text x="58" y="80" fill="#3a6050">Breathe in for 4, hold for 2, out for 6</text>
+
+                <rect x="20" y="98" width="170" height="40" rx="5" fill="#e8f4ff"/>
+                <text x="36" y="114" fill="#1a2a50" font-size="14">🎧</text>
+                <text x="58" y="113" fill="#1a2a50" font-weight="bold">Calm music</text>
+                <text x="58" y="126" fill="#3a4a70">Put on your favourite calm song</text>
+
+                <rect x="20" y="144" width="170" height="40" rx="5" fill="#fdf0e8"/>
+                <text x="36" y="160" fill="#5a2a10" font-size="14">🤲</text>
+                <text x="58" y="159" fill="#5a2a10" font-weight="bold">Fidget tool</text>
+                <text x="58" y="172" fill="#7a4a30">Use your spinner or stress ball</text>
+
+                <rect x="20" y="190" width="170" height="40" rx="5" fill="#f8e8f8"/>
+                <text x="36" y="206" fill="#4a1a60" font-size="14">🦔</text>
+                <text x="58" y="205" fill="#4a1a60" font-weight="bold">Cosy corner</text>
+                <text x="58" y="218" fill="#6a3a80">Go to your safe, quiet space</text>
+
+                <rect x="20" y="236" width="170" height="30" rx="5" fill="#e8f8f0"/>
+                <text x="105" y="250" text-anchor="middle" fill="#1a4030" font-weight="bold">My calming thing: ___________</text>
+              </g>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-wellbeing">Wellbeing</span><span class="print-tag tag-sen">SEN</span><span class="print-tag tag-free">Free</span></div>
+            <div class="print-title">Calm-Down Toolkit Card</div>
+            <div class="print-desc">Four calming strategies on one card — breathing, music, fidget tools, and a cosy corner. Laminate and keep accessible.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('calm-toolkit')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('calm-toolkit')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-calm-toolkit" data-fav-title="Calm-Down Toolkit Card" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CREATIVE ── -->
+    <div class="cat-section" data-category="creative">
+      <div class="cat-heading">
+        <div class="cat-icon-badge" style="background:#fde8c8;">🎨</div>
+        <div><h2>Creative &amp; Drawing</h2><p>Colouring pages, drawing frames and creative activity sheets</p></div>
+      </div>
+      <div class="printables-grid">
+
+        <div class="print-card" data-tags="creative">
+          <div class="print-preview" style="background:#fff8f0;">
+            <svg viewBox="0 0 210 280" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="280" fill="#fff8f0"/>
+              <rect x="10" y="10" width="190" height="260" rx="8" fill="none" stroke="#e0a060" stroke-width="2.5" stroke-dasharray="8,4"/>
+              <text x="105" y="38" text-anchor="middle" fill="#8a4020" font-size="11" font-family="serif" font-weight="bold">🌿 Draw Your World 🌿</text>
+              <rect x="25" y="48" width="160" height="160" rx="8" fill="white" stroke="#d4a070" stroke-width="1.5"/>
+              <text x="105" y="135" text-anchor="middle" fill="#e0d0c0" font-size="9" font-family="sans-serif">Draw anything you like here!</text>
+              <text x="105" y="228" text-anchor="middle" fill="#8a4020" font-size="8" font-family="sans-serif">My picture is called: ______________________</text>
+              <text x="105" y="248" text-anchor="middle" fill="#8a4020" font-size="8" font-family="sans-serif">I drew this because: _______________________</text>
+              <text x="105" y="265" text-anchor="middle" fill="#a07050" font-size="7" font-family="sans-serif">By: ___________________ Date: ___________</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-tags"><span class="print-tag tag-creative">Creative</span><span class="print-tag tag-free">Free</span><span class="print-tag tag-eyfs">EYFS+</span></div>
+            <div class="print-title">Free Drawing Frame</div>
+            <div class="print-desc">An open drawing space with prompts for title and reason. Encourages creative expression and story-telling.</div>
+          </div>
+          <div class="print-actions">
+            <button class="print-btn btn-preview" onclick="openPrintModal('drawing-frame')">👁 Preview</button>
+            <button class="print-btn btn-print"   onclick="printItem('drawing-frame')">🖨️ Print</button>
+            <button class="btn-save-p" data-fav="print-drawing-frame" data-fav-title="Free Drawing Frame" data-fav-zone="parent">♡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main-wrap -->
+
+  <footer style="background:var(--forest-deep);color:rgba(255,255,255,0.55);padding:2.5rem 1.75rem;text-align:center;">
+    <div style="font-family:'Lora',serif;font-size:1.2rem;color:var(--forest-light);margin-bottom:0.35rem;">The SEN Home Hub</div>
+    <div style="font-size:0.82rem;margin-bottom:1.3rem;">Supporting UK families on their home education journey 💚</div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+      <a href="/index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.8rem;font-weight:700;">Home</a>
+      <a href="/children/phonics.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.8rem;font-weight:700;">Phonics</a>
+      <a href="/children/maths.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.8rem;font-weight:700;">Maths</a>
+      <a href="/children/fidget.html" style="color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.8rem;font-weight:700;">Fidget Tools</a>
+    </div>
+    <div style="font-size:0.7rem;opacity:0.35;">© 2026 The SEN Home Hub · Free forever · Not affiliated with the UK Government</div>
+  </footer>
+
+</div><!-- /page -->
+
+<!-- PRINT MODAL -->
+<div class="print-modal-overlay" id="modal-print">
+  <div class="print-modal">
+    <div class="pm-header">
+      <div>
+        <h3 id="pm-title">Printable Preview</h3>
+        <p id="pm-desc">Print this sheet at home — A4, portrait recommended</p>
+      </div>
+      <button class="pm-close" onclick="closePrintModal()">✕</button>
+    </div>
+    <div class="pm-preview-area" id="pm-preview"></div>
+    <div class="pm-actions">
+      <button class="pm-print-btn" onclick="doPrint()">🖨️ Print this sheet</button>
+    </div>
+    <div class="pm-tip" id="pm-tip">
+      <strong>💡 Tip:</strong> Print on A4 paper. For best results, select "Fit to page" in your print settings. Laminating routine and reference sheets makes them last much longer!
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ── FILTER ── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    let anyVisible = false;
+    document.querySelectorAll('.cat-section').forEach(section => {
+      const cat = section.dataset.category;
+      if (filter === 'all' || cat === filter) {
+        section.style.display = '';
+        anyVisible = true;
+      } else {
+        // also check individual cards
+        let hasMatch = false;
+        section.querySelectorAll('.print-card').forEach(card => {
+          const tags = card.dataset.tags || '';
+          if (tags.includes(filter)) hasMatch = true;
+        });
+        section.style.display = hasMatch ? '' : 'none';
+        if (hasMatch) anyVisible = true;
+      }
+    });
+    document.getElementById('no-results').classList.toggle('show', !anyVisible);
+  });
+});
+
+/* ── PRINT MODAL ── */
+let currentPrintId = '';
+
+const PRINT_META = {
+  'daily-schedule':    { title: 'Daily Visual Schedule',         tip: 'Print and laminate — use a dry-wipe pen to tick off each session.' },
+  'morning-routine':   { title: 'Morning Routine Checklist',     tip: 'Stick at child\'s eye height near the bathroom or bedroom door.' },
+  'bedtime-routine':   { title: 'Bedtime Routine Chart',         tip: 'Use calming colours around this chart. Laminate for repeated use.' },
+  'star-chart':        { title: '5×5 Star Reward Chart',         tip: 'Use gold star stickers or let the child colour each star themselves.' },
+  'kindness-tree':     { title: 'Kindness Tree Sticker Chart',   tip: 'Add a leaf sticker for every kind action. Celebrate when the tree is full!' },
+  'alphabet-hw':       { title: 'Alphabet Handwriting Sheet',    tip: 'Use a thick pencil or chunky grip for children with fine motor difficulties.' },
+  'phonics-mat':       { title: 'Phase 2 Phonics Reference Mat', tip: 'Laminate for desk use. Great alongside the interactive phonics board.' },
+  'number-line-sheet': { title: 'Number Line & Addition Sheet',  tip: 'Let the child use their finger to "hop" along the number line.' },
+  'feelings-checkin':  { title: 'Feelings Check-In Sheet',       tip: 'Use at the start of each home-ed session as a gentle check-in routine.' },
+  'calm-toolkit':      { title: 'Calm-Down Toolkit Card',        tip: 'Laminate and keep in an accessible "calm corner" or on the fridge.' },
+  'drawing-frame':     { title: 'Free Drawing Frame',            tip: 'No right or wrong — let the child draw freely. Ask open questions after.' },
+};
+
+function openPrintModal(id) {
+  currentPrintId = id;
+  const meta = PRINT_META[id] || {};
+  document.getElementById('pm-title').textContent = meta.title || 'Preview';
+  document.getElementById('pm-tip').innerHTML = `<strong>💡 Tip:</strong> ${meta.tip || 'Print on A4, portrait.'}`;
+
+  // find the SVG from the card
+  const card = document.querySelector(`[onclick*="${id}"]`)?.closest('.print-card');
+  const svg  = card?.querySelector('.print-preview svg');
+  if (svg) {
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('width', '100%');
+    clone.removeAttribute('height');
+    document.getElementById('pm-preview').innerHTML = '';
+    document.getElementById('pm-preview').appendChild(clone);
+  }
+
+  document.getElementById('modal-print').classList.add('open');
+}
+
+function closePrintModal() {
+  document.getElementById('modal-print').classList.remove('open');
+}
+
+document.getElementById('modal-print').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-print')) closePrintModal();
+});
+
+function printItem(id) {
+  openPrintModal(id);
+  setTimeout(doPrint, 400);
+}
+
+function doPrint() {
+  const svg  = document.getElementById('pm-preview').querySelector('svg');
+  if (!svg) { window.print(); return; }
+
+  const serialised = new XMLSerializer().serializeToString(svg);
+  const win = window.open('', '_blank', 'width=800,height=1000');
+  win.document.write(`<!DOCTYPE html><html><head><title>SHH Printable</title>
+    <style>
+      body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; background:#fff; }
+      svg  { width:190mm; height:auto; }
+      @media print { body { margin:0; } @page { size:A4 portrait; margin:10mm; } }
+    </style></head><body>
+    ${serialised}
+    <script>window.onload=()=>{window.print();window.close();}<\/script>
+    </body></html>`);
+  win.document.close();
+}
+</script>
+</body>
+</html>

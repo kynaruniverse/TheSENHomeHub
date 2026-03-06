@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>EHCP &amp; Legal Guides | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: var(--linen); }
+
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), #3a5a50, #4a7060);
+      padding: 2.2rem 1.75rem 3rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: var(--linen); clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; transition: color 0.15s;
+      position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+    .hero-icon { font-size: 3rem; margin: 0 auto 0.8rem; position: relative; z-index: 1; }
+    .page-hero h1 { font-size: clamp(1.7rem,4vw,2.5rem); margin-bottom: 0.45rem; position: relative; z-index: 1; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.8; position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+    /* disclaimer */
+    .disclaimer {
+      background: #fff8e8; border-left: 4px solid var(--clay-mid);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      padding: 1rem 1.25rem; margin: 1.75rem 1.75rem 0;
+      font-size: 0.82rem; color: #5a3010; line-height: 1.6; max-width: 1100px;
+    }
+    .disclaimer strong { display: block; font-size: 0.88rem; margin-bottom: 0.2rem; }
+
+    /* tab bar */
+    .tab-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      display: flex; overflow-x: auto; scrollbar-width: none;
+      position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0; background: none; border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.85rem 1.3rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.18s;
+    }
+    .tab-btn:hover  { color: var(--forest); }
+    .tab-btn.active { color: var(--forest); border-bottom-color: var(--forest); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
+
+    /* content wrap */
+    .content-wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.75rem 3rem; }
+
+    /* guide sections */
+    .guide-intro {
+      background: #fff; border-radius: var(--r-lg); border: 2px solid var(--linen-dark);
+      padding: 1.5rem; margin-bottom: 1.75rem;
+    }
+    .guide-intro h2 { font-family: 'Lora', serif; color: var(--forest-deep); margin-bottom: 0.6rem; font-size: 1.3rem; }
+    .guide-intro p  { color: var(--text-mid); font-size: 0.9rem; line-height: 1.7; }
+
+    /* step cards */
+    .steps { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.75rem; }
+    .step-card {
+      background: #fff; border-radius: var(--r-lg); border: 2px solid var(--linen-dark);
+      padding: 1.25rem 1.4rem;
+      display: flex; gap: 1.1rem; align-items: flex-start;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--forest); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Lora', serif; font-weight: 700; font-size: 1rem;
+    }
+    .step-body h3 { font-family: 'Lora', serif; font-size: 1rem; color: var(--forest-deep); margin-bottom: 0.3rem; }
+    .step-body p  { font-size: 0.83rem; color: var(--text-mid); line-height: 1.6; }
+    .step-body .step-tip {
+      margin-top: 0.5rem; background: var(--forest-pale);
+      border-radius: var(--r-sm); padding: 0.5rem 0.75rem;
+      font-size: 0.78rem; color: var(--forest-deep);
+    }
+    .step-body .step-tip strong { color: var(--forest); }
+
+    /* info boxes */
+    .info-box {
+      border-radius: var(--r-lg); padding: 1.25rem 1.4rem; margin-bottom: 1.25rem;
+    }
+    .info-box h3 { font-family: 'Lora', serif; font-size: 1rem; margin-bottom: 0.5rem; }
+    .info-box p, .info-box li { font-size: 0.83rem; line-height: 1.65; color: var(--text-mid); }
+    .info-box ul { padding-left: 1.2rem; }
+    .info-box li { margin-bottom: 0.3rem; }
+    .ib-green  { background: var(--forest-pale); border-left: 4px solid var(--forest-mid); }
+    .ib-green h3 { color: var(--forest-deep); }
+    .ib-clay   { background: var(--clay-pale);  border-left: 4px solid var(--clay-mid); }
+    .ib-clay h3 { color: var(--clay); }
+    .ib-blue   { background: #e0ecf8; border-left: 4px solid #6090b8; }
+    .ib-blue h3 { color: #2a4a68; }
+    .ib-warn   { background: #fff8e0; border-left: 4px solid #d0a020; }
+    .ib-warn h3 { color: #5a4010; }
+
+    /* Q&A accordion */
+    .faq-list { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.75rem; }
+    .faq-item {
+      background: #fff; border-radius: var(--r-md);
+      border: 2px solid var(--linen-dark); overflow: hidden;
+    }
+    .faq-q {
+      padding: 1rem 1.25rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+      font-weight: 800; font-size: 0.9rem; color: var(--forest-deep);
+      transition: background 0.15s; user-select: none;
+    }
+    .faq-q:hover { background: var(--linen); }
+    .faq-q .faq-icon { font-size: 1.1rem; transition: transform 0.25s; flex-shrink: 0; }
+    .faq-item.open .faq-q .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.25s;
+      font-size: 0.85rem; color: var(--text-mid); line-height: 1.7;
+      padding: 0 1.25rem;
+    }
+    .faq-item.open .faq-a { max-height: 400px; padding: 0 1.25rem 1.1rem; }
+
+    /* timeline */
+    .timeline { position: relative; padding-left: 2.5rem; margin-bottom: 1.75rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px;
+      width: 3px; background: var(--forest-pale); border-radius: 3px;
+    }
+    .tl-item { position: relative; margin-bottom: 1.25rem; }
+    .tl-dot {
+      position: absolute; left: -2.5rem; top: 4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--forest); border: 3px solid var(--linen);
+      box-shadow: 0 0 0 2px var(--forest-light);
+    }
+    .tl-item h4 { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--forest-deep); margin-bottom: 0.25rem; }
+    .tl-item p  { font-size: 0.82rem; color: var(--text-mid); line-height: 1.6; }
+    .tl-week { font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+               letter-spacing: 0.06em; color: var(--forest-mid); margin-bottom: 0.2rem; }
+
+    /* rights table */
+    .rights-table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 0.83rem; }
+    .rights-table th { background: var(--forest); color: #fff; padding: 0.7rem 1rem; text-align: left; font-weight: 800; }
+    .rights-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--linen-dark); color: var(--text-mid); vertical-align: top; }
+    .rights-table tr:last-child td { border-bottom: none; }
+    .rights-table tr:nth-child(even) td { background: var(--linen); }
+    .rights-table .tick { color: var(--forest); font-weight: 800; }
+
+    /* link cards */
+    .link-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+    .link-card {
+      background: #fff; border-radius: var(--r-lg); border: 2px solid var(--linen-dark);
+      padding: 1.1rem 1.25rem; text-decoration: none; color: inherit;
+      transition: all 0.18s; display: flex; gap: 0.75rem; align-items: flex-start;
+    }
+    .link-card:hover { border-color: var(--forest-mid); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .link-card-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .link-card h4 { font-size: 0.9rem; font-weight: 800; color: var(--forest-deep); margin-bottom: 0.2rem; }
+    .link-card p  { font-size: 0.76rem; color: var(--text-mid); line-height: 1.5; }
+    .link-card .ext { font-size: 0.7rem; color: var(--forest-mid); font-weight: 700; margin-top: 0.3rem; }
+
+    .section-h { font-family: 'Lora', serif; color: var(--forest-deep); font-size: 1.15rem; margin-bottom: 0.75rem; margin-top: 1.5rem; }
+    .section-h:first-child { margin-top: 0; }
+
+    @media (max-width:600px) {
+      .content-wrap { padding: 1.5rem 1rem 2rem; }
+      .disclaimer { margin: 1.25rem 1rem 0; }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">📋</div>
+    <h1>EHCP &amp; Legal Guides</h1>
+    <p>Plain-English guides to EHCPs, your legal rights, and home educating a child with SEN in England &amp; Wales</p>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠️ Please note</strong>
+    This is a general information guide only — not legal advice. Laws and processes may change. Always check <a href="https://www.gov.uk/children-with-special-educational-needs" target="_blank" style="color:var(--clay);">GOV.UK</a> for the most up-to-date official information, and consider contacting IPSEA or SOS!SEN for personalised support.
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="what-is-ehcp">📄 What is an EHCP?</button>
+    <button class="tab-btn" data-tab="getting-ehcp">🗺️ Getting an EHCP</button>
+    <button class="tab-btn" data-tab="home-ed-law">🏠 Home Ed &amp; the Law</button>
+    <button class="tab-btn" data-tab="your-rights">⚖️ Your Rights</button>
+    <button class="tab-btn" data-tab="support-links">🔗 Support Links</button>
+    <button class="tab-btn" data-tab="faqs">❓ FAQs</button>
+  </div>
+
+  <!-- ══ WHAT IS AN EHCP ══ -->
+  <div class="tab-panel active" id="tab-what-is-ehcp">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>What is an EHCP?</h2>
+        <p>An Education, Health and Care Plan (EHCP) is a legal document for children and young people aged 0–25 in England who have special educational needs and/or disabilities (SEND) that cannot be met by the support usually available in a mainstream school or setting.</p>
+      </div>
+
+      <h3 class="section-h">What does an EHCP cover?</h3>
+      <div class="info-box ib-green">
+        <h3>The EHCP has sections A–K. The key ones are:</h3>
+        <ul>
+          <li><strong>Section B</strong> — Your child's special educational needs in detail</li>
+          <li><strong>Section E</strong> — The outcomes you want your child to achieve</li>
+          <li><strong>Section F</strong> — The specific educational provision that must be made (this is legally binding)</li>
+          <li><strong>Section I</strong> — The name and type of educational setting</li>
+          <li><strong>Section H</strong> — Social care provision</li>
+        </ul>
+      </div>
+
+      <div class="info-box ib-blue">
+        <h3>💡 The most important thing to know</h3>
+        <p>Section F of an EHCP is legally binding. Whatever provision is named in Section F <strong>must</strong> be provided. If it isn't, you can challenge this. This is why getting Section F wording right is so important.</p>
+      </div>
+
+      <h3 class="section-h">Who can have an EHCP?</h3>
+      <div class="info-box ib-clay">
+        <h3>A child may be eligible if they:</h3>
+        <ul>
+          <li>Have a disability or condition that affects their learning</li>
+          <li>Need more support than is ordinarily available at their school</li>
+          <li>Are aged 0–25 (EHCPs can continue into further education and training)</li>
+          <li>Live in England (Scotland, Wales and Northern Ireland have different systems)</li>
+        </ul>
+      </div>
+
+      <div class="info-box ib-warn">
+        <h3>⚠️ Wales, Scotland &amp; Northern Ireland</h3>
+        <p>EHCPs apply in <strong>England only</strong>. Wales uses Individual Development Plans (IDPs). Scotland uses Co-ordinated Support Plans (CSPs). Northern Ireland uses Statements of Special Educational Needs. The principles are similar but the processes differ.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GETTING AN EHCP ══ -->
+  <div class="tab-panel" id="tab-getting-ehcp">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>How to get an EHCP</h2>
+        <p>The process of getting an EHCP is called an EHC needs assessment. You, a school, or another professional can request this. The whole process has legal time limits the local authority must follow.</p>
+      </div>
+
+      <h3 class="section-h">The EHCP process — step by step</h3>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Request an EHC needs assessment</h3>
+            <p>You (as a parent), the school, or another professional can request the local authority (LA) carries out an EHC needs assessment. Write to the SEND team at your local council. State clearly why you think your child needs an EHCP.</p>
+            <div class="step-tip"><strong>Tip:</strong> Keep a copy of everything you send and note the date. The LA must respond within 6 weeks.</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>LA decides whether to assess</h3>
+            <p>The LA has 6 weeks to decide whether to carry out a full assessment. They will inform you of their decision. If they refuse, you have the right to appeal to the SEND Tribunal.</p>
+            <div class="step-tip"><strong>Tip:</strong> Gather evidence before requesting — school reports, diagnosis letters, GP or CAMHS letters, therapy reports. The more evidence, the stronger the request.</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>The assessment takes place</h3>
+            <p>The LA will gather information from you, the school, and professionals (educational psychologist, speech therapist, OT, etc.). You will be asked to contribute. This is your chance to describe your child's needs in detail — don't hold back.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Draft EHCP issued</h3>
+            <p>If the LA decides to issue an EHCP, they must send you a draft within 16 weeks of the initial request. You have 15 days to comment and request changes. You can name a school or educational setting at this stage.</p>
+            <div class="step-tip"><strong>Tip:</strong> Read every word of the draft carefully — especially Section F. Make sure the provision is specific and measurable, not vague (e.g. "daily 20-minute 1:1 phonics sessions" not just "phonics support").</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h3>Final EHCP issued</h3>
+            <p>The final EHCP must be issued within 20 weeks of the original request. If you disagree with the final plan, you can appeal to the SEND Tribunal within 2 months.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-h">Key timelines</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-week">Week 0</div><h4>You submit the request</h4><p>Send a written request to your LA's SEND team.</p></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-week">By Week 6</div><h4>LA decides whether to assess</h4><p>They must tell you yes or no within 6 weeks.</p></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-week">By Week 16</div><h4>Draft EHCP issued (if going ahead)</h4><p>You have 15 days to comment on the draft.</p></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-week">By Week 20</div><h4>Final EHCP issued</h4><p>The complete, legally binding plan is issued.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HOME ED & LAW ══ -->
+  <div class="tab-panel" id="tab-home-ed-law">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>Home Education &amp; the Law</h2>
+        <p>In England, parents have the legal right to educate their children at home. You do not need to be a qualified teacher. However, the rules change if your child has an EHCP.</p>
+      </div>
+
+      <div class="info-box ib-green">
+        <h3>✅ The basic legal position</h3>
+        <ul>
+          <li>Under the Education Act 1996, parents must ensure their child receives a "suitable, full-time education" — but this does not have to be at school.</li>
+          <li>You do not need LA permission to home educate (with one important exception — see below).</li>
+          <li>You do not need to follow the National Curriculum.</li>
+          <li>There is no requirement to have set hours, terms or holidays.</li>
+          <li>You do not need to have your child assessed or inspected (though the LA can make enquiries).</li>
+        </ul>
+      </div>
+
+      <div class="info-box ib-clay">
+        <h3>⚠️ The EHCP exception — very important</h3>
+        <p>If your child has an EHCP and is currently named in a school in Section I, you <strong>must</strong> get the LA's consent before withdrawing them to home educate. The LA must agree to amend the EHCP to name "home education" in Section I.</p>
+        <p style="margin-top:0.5rem;">If your child does not currently have a school named (e.g. they have never attended school), you do not need consent — but the LA still has a duty to ensure provision in the EHCP is being met.</p>
+      </div>
+
+      <div class="info-box ib-blue">
+        <h3>📝 What "suitable education" means</h3>
+        <p>The education must be suitable to your child's age, ability, aptitude, and any special educational needs. It does not have to look like school — it can be child-led, project-based, or structured around your child's specific needs and strengths.</p>
+      </div>
+
+      <h3 class="section-h">LA involvement in home education</h3>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">📬</div>
+          <div class="step-body">
+            <h3>Notifying the LA</h3>
+            <p>If you are withdrawing your child from a state school, you must notify the school in writing. The school will then inform the LA. You do not need to register with the LA yourself, but many parents choose to make contact proactively.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">🔍</div>
+          <div class="step-body">
+            <h3>LA monitoring</h3>
+            <p>The LA has a duty to identify children not receiving a suitable education. They may contact you to ask for information about your home education provision. You are not obliged to allow home visits, but providing written information about your approach is reasonable.</p>
+            <div class="step-tip"><strong>Tip:</strong> Keep a simple learning journal or portfolio. Photos, samples of work, and notes on activities are all useful if the LA makes enquiries.</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">📋</div>
+          <div class="step-body">
+            <h3>When you have an EHCP</h3>
+            <p>The LA retains its duty to ensure EHCP provision is met even when you home educate. This means they should still arrange or fund any provision named in Section F. In practice, many families have to advocate strongly for this — organisations like IPSEA can help.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ YOUR RIGHTS ══ -->
+  <div class="tab-panel" id="tab-your-rights">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>Your Rights as a Parent</h2>
+        <p>Knowing your rights means you can advocate effectively for your child. Here is a plain-English summary of the key rights parents and carers have under SEND law in England.</p>
+      </div>
+
+      <table class="rights-table">
+        <thead>
+          <tr><th>Your right</th><th>What it means in practice</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Right to request an EHC needs assessment</strong></td><td>Any parent can request an assessment at any time. The LA must consider it.</td></tr>
+          <tr><td><strong>Right to be involved in the process</strong></td><td>You must be consulted at every stage. Your views must be included in the EHCP.</td></tr>
+          <tr><td><strong>Right to name a school or setting</strong></td><td>You can request a specific school (including independent or specialist schools) in Section I.</td></tr>
+          <tr><td><strong>Right to appeal</strong></td><td>You can appeal to the SEND Tribunal if the LA refuses to assess, refuses to issue an EHCP, or if you disagree with the content or named setting.</td></tr>
+          <tr><td><strong>Right to an annual review</strong></td><td>The EHCP must be reviewed at least once a year. You can request an early review at any time.</td></tr>
+          <tr><td><strong>Right to mediation</strong></td><td>Before going to tribunal, you must be offered mediation (though you don't have to use it).</td></tr>
+          <tr><td><strong>Right to home educate</strong></td><td>You can choose to home educate (with LA consent if a school is named in the EHCP).</td></tr>
+          <tr><td><strong>Right to information</strong></td><td>The LA must publish a Local Offer describing all available SEND support in the area.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box ib-warn">
+        <h3>🏛️ SEND Tribunal appeals</h3>
+        <p>The First-tier Tribunal (SEND) hears appeals from parents in England. You can appeal against: refusal to assess; refusal to issue an EHCP; the content of Sections B, F, or I; refusal to maintain an EHCP; and the named educational setting. You generally have 2 months from the LA's decision to appeal. Free support is available from IPSEA and SOS!SEN.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SUPPORT LINKS ══ -->
+  <div class="tab-panel" id="tab-support-links">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>Useful Support Links</h2>
+        <p>These are trusted UK organisations that can help with SEND, EHCPs, home education and family support. All are free to contact unless stated.</p>
+      </div>
+      <div class="link-cards">
+        <a class="link-card" href="https://www.ipsea.org.uk" target="_blank" rel="noopener">
+          <div class="link-card-icon">⚖️</div>
+          <div><h4>IPSEA</h4><p>Free independent legal advice on SEND. Excellent for EHCP appeals and tribunal support.</p><div class="ext">ipsea.org.uk ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.sossen.org.uk" target="_blank" rel="noopener">
+          <div class="link-card-icon">📞</div>
+          <div><h4>SOS!SEN</h4><p>Helpline and advice for families navigating the SEND system. Practical, friendly support.</p><div class="ext">sossen.org.uk ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.gov.uk/children-with-special-educational-needs" target="_blank" rel="noopener">
+          <div class="link-card-icon">🏛️</div>
+          <div><h4>GOV.UK SEND</h4><p>Official UK Government information on SEND, EHCPs, rights and processes.</p><div class="ext">gov.uk ↗</div></div>
+        </a>
+        <a class="link-card" href="https://contact.org.uk" target="_blank" rel="noopener">
+          <div class="link-card-icon">👨‍👩‍👧</div>
+          <div><h4>Contact</h4><p>Support for families of disabled children. Helpline, guides and community connections.</p><div class="ext">contact.org.uk ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.specialneedsjungle.com" target="_blank" rel="noopener">
+          <div class="link-card-icon">🌿</div>
+          <div><h4>Special Needs Jungle</h4><p>In-depth guides and news on SEND law, EHCPs, and education from a parent perspective.</p><div class="ext">specialneedsjungle.com ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.educationotherwise.net" target="_blank" rel="noopener">
+          <div class="link-card-icon">🏠</div>
+          <div><h4>Education Otherwise</h4><p>UK's longest-running home education support organisation. Guides and legal info.</p><div class="ext">educationotherwise.net ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.ndti.org.uk" target="_blank" rel="noopener">
+          <div class="link-card-icon">🔬</div>
+          <div><h4>NDTi</h4><p>National Development Team for Inclusion — research, practice and policy on inclusive education.</p><div class="ext">ndti.org.uk ↗</div></div>
+        </a>
+        <a class="link-card" href="https://www.cafcass.gov.uk" target="_blank" rel="noopener">
+          <div class="link-card-icon">👶</div>
+          <div><h4>Cafcass</h4><p>Children and Family Court Advisory Support Service — relevant when SEND intersects with family proceedings.</p><div class="ext">cafcass.gov.uk ↗</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FAQs ══ -->
+  <div class="tab-panel" id="tab-faqs">
+    <div class="content-wrap">
+      <div class="guide-intro">
+        <h2>Frequently Asked Questions</h2>
+        <p>Answers to the questions we hear most often from home-educating SEN families. Tap any question to expand the answer.</p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">Can I home educate my child if they have an EHCP? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Yes — but if a school is named in Section I of the EHCP, you must get the LA's agreement before withdrawing your child. Write to the LA requesting they amend the EHCP to name "home education." They cannot unreasonably withhold consent, and the duty to fund provision in Section F remains.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does the LA still have to fund provision if I home educate? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Yes — if there is an EHCP with provision named in Section F, the LA retains the duty to ensure that provision is made, even during home education. In practice, this is not always straightforward and many families find they have to actively pursue this. IPSEA can advise on specific cases.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What if the LA refuses to issue an EHCP? <span class="faq-icon">+</span></div>
+          <div class="faq-a">You can appeal to the First-tier Tribunal (SEND) within 2 months of the decision. Before doing so, you must be offered mediation (though you can decline). IPSEA and SOS!SEN offer free advice and support for tribunal cases and have a strong track record of helping families succeed.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Do I need to follow the National Curriculum when home educating? <span class="faq-icon">+</span></div>
+          <div class="faq-a">No. Home-educating parents in England are not required to follow the National Curriculum. The legal requirement is to provide a "suitable, full-time education" appropriate to your child's age, ability, aptitude, and SEN. This gives you significant flexibility to tailor learning to your child's needs.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can the LA force me to let them visit my home? <span class="faq-icon">+</span></div>
+          <div class="faq-a">No — you are not legally required to allow LA officials into your home to inspect your education provision. However, you can be asked to provide information demonstrating that your child is receiving a suitable education. Sharing a written summary or learning portfolio is a reasonable response to LA enquiries.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What is the Local Offer and how do I find mine? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Every LA in England must publish a Local Offer — a directory of all SEND services, support, and provision available in their area. Search "[your council name] Local Offer" to find yours. It should cover education, health, and social care services for children and young people aged 0–25 with SEND.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">My child has a diagnosis but no EHCP — can they still get support? <span class="faq-icon">+</span></div>
+          <div class="faq-a">Yes. A diagnosis does not automatically lead to an EHCP, and an EHCP is not the only form of support available. Schools have a duty to make reasonable adjustments under the Equality Act 2010, and SEN support (previously called School Action and School Action Plus) should be available without an EHCP. However, if your child's needs are significant, it is worth requesting an EHCP assessment.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What age does an EHCP stop? <span class="faq-icon">+</span></div>
+          <div class="faq-a">An EHCP can be maintained until age 25 if the young person is in education or training. It does not automatically end at 16 or 18. However, the EHCP must be reviewed annually, and the LA may cease it if they decide it is no longer needed — which you can appeal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="background:var(--forest-deep);color:rgba(255,255,255,0.55);padding:2.5rem 1.75rem;text-align:center;">
+    <div style="font-family:'Lora',serif;font-size:1.2rem;color:var(--forest-light);margin-bottom:0.35rem;">The SEN Home Hub</div>
+    <div style="font-size:0.82rem;margin-bottom:1.3rem;">Supporting UK families on their home education journey 💚</div>
+    <div style="font-size:0.7rem;opacity:0.35;">© 2026 The SEN Home Hub · General information only · Not legal advice · Not affiliated with the UK Government</div>
+  </footer>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.closest('.faq-item').classList.toggle('open'));
+  });
+</script>
+</body>
+</html>

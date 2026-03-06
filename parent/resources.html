@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Resources | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: var(--linen); }
+
+    .page-hero {
+      background: linear-gradient(150deg, var(--forest-deep), var(--forest), var(--forest-mid));
+      padding: 2.2rem 1.75rem 3rem; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: var(--linen); clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; transition: color 0.15s;
+      position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+    .hero-icon { font-size: 3rem; margin: 0 auto 0.8rem; position: relative; z-index: 1; }
+    .page-hero h1 { font-size: clamp(1.7rem,4vw,2.5rem); margin-bottom: 0.45rem; position: relative; z-index: 1; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.8; position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+    /* search + filter */
+    .filter-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      padding: 0.9rem 1.75rem;
+      display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;
+      position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .search-input {
+      flex: 1; min-width: 160px;
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.45rem 1rem;
+      font-family: 'Nunito', sans-serif; font-size: 0.88rem; color: var(--text);
+      outline: none; transition: border-color 0.18s;
+    }
+    .search-input:focus { border-color: var(--forest-mid); }
+    .filter-btn {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.85rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.78rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--forest); color: #fff; border-color: var(--forest);
+    }
+
+    /* main */
+    .main-wrap { max-width: 1160px; margin: 0 auto; padding: 2rem 1.75rem 3rem; }
+
+    /* featured strip */
+    .featured-strip {
+      background: linear-gradient(135deg, var(--forest-deep), var(--forest));
+      border-radius: var(--r-xl); padding: 1.75rem;
+      margin-bottom: 2rem; color: #fff;
+      display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center;
+    }
+    .featured-strip h2 { font-family: 'Lora', serif; font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .featured-strip p  { font-size: 0.85rem; opacity: 0.8; line-height: 1.6; }
+    .featured-strip-links { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
+    .feat-link {
+      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: var(--r-full); padding: 0.4rem 0.9rem;
+      font-size: 0.8rem; font-weight: 800; color: #fff; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .feat-link:hover { background: rgba(255,255,255,0.25); }
+    .feat-badge { font-size: 3.5rem; flex-shrink: 0; }
+
+    /* cat section */
+    .cat-section { margin-bottom: 2.5rem; }
+    .cat-section.hidden { display: none; }
+    .cat-header {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem;
+    }
+    .cat-badge {
+      width: 40px; height: 40px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .cat-header h2 { font-family: 'Lora', serif; font-size: 1.15rem; color: var(--forest-deep); margin: 0; }
+    .cat-header p  { font-size: 0.8rem; color: var(--text-mid); margin: 0; }
+
+    /* resource cards */
+    .res-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .res-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark);
+      padding: 1.2rem 1.3rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      transition: all 0.18s;
+      text-decoration: none; color: inherit; position: relative;
+    }
+    .res-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--forest-light); }
+    .res-card.hidden { display: none; }
+    .res-card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .res-card-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .res-card-meta { flex: 1; }
+    .res-card-title { font-family: 'Lora', serif; font-size: 0.98rem; font-weight: 700; color: var(--forest-deep); margin-bottom: 0.15rem; }
+    .res-card-desc  { font-size: 0.8rem; color: var(--text-mid); line-height: 1.55; }
+    .res-card-tags  { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .res-tag {
+      border-radius: var(--r-full); padding: 0.16rem 0.6rem;
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .rt-free    { background: #d8f0c8; color: #1a5010; }
+    .rt-ext     { background: #dce8f8; color: #1a3a60; }
+    .rt-tool    { background: #f0e8d8; color: #5a3010; }
+    .rt-legal   { background: #f8e0e0; color: #5a1a1a; }
+    .rt-sen     { background: #e8d8f8; color: #3a1a60; }
+    .rt-new     { background: #d8f8d8; color: #0a4010; }
+    .res-arrow { position: absolute; bottom: 1rem; right: 1.1rem; font-size: 0.9rem; opacity: 0.3; transition: all 0.18s; }
+    .res-card:hover .res-arrow { opacity: 0.8; transform: translateX(3px); }
+    .fav-heart-sm {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: transparent; border: none;
+      font-size: 0.95rem; color: var(--text-light); cursor: pointer; transition: all 0.15s;
+    }
+    .fav-heart-sm:hover { color: var(--clay); transform: scale(1.2); }
+    .fav-heart-sm.saved { color: var(--clay); }
+
+    .no-results { text-align: center; padding: 3rem 1rem; color: var(--text-mid); display: none; }
+    .no-results.show { display: block; }
+
+    /* new resources banner */
+    .new-banner {
+      background: var(--forest-pale); border-radius: var(--r-lg);
+      border: 2px solid var(--forest-light);
+      padding: 1rem 1.25rem; margin-bottom: 1.75rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .new-banner-icon { font-size: 1.5rem; }
+    .new-banner-text strong { display: block; font-size: 0.9rem; font-weight: 800; color: var(--forest-deep); }
+    .new-banner-text span   { font-size: 0.78rem; color: var(--text-mid); }
+
+    @media (max-width: 600px) {
+      .main-wrap { padding: 1.5rem 1rem 2rem; }
+      .filter-bar { padding: 0.75rem 1rem; }
+      .featured-strip { grid-template-columns: 1fr; }
+      .feat-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="hero-icon">📚</div>
+    <h1>Resources</h1>
+    <p>Everything in one place — interactive tools, printables, guides, and links for SEN home educators</p>
+  </div>
+
+  <div class="filter-bar">
+    <input class="search-input" id="res-search" placeholder="🔍 Search resources…" oninput="filterResources()"/>
+    <button class="filter-btn active" data-rfilter="all" onclick="setRFilter('all',this)">All</button>
+    <button class="filter-btn" data-rfilter="interactive" onclick="setRFilter('interactive',this)">🎮 Interactive</button>
+    <button class="filter-btn" data-rfilter="printable" onclick="setRFilter('printable',this)">🖨️ Printable</button>
+    <button class="filter-btn" data-rfilter="guide" onclick="setRFilter('guide',this)">📖 Guides</button>
+    <button class="filter-btn" data-rfilter="legal" onclick="setRFilter('legal',this)">⚖️ Legal</button>
+    <button class="filter-btn" data-rfilter="external" onclick="setRFilter('external',this)">🔗 External</button>
+  </div>
+
+  <div class="main-wrap">
+
+    <!-- new banner -->
+    <div class="new-banner">
+      <div class="new-banner-icon">🌱</div>
+      <div class="new-banner-text">
+        <strong>Always growing</strong>
+        <span>New resources are added regularly. Bookmark this page and check back — we'll always let you know what's new.</span>
+      </div>
+    </div>
+
+    <!-- featured -->
+    <div class="featured-strip">
+      <div>
+        <h2>Start here if you're new 👋</h2>
+        <p>Not sure where to begin? These are the most-used resources on the SEN Home Hub — a great starting point for any family.</p>
+        <div class="featured-strip-links">
+          <a class="feat-link" href="/children/phonics.html">🔤 Phonics Board</a>
+          <a class="feat-link" href="/children/maths.html">🔢 Maths Board</a>
+          <a class="feat-link" href="/parent/printables.html">🖨️ Printables</a>
+          <a class="feat-link" href="/parent/sen-types.html">🧩 SEN Type Guides</a>
+          <a class="feat-link" href="/children/fidget.html">🤲 Fidget Tools</a>
+        </div>
+      </div>
+      <div class="feat-badge">📚</div>
+    </div>
+
+    <!-- INTERACTIVE TOOLS -->
+    <div class="cat-section" data-rcat="interactive">
+      <div class="cat-header">
+        <div class="cat-badge" style="background:#d8f0d8;">🎮</div>
+        <div><h2>Interactive Learning Tools</h2><p>Use directly on screen — designed for SEN children aged 3–11</p></div>
+      </div>
+      <div class="res-grid">
+        <a class="res-card" href="/children/phonics.html" data-rtags="interactive literacy phonics">
+          <div class="res-card-top">
+            <div class="res-card-icon">🔤</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Phonics &amp; Reading Board</div>
+              <div class="res-card-desc">Interactive letter tiles with real speech sounds. Word builder, word lists and read-aloud sentences. Phases 1–5.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-tool">Interactive</span></div>
+          <button class="fav-heart-sm" data-fav="res-phonics-board" data-fav-title="Phonics & Reading Board" data-fav-url="/children/phonics.html" onclick="event.preventDefault();event.stopPropagation()">♡</button>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/children/maths.html" data-rtags="interactive maths counting addition subtraction shapes times tables">
+          <div class="res-card-top">
+            <div class="res-card-icon">🔢</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Maths Board</div>
+              <div class="res-card-desc">Counting with visual objects, addition and subtraction with multiple choice, number line, shapes, and times tables.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-tool">Interactive</span></div>
+          <button class="fav-heart-sm" data-fav="res-maths-board" data-fav-title="Maths Board" data-fav-url="/children/maths.html" onclick="event.preventDefault();event.stopPropagation()">♡</button>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/children/feelings.html" data-rtags="interactive wellbeing emotions life skills">
+          <div class="res-card-top">
+            <div class="res-card-icon">💛</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Feelings &amp; Life Skills</div>
+              <div class="res-card-desc">Emotion recognition, daily routines, social stories, and self-regulation activities. Coming soon.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-new">Coming Soon</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/children/spelling.html" data-rtags="interactive literacy spelling">
+          <div class="res-card-top">
+            <div class="res-card-icon">✏️</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Spelling Board</div>
+              <div class="res-card-desc">Phonics-based spelling practice, word families, and spoken-word spelling tests. Coming soon.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-new">Coming Soon</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/children/fidget.html" data-rtags="interactive wellbeing fidget sensory focus">
+          <div class="res-card-top">
+            <div class="res-card-icon">🤲</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Fidget &amp; Focus Tools</div>
+              <div class="res-card-desc">Spinner, clicker counter, sand timer, bubble wrap, breathing helper, and switch counter. All sensory regulation tools.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-tool">Interactive</span><span class="res-tag rt-sen">SEN</span></div>
+          <button class="fav-heart-sm" data-fav="res-fidget" data-fav-title="Fidget & Focus Tools" data-fav-url="/children/fidget.html" onclick="event.preventDefault();event.stopPropagation()">♡</button>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/children/games.html" data-rtags="interactive games fun literacy maths">
+          <div class="res-card-top">
+            <div class="res-card-icon">🎯</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Educational Games</div>
+              <div class="res-card-desc">Word match, number bugs, colouring, and puzzle games — learning wrapped in fun. Coming soon.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-new">Coming Soon</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- PRINTABLES -->
+    <div class="cat-section" data-rcat="printable">
+      <div class="cat-header">
+        <div class="cat-badge" style="background:#f0dcc8;">🖨️</div>
+        <div><h2>Printables</h2><p>Print at home — free, SEN-friendly worksheets and resources</p></div>
+      </div>
+      <div class="res-grid">
+        <a class="res-card" href="/parent/printables.html#schedule" data-rtags="printable routine schedule">
+          <div class="res-card-top">
+            <div class="res-card-icon">📅</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Visual Daily Schedule</div>
+              <div class="res-card-desc">A printable tick-off daily schedule with visual icons. Reduces anxiety through predictability.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/printables.html#reward" data-rtags="printable reward chart motivation">
+          <div class="res-card-top">
+            <div class="res-card-icon">⭐</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Reward Charts</div>
+              <div class="res-card-desc">Star chart and Kindness Tree — motivating, printable reward systems for home ed.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/printables.html" data-rtags="printable literacy phonics handwriting">
+          <div class="res-card-top">
+            <div class="res-card-icon">📝</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Literacy Printables</div>
+              <div class="res-card-desc">Alphabet handwriting sheet, Phase 2 phonics mat, and more — all ready to print.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/printables.html" data-rtags="printable maths number line">
+          <div class="res-card-top">
+            <div class="res-card-icon">🔢</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Maths Printables</div>
+              <div class="res-card-desc">Number line 0–20 with addition practice. Ideal for dyscalculia and visual learners.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/printables.html" data-rtags="printable wellbeing emotions feelings">
+          <div class="res-card-top">
+            <div class="res-card-icon">💛</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Wellbeing &amp; Emotion Sheets</div>
+              <div class="res-card-desc">Feelings check-in sheet and calm-down toolkit card. Essential SEN wellbeing tools.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-sen">SEN</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- GUIDES -->
+    <div class="cat-section" data-rcat="guide">
+      <div class="cat-header">
+        <div class="cat-badge" style="background:#e0ddf8;">📖</div>
+        <div><h2>Guides &amp; Information</h2><p>In-depth guides written for SEN home-educating families in the UK</p></div>
+      </div>
+      <div class="res-grid">
+        <a class="res-card" href="/parent/sen-types.html" data-rtags="guide sen types autism adhd dyslexia">
+          <div class="res-card-top">
+            <div class="res-card-icon">🧩</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">SEN Type Guides</div>
+              <div class="res-card-desc">Detailed guides for 13 SEN types — what it is, signs, and home education strategies for each.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-sen">SEN</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/ehcp.html" data-rtags="guide legal ehcp rights">
+          <div class="res-card-top">
+            <div class="res-card-icon">📋</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">EHCP Guide</div>
+              <div class="res-card-desc">What an EHCP is, how to get one, your legal rights, and the full process explained clearly.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-legal">Legal Info</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/ehcp.html#home-ed-law" data-rtags="guide legal home education law rights">
+          <div class="res-card-top">
+            <div class="res-card-icon">🏠</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Home Ed &amp; the Law</div>
+              <div class="res-card-desc">Your legal rights as a home educator — what the LA can and can't do, and your obligations.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-legal">Legal Info</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="/parent/tips.html" data-rtags="guide teaching tips strategies sen">
+          <div class="res-card-top">
+            <div class="res-card-icon">💡</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Teaching Tips</div>
+              <div class="res-card-desc">Multi-sensory strategies, structured routines, and practical advice for home educating a SEN child. Coming soon.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-new">Coming Soon</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- LEGAL -->
+    <div class="cat-section" data-rcat="legal">
+      <div class="cat-header">
+        <div class="cat-badge" style="background:#f8e0e0;">⚖️</div>
+        <div><h2>Legal &amp; Rights</h2><p>Know your rights — plain-English summaries of SEND law and your entitlements</p></div>
+      </div>
+      <div class="res-grid">
+        <a class="res-card" href="/parent/ehcp.html" data-rtags="legal ehcp guide rights">
+          <div class="res-card-top">
+            <div class="res-card-icon">📋</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">EHCP &amp; Legal Guides</div>
+              <div class="res-card-desc">Full EHCP guide, parent rights table, timeline, FAQs, and external support links — all in one place.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-legal">Legal Info</span></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-card" href="https://www.ipsea.org.uk" target="_blank" rel="noopener" data-rtags="legal external support ipsea">
+          <div class="res-card-top">
+            <div class="res-card-icon">⚖️</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">IPSEA — Free Legal Advice</div>
+              <div class="res-card-desc">Independent legal advice on SEND — invaluable for EHCP appeals, tribunal cases and LA disputes.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://www.gov.uk/children-with-special-educational-needs" target="_blank" rel="noopener" data-rtags="legal external government official">
+          <div class="res-card-top">
+            <div class="res-card-icon">🏛️</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">GOV.UK — Official SEND Info</div>
+              <div class="res-card-desc">The official UK Government pages on SEND, EHCPs, rights and processes. Always up to date.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- EXTERNAL LINKS -->
+    <div class="cat-section" data-rcat="external">
+      <div class="cat-header">
+        <div class="cat-badge" style="background:#dce8f8;">🔗</div>
+        <div><h2>Trusted External Links</h2><p>Carefully chosen UK organisations and resources we recommend</p></div>
+      </div>
+      <div class="res-grid">
+        <a class="res-card" href="https://www.autism.org.uk" target="_blank" rel="noopener" data-rtags="external autism support nAS">
+          <div class="res-card-top">
+            <div class="res-card-icon">🧩</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">National Autistic Society</div>
+              <div class="res-card-desc">The UK's leading autism charity. Guides, support, community and resources for autistic people and families.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://www.addiss.co.uk" target="_blank" rel="noopener" data-rtags="external adhd support">
+          <div class="res-card-top">
+            <div class="res-card-icon">⚡</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">ADDISS</div>
+              <div class="res-card-desc">ADHD Information Services — national charity providing support, information and training for ADHD families.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://www.bdadyslexia.org.uk" target="_blank" rel="noopener" data-rtags="external dyslexia support">
+          <div class="res-card-top">
+            <div class="res-card-icon">📖</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">British Dyslexia Association</div>
+              <div class="res-card-desc">UK's leading dyslexia organisation — guidance, resources, and support for families and educators.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://contact.org.uk" target="_blank" rel="noopener" data-rtags="external families support disabled children">
+          <div class="res-card-top">
+            <div class="res-card-icon">👨‍👩‍👧</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Contact</div>
+              <div class="res-card-desc">Support for families of disabled children — helpline, community connections, and practical guides.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://www.youngminds.org.uk" target="_blank" rel="noopener" data-rtags="external mental health children young people anxiety">
+          <div class="res-card-top">
+            <div class="res-card-icon">🧠</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">YoungMinds</div>
+              <div class="res-card-desc">UK's leading children's mental health charity. Resources on anxiety, emotional wellbeing and mental health support.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+        <a class="res-card" href="https://www.dsuk.org" target="_blank" rel="noopener" data-rtags="external down syndrome support">
+          <div class="res-card-top">
+            <div class="res-card-icon">💙</div>
+            <div class="res-card-meta">
+              <div class="res-card-title">Down Syndrome UK</div>
+              <div class="res-card-desc">Support, information and community for families and individuals living with Down syndrome across the UK.</div>
+            </div>
+          </div>
+          <div class="res-card-tags"><span class="res-tag rt-free">Free</span><span class="res-tag rt-ext">External</span></div>
+          <div class="res-arrow">↗</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="no-results" id="res-no-results">No resources found. Try a different search or filter.</div>
+
+  </div><!-- /main-wrap -->
+
+  <footer style="background:var(--forest-deep);color:rgba(255,255,255,0.55);padding:2.5rem 1.75rem;text-align:center;">
+    <div style="font-family:'Lora',serif;font-size:1.2rem;color:var(--forest-light);margin-bottom:0.35rem;">The SEN Home Hub</div>
+    <div style="font-size:0.82rem;margin-bottom:1.3rem;">Supporting UK families on their home education journey 💚</div>
+    <div style="font-size:0.7rem;opacity:0.35;">© 2026 The SEN Home Hub · Free forever · Not affiliated with the UK Government</div>
+  </footer>
+
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+let currentRFilter = 'all';
+
+function setRFilter(f, btn) {
+  currentRFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterResources();
+}
+
+function filterResources() {
+  const q = document.getElementById('res-search').value.toLowerCase();
+  let anyVisible = false;
+
+  document.querySelectorAll('.cat-section').forEach(section => {
+    const cat = section.dataset.rcat;
+    const matchCat = currentRFilter === 'all' || cat === currentRFilter;
+    let sectionVisible = false;
+
+    section.querySelectorAll('.res-card').forEach(card => {
+      const tags = (card.dataset.rtags || '').toLowerCase();
+      const title = card.querySelector('.res-card-title')?.textContent.toLowerCase() || '';
+      const desc  = card.querySelector('.res-card-desc')?.textContent.toLowerCase()  || '';
+      const matchQ = !q || tags.includes(q) || title.includes(q) || desc.includes(q);
+      const show = matchCat && matchQ;
+      card.classList.toggle('hidden', !show);
+      if (show) { sectionVisible = true; anyVisible = true; }
+    });
+
+    section.classList.toggle('hidden', !sectionVisible);
+  });
+
+  document.getElementById('res-no-results').classList.toggle('show', !anyVisible);
+}
+</script>
+</body>
+</html>

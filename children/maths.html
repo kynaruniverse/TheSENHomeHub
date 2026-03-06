@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#243d29"/>
+  <title>Maths Fun | The SEN Home Hub</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { background: #fdf4e8; }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      background: linear-gradient(150deg, #7a5020, #c08040, #d4a060);
+      padding: 2.2rem 1.75rem 2.5rem;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
+      background: #fdf4e8; clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; transition: color 0.15s;
+    }
+    .back-link:hover { color: #fff; }
+    .page-hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 0.4rem; }
+    .page-hero p  { font-size: 0.92rem; opacity: 0.82; }
+    .mascot-sm {
+      width: 58px; height: 58px; border-radius: 50%; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 0.8rem;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.15);
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+
+    /* ── TAB BAR ── */
+    .tab-bar {
+      background: #fff; border-bottom: 2px solid var(--linen-dark);
+      display: flex; overflow-x: auto; scrollbar-width: none;
+      position: sticky; top: var(--topbar-h); z-index: 10;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0; background: none; border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.85rem 1.4rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .tab-btn:hover  { color: var(--story-amber); }
+    .tab-btn.active { color: var(--story-amber); border-bottom-color: var(--story-amber); }
+
+    .tab-panel { display: none; padding: 1.75rem; }
+    .tab-panel.active { display: block; animation: fadeUp 0.35s ease both; }
+
+    /* ── SHARED ── */
+    .section-h { font-family: 'Lora', serif; color: #5a3010; font-size: 1.2rem; margin-bottom: 0.35rem; }
+    .section-p { font-size: 0.83rem; color: var(--text-mid); margin-bottom: 1.25rem; }
+    .panel-box {
+      background: #fff; border-radius: var(--r-xl);
+      border: 3px solid var(--linen-dark); padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── COUNTING BOARD ── */
+    .count-display {
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .count-num {
+      font-family: 'Lora', serif; font-size: 6rem; font-weight: 700;
+      color: #5a3010; line-height: 1;
+      transition: transform 0.15s;
+    }
+    .count-num.pop { animation: popBig 0.25s ease; }
+    @keyframes popBig { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+    .count-word { font-size: 1rem; color: var(--text-mid); font-weight: 700; margin-top: 0.3rem; }
+    .count-objects {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      justify-content: center; min-height: 60px;
+      margin: 1rem 0; padding: 0.5rem;
+    }
+    .count-obj {
+      font-size: 2rem; animation: popIn 0.2s ease both;
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .count-obj:hover { transform: scale(1.2); }
+    @keyframes popIn { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
+    .count-btns { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+    .count-big-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      border: none; font-size: 2rem; cursor: pointer;
+      font-weight: 900; transition: transform 0.12s, box-shadow 0.12s;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    }
+    .count-big-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+    .btn-minus { background: #f0d4c0; color: #7a3010; }
+    .btn-plus  { background: #c8e0a0; color: #2a5010; }
+    .btn-clear-c { background: var(--linen-dark); color: var(--text-mid); font-size:1.2rem; }
+
+    .object-picker {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      justify-content: center; margin-top: 1rem;
+    }
+    .obj-pick-btn {
+      background: var(--linen); border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.35rem 0.8rem;
+      font-size: 1.1rem; cursor: pointer; transition: all 0.15s;
+    }
+    .obj-pick-btn:hover, .obj-pick-btn.active {
+      background: #f0d4a0; border-color: var(--clay-mid);
+    }
+
+    /* ── NUMBER LINE ── */
+    .number-line-wrap {
+      overflow-x: auto; padding: 1rem 0;
+      scrollbar-width: thin;
+    }
+    .number-line {
+      display: flex; gap: 0; min-width: max-content;
+      align-items: flex-end; padding: 0 0.5rem;
+    }
+    .nl-num {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.3rem; cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .nl-num:hover { transform: translateY(-4px); }
+    .nl-dot {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #f0d4a0; border: 3px solid var(--clay-light);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700;
+      color: #5a3010; transition: all 0.15s;
+    }
+    .nl-dot.highlight { background: var(--clay-mid); color: #fff; transform: scale(1.18); }
+    .nl-dot.answered  { background: #c8e0a0; border-color: #6a9040; }
+    .nl-tick { font-size: 0.65rem; height: 16px; color: var(--text-light); }
+    .nl-line {
+      width: 20px; height: 3px; background: var(--clay-light);
+      margin-bottom: 20px; flex-shrink: 0;
+    }
+
+    /* ── ADDITION BOARD ── */
+    .sum-display {
+      text-align: center; padding: 1.5rem;
+      background: #fff; border-radius: var(--r-xl);
+      border: 3px solid var(--linen-dark); margin-bottom: 1.25rem;
+    }
+    .sum-equation {
+      font-family: 'Lora', serif; font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700; color: #5a3010; margin-bottom: 0.5rem;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem; flex-wrap: wrap;
+    }
+    .sum-eq-box {
+      background: var(--linen); border: 3px solid var(--linen-dark);
+      border-radius: var(--r-md); padding: 0.3rem 0.7rem; min-width: 64px;
+      text-align: center;
+    }
+    .sum-eq-box.answer-box {
+      background: #fff; border-color: var(--clay-light);
+      min-width: 72px;
+    }
+    .sum-eq-box.correct { background: #d8f0c0; border-color: #70b040; }
+    .sum-eq-box.wrong   { background: #f8d8d0; border-color: #c05030; animation: shake 0.3s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .sum-objects-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem;
+    }
+    .sum-group { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; max-width: 160px; }
+    .sum-obj { font-size: 1.5rem; }
+    .sum-plus-vis { font-size: 2rem; color: var(--clay-mid); font-weight: 900; }
+
+    /* answer buttons */
+    .answer-choices {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 0.75rem; margin-bottom: 1rem;
+    }
+    .answer-btn {
+      background: #fff; border: 3px solid var(--linen-dark);
+      border-radius: var(--r-lg); padding: 1rem;
+      font-family: 'Lora', serif; font-size: 1.8rem; font-weight: 700;
+      color: #5a3010; cursor: pointer; transition: all 0.18s;
+      text-align: center;
+    }
+    .answer-btn:hover   { border-color: var(--clay-mid); background: #fdf0e0; transform: scale(1.03); }
+    .answer-btn.correct { background: #d8f0c0; border-color: #70b040; }
+    .answer-btn.wrong   { background: #f8d8d0; border-color: #c05030; }
+
+    .sum-controls { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+    /* score */
+    .score-bar {
+      background: #fff; border-radius: var(--r-lg);
+      border: 2px solid var(--linen-dark); padding: 0.9rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .score-icon { font-size: 1.6rem; }
+    .score-text strong { display: block; font-size: 0.92rem; font-weight: 800; color: #5a3010; }
+    .score-text span   { font-size: 0.78rem; color: var(--text-mid); }
+    .score-nums { margin-left: auto; text-align: right; }
+    .score-nums .big   { font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 700; color: #5a3010; }
+    .score-nums .small { font-size: 0.72rem; color: var(--text-mid); }
+
+    /* difficulty */
+    .difficulty-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .diff-btn {
+      background: #fff; border: 2px solid var(--linen-dark);
+      border-radius: var(--r-full); padding: 0.38rem 0.9rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem;
+      color: var(--text-mid); cursor: pointer; transition: all 0.15s;
+    }
+    .diff-btn:hover, .diff-btn.active {
+      background: var(--clay-mid); color: #fff; border-color: var(--clay-mid);
+    }
+
+    /* ── SHAPES ── */
+    .shapes-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr));
+      gap: 1rem;
+    }
+    .shape-card {
+      background: #fff; border-radius: var(--r-lg);
+      border: 3px solid var(--linen-dark); padding: 1.2rem;
+      text-align: center; cursor: pointer; transition: all 0.18s;
+    }
+    .shape-card:hover { border-color: var(--clay-mid); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .shape-card.active { border-color: var(--clay-mid); background: #fdf0e0; }
+    .shape-svg { margin: 0 auto 0.6rem; }
+    .shape-name { font-family: 'Lora', serif; font-size: 0.95rem; font-weight: 700; color: #5a3010; }
+    .shape-sides { font-size: 0.72rem; color: var(--text-mid); margin-top: 0.2rem; }
+    .shape-detail {
+      display: none; background: #fff; border-radius: var(--r-xl);
+      border: 3px solid var(--clay-light); padding: 1.5rem;
+      text-align: center; margin-top: 1rem;
+      animation: fadeUp 0.25s ease both;
+    }
+    .shape-detail.show { display: block; }
+    .shape-detail-svg { margin: 0 auto 1rem; }
+    .shape-detail h3  { font-family: 'Lora', serif; color: #5a3010; margin-bottom: 0.5rem; }
+    .shape-detail p   { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+
+    /* ── TIMES TABLES ── */
+    .tt-table-selector {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+    }
+    .tt-btn {
+      width: 44px; height: 44px;
+      background: #fff; border: 2.5px solid var(--linen-dark);
+      border-radius: var(--r-md);
+      font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700;
+      color: #5a3010; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tt-btn:hover, .tt-btn.active {
+      background: var(--clay-mid); color: #fff; border-color: var(--clay-mid);
+    }
+    .tt-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr));
+      gap: 0.6rem;
+    }
+    .tt-fact {
+      background: #fff; border-radius: var(--r-md);
+      border: 2.5px solid var(--linen-dark); padding: 0.8rem 0.6rem;
+      text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .tt-fact:hover   { border-color: var(--clay-mid); background: #fdf0e0; }
+    .tt-fact.reveal  { background: #fdf0e0; border-color: var(--clay-mid); }
+    .tt-eq   { font-family: 'Lora', serif; font-size: 0.95rem; color: #5a3010; font-weight: 700; }
+    .tt-ans  { font-size: 1.4rem; font-weight: 900; color: var(--clay); margin-top: 0.15rem; font-family: 'Lora', serif; opacity: 0; transition: opacity 0.2s; }
+    .tt-fact.reveal .tt-ans { opacity: 1; }
+
+    /* feedback message */
+    .feedback-msg {
+      text-align: center; padding: 0.8rem;
+      border-radius: var(--r-md); margin-top: 0.5rem;
+      font-weight: 800; font-size: 1rem; display: none;
+    }
+    .feedback-msg.correct { background: #d8f0c0; color: #3a6020; display: block; }
+    .feedback-msg.wrong   { background: #f8d8d0; color: #803020; display: block; }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a class="topbar-logo" href="/index.html">
+    <div class="topbar-badge">SHH</div>
+    <div class="topbar-name">The SEN Home Hub <small>🇬🇧 UK Home Education</small></div>
+  </a>
+  <div class="topbar-actions">
+    <button class="topbar-pill" onclick="SHH.openModal('modal-saved')">♡ <span data-fav-count>0</span></button>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-hero">
+    <a class="back-link" href="/index.html">← Back to Hub</a>
+    <div class="mascot-sm">🔢</div>
+    <h1>Maths Fun</h1>
+    <p>Count · Add · Subtract · Shapes · Times Tables</p>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="counting">🐛 Counting</button>
+    <button class="tab-btn" data-tab="addition">➕ Addition</button>
+    <button class="tab-btn" data-tab="subtraction">➖ Subtraction</button>
+    <button class="tab-btn" data-tab="numberline">📏 Number Line</button>
+    <button class="tab-btn" data-tab="shapes">🔷 Shapes</button>
+    <button class="tab-btn" data-tab="tables">✖️ Tables</button>
+  </div>
+
+  <!-- ══ COUNTING ══ -->
+  <div class="tab-panel active" id="tab-counting">
+    <h2 class="section-h">🐛 Counting Board</h2>
+    <p class="section-p">Use the buttons to add and remove objects — count them together!</p>
+
+    <div class="panel-box">
+      <div class="count-display">
+        <div class="count-num" id="count-num">0</div>
+        <div class="count-word" id="count-word">zero</div>
+      </div>
+      <div class="count-objects" id="count-objects"></div>
+      <div class="count-btns">
+        <button class="count-big-btn btn-minus" onclick="changeCount(-1)">−</button>
+        <button class="count-big-btn btn-clear-c" onclick="clearCount()">✕</button>
+        <button class="count-big-btn btn-plus"  onclick="changeCount(1)">+</button>
+      </div>
+      <div class="object-picker" id="object-picker"></div>
+    </div>
+
+    <div class="panel-box">
+      <strong style="font-family:'Lora',serif;color:#5a3010;">Speak the number</strong>
+      <p style="font-size:0.8rem;color:var(--text-mid);margin:0.4rem 0 0.8rem;">Tap to hear the number spoken aloud</p>
+      <button class="btn btn-primary" onclick="speakCount()">🔊 Say "<span id="speak-count-word">zero</span>"</button>
+    </div>
+  </div>
+
+  <!-- ══ ADDITION ══ -->
+  <div class="tab-panel" id="tab-addition">
+    <h2 class="section-h">➕ Addition</h2>
+    <p class="section-p">See the objects, pick the right answer!</p>
+
+    <div class="score-bar">
+      <div class="score-icon">⭐</div>
+      <div class="score-text">
+        <strong>Your Score</strong>
+        <span>Keep going — you're doing great!</span>
+      </div>
+      <div class="score-nums">
+        <div class="big" id="add-score">0</div>
+        <div class="small" id="add-score-sub">out of 0</div>
+      </div>
+    </div>
+
+    <div class="difficulty-row">
+      <button class="diff-btn active" data-diff="easy"   onclick="setDiff('add','easy',this)">🌱 Easy (1–5)</button>
+      <button class="diff-btn" data-diff="medium" onclick="setDiff('add','medium',this)">🌿 Medium (1–10)</button>
+      <button class="diff-btn" data-diff="hard"   onclick="setDiff('add','hard',this)">🌳 Hard (1–20)</button>
+    </div>
+
+    <div class="sum-display" id="add-display">
+      <div class="sum-objects-row" id="add-objects"></div>
+      <div class="sum-equation" id="add-equation">
+        <div class="sum-eq-box" id="add-n1">?</div>
+        <span>+</span>
+        <div class="sum-eq-box" id="add-n2">?</div>
+        <span>=</span>
+        <div class="sum-eq-box answer-box" id="add-ans">?</div>
+      </div>
+    </div>
+
+    <div class="answer-choices" id="add-choices"></div>
+    <div class="feedback-msg" id="add-feedback"></div>
+    <div class="sum-controls" style="margin-top:0.75rem;">
+      <button class="btn btn-primary" onclick="newSum('add')">Next ▶</button>
+      <button class="btn btn-ghost btn-sm" onclick="speakSum('add')">🔊 Read it to me</button>
+    </div>
+  </div>
+
+  <!-- ══ SUBTRACTION ══ -->
+  <div class="tab-panel" id="tab-subtraction">
+    <h2 class="section-h">➖ Subtraction</h2>
+    <p class="section-p">Take away objects and find the answer!</p>
+
+    <div class="score-bar">
+      <div class="score-icon">⭐</div>
+      <div class="score-text">
+        <strong>Your Score</strong>
+        <span>Keep going — you're doing great!</span>
+      </div>
+      <div class="score-nums">
+        <div class="big" id="sub-score">0</div>
+        <div class="small" id="sub-score-sub">out of 0</div>
+      </div>
+    </div>
+
+    <div class="difficulty-row">
+      <button class="diff-btn active" data-diff="easy"   onclick="setDiff('sub','easy',this)">🌱 Easy (1–5)</button>
+      <button class="diff-btn" data-diff="medium" onclick="setDiff('sub','medium',this)">🌿 Medium (1–10)</button>
+      <button class="diff-btn" data-diff="hard"   onclick="setDiff('sub','hard',this)">🌳 Hard (1–20)</button>
+    </div>
+
+    <div class="sum-display" id="sub-display">
+      <div class="sum-objects-row" id="sub-objects"></div>
+      <div class="sum-equation" id="sub-equation">
+        <div class="sum-eq-box" id="sub-n1">?</div>
+        <span>−</span>
+        <div class="sum-eq-box" id="sub-n2">?</div>
+        <span>=</span>
+        <div class="sum-eq-box answer-box" id="sub-ans">?</div>
+      </div>
+    </div>
+
+    <div class="answer-choices" id="sub-choices"></div>
+    <div class="feedback-msg" id="sub-feedback"></div>
+    <div class="sum-controls" style="margin-top:0.75rem;">
+      <button class="btn btn-primary" onclick="newSum('sub')">Next ▶</button>
+      <button class="btn btn-ghost btn-sm" onclick="speakSum('sub')">🔊 Read it to me</button>
+    </div>
+  </div>
+
+  <!-- ══ NUMBER LINE ══ -->
+  <div class="tab-panel" id="tab-numberline">
+    <h2 class="section-h">📏 Number Line</h2>
+    <p class="section-p">Tap any number to hear it — watch the number line light up!</p>
+    <div class="panel-box">
+      <div class="number-line-wrap">
+        <div class="number-line" id="number-line"></div>
+      </div>
+    </div>
+    <div class="panel-box">
+      <strong style="font-family:'Lora',serif;color:#5a3010;">Number Line Challenge</strong>
+      <p style="font-size:0.8rem;color:var(--text-mid);margin:0.4rem 0 0.75rem;" id="nl-question">Tap the right number above! — press Start to begin</p>
+      <button class="btn btn-primary" id="nl-start-btn" onclick="startNLChallenge()">▶ Start Challenge</button>
+      <div class="feedback-msg" id="nl-feedback" style="margin-top:0.75rem;"></div>
+    </div>
+  </div>
+
+  <!-- ══ SHAPES ══ -->
+  <div class="tab-panel" id="tab-shapes">
+    <h2 class="section-h">🔷 Shapes</h2>
+    <p class="section-p">Tap a shape to learn about it!</p>
+    <div class="shapes-grid" id="shapes-grid"></div>
+    <div class="shape-detail" id="shape-detail"></div>
+  </div>
+
+  <!-- ══ TIMES TABLES ══ -->
+  <div class="tab-panel" id="tab-tables">
+    <h2 class="section-h">✖️ Times Tables</h2>
+    <p class="section-p">Tap a fact to reveal the answer — tap again to hide</p>
+    <div class="tt-table-selector" id="tt-selector"></div>
+    <div class="tt-grid" id="tt-grid"></div>
+  </div>
+
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   SPEECH
+══════════════════════════════════════ */
+const synth = window.speechSynthesis;
+function speak(text, rate=0.82, pitch=1.1) {
+  if (!synth) return;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB'; utt.rate = rate; utt.pitch = pitch;
+  const voices = synth.getVoices();
+  const v = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.startsWith('en'));
+  if (v) utt.voice = v;
+  synth.speak(utt);
+}
+
+/* ══════════════════════════════════════
+   NUMBER WORDS
+══════════════════════════════════════ */
+const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+
+function numWord(n) { return NUM_WORDS[n] || String(n); }
+
+/* ══════════════════════════════════════
+   COUNTING
+══════════════════════════════════════ */
+let countVal = 0;
+let countObj = '🐛';
+const OBJECTS = ['🐛','🍎','🌸','⭐','🐸','🦋','🍪','🚂','🌈','🐝'];
+
+function renderObjects() {
+  const container = document.getElementById('count-objects');
+  container.innerHTML = Array.from({length: countVal}, (_, i) =>
+    `<span class="count-obj" style="animation-delay:${i*0.05}s">${countObj}</span>`
+  ).join('');
+}
+
+function changeCount(delta) {
+  countVal = Math.max(0, Math.min(20, countVal + delta));
+  const el = document.getElementById('count-num');
+  el.textContent = countVal;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  document.getElementById('count-word').textContent = numWord(countVal);
+  document.getElementById('speak-count-word').textContent = numWord(countVal);
+  renderObjects();
+  speak(numWord(countVal), 0.75, 1.1);
+}
+
+function clearCount() { countVal = 0; changeCount(0); }
+
+function speakCount() { speak(numWord(countVal), 0.72, 1.1); }
+
+function renderObjectPicker() {
+  const picker = document.getElementById('object-picker');
+  picker.innerHTML = OBJECTS.map(o => `
+    <button class="obj-pick-btn ${o === countObj ? 'active' : ''}" onclick="setCountObj('${o}',this)">${o}</button>
+  `).join('');
+}
+
+function setCountObj(obj, btn) {
+  countObj = obj;
+  document.querySelectorAll('.obj-pick-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderObjects();
+}
+
+renderObjectPicker();
+
+/* ══════════════════════════════════════
+   ADDITION / SUBTRACTION ENGINE
+══════════════════════════════════════ */
+const OBJ_EMOJIS = ['🍎','🌟','🐸','🍪','🚂','🦋','🐝','🌸'];
+const diffRanges = { easy:{min:1,max:5}, medium:{min:1,max:10}, hard:{min:1,max:20} };
+const gameState = {
+  add: { n1:0, n2:0, answer:0, diff:'easy', score:0, total:0 },
+  sub: { n1:0, n2:0, answer:0, diff:'easy', score:0, total:0 },
+};
+
+function setDiff(mode, diff, btn) {
+  const container = btn.closest('.difficulty-row');
+  container.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  gameState[mode].diff = diff;
+  gameState[mode].score = 0;
+  gameState[mode].total = 0;
+  updateScore(mode);
+  newSum(mode);
+}
+
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function newSum(mode) {
+  const s = gameState[mode];
+  const {min, max} = diffRanges[s.diff];
+  const feedback = document.getElementById(mode + '-feedback');
+  feedback.className = 'feedback-msg';
+
+  if (mode === 'add') {
+    s.n1 = randInt(min, max);
+    s.n2 = randInt(min, max);
+    s.answer = s.n1 + s.n2;
+  } else {
+    s.n1 = randInt(min, max);
+    s.n2 = randInt(min, s.n1);
+    s.answer = s.n1 - s.n2;
+  }
+
+  const op = mode === 'add' ? '+' : '−';
+  document.getElementById(mode+'-n1').textContent = s.n1;
+  document.getElementById(mode+'-n2').textContent = s.n2;
+  document.getElementById(mode+'-ans').textContent = '?';
+  document.getElementById(mode+'-ans').className = 'sum-eq-box answer-box';
+
+  // visual objects
+  const obj = OBJ_EMOJIS[Math.floor(Math.random() * OBJ_EMOJIS.length)];
+  const obj2 = OBJ_EMOJIS[Math.floor(Math.random() * OBJ_EMOJIS.length)];
+  const objsEl = document.getElementById(mode+'-objects');
+  if (mode === 'add') {
+    objsEl.innerHTML = `
+      <div class="sum-group">${Array(s.n1).fill(obj).map(e=>`<span class="sum-obj">${e}</span>`).join('')}</div>
+      <div class="sum-plus-vis">+</div>
+      <div class="sum-group">${Array(s.n2).fill(obj2).map(e=>`<span class="sum-obj">${e}</span>`).join('')}</div>
+    `;
+  } else {
+    objsEl.innerHTML = `
+      <div class="sum-group">${Array(s.n1).fill(obj).map((e,i)=>`<span class="sum-obj" style="opacity:${i<s.n2?'0.25':'1'}">${e}</span>`).join('')}</div>
+      <div class="sum-plus-vis">−</div>
+      <span class="sum-obj" style="font-size:1.2rem;color:var(--text-mid)">${s.n2} taken away</span>
+    `;
+  }
+
+  // answer choices (correct + 3 wrong)
+  const choices = new Set([s.answer]);
+  while (choices.size < 4) {
+    const wrong = s.answer + randInt(-4, 4);
+    if (wrong >= 0 && wrong !== s.answer) choices.add(wrong);
+  }
+  const shuffled = [...choices].sort(() => Math.random() - 0.5);
+  document.getElementById(mode+'-choices').innerHTML = shuffled.map(c => `
+    <button class="answer-btn" onclick="checkAnswer('${mode}',${c},this)">${c}</button>
+  `).join('');
+}
+
+function checkAnswer(mode, chosen, btn) {
+  const s = gameState[mode];
+  s.total++;
+  const feedback = document.getElementById(mode + '-feedback');
+  const ansBox = document.getElementById(mode + '-ans');
+
+  // disable all buttons
+  document.querySelectorAll(`#${mode}-choices .answer-btn`).forEach(b => {
+    b.disabled = true;
+    if (parseInt(b.textContent) === s.answer) b.classList.add('correct');
+  });
+
+  if (chosen === s.answer) {
+    s.score++;
+    btn.classList.add('correct');
+    ansBox.textContent = s.answer;
+    ansBox.className = 'sum-eq-box answer-box correct';
+    feedback.textContent = '🎉 Brilliant! That\'s right!';
+    feedback.className = 'feedback-msg correct';
+    speak('Well done! The answer is ' + numWord(s.answer), 0.8, 1.15);
+  } else {
+    btn.classList.add('wrong');
+    ansBox.textContent = s.answer;
+    ansBox.className = 'sum-eq-box answer-box correct';
+    feedback.textContent = `Not quite — the answer was ${s.answer}. Keep trying! 💪`;
+    feedback.className = 'feedback-msg wrong';
+    speak('The answer is ' + numWord(s.answer), 0.8, 1.1);
+  }
+  updateScore(mode);
+}
+
+function updateScore(mode) {
+  const s = gameState[mode];
+  document.getElementById(mode+'-score').textContent = s.score;
+  document.getElementById(mode+'-score-sub').textContent = `out of ${s.total}`;
+}
+
+function speakSum(mode) {
+  const s = gameState[mode];
+  const op = mode === 'add' ? 'plus' : 'minus';
+  speak(`${numWord(s.n1)} ${op} ${numWord(s.n2)} equals`, 0.78, 1.1);
+}
+
+/* ══════════════════════════════════════
+   NUMBER LINE
+══════════════════════════════════════ */
+let nlTarget = null, nlAnswered = 0, nlTotal = 0;
+
+function renderNumberLine() {
+  const line = document.getElementById('number-line');
+  line.innerHTML = '';
+  for (let i = 0; i <= 20; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'nl-num';
+    wrap.id = 'nl-' + i;
+    wrap.innerHTML = `<div class="nl-dot" id="nld-${i}">${i}</div><div class="nl-tick">${i%5===0?i:''}</div>`;
+    wrap.addEventListener('click', () => tapNLNumber(i));
+    line.appendChild(wrap);
+    if (i < 20) {
+      const bar = document.createElement('div');
+      bar.className = 'nl-line';
+      line.appendChild(bar);
+    }
+  }
+}
+
+function tapNLNumber(n) {
+  // clear previous
+  document.querySelectorAll('.nl-dot').forEach(d => d.classList.remove('highlight'));
+  document.getElementById('nld-'+n).classList.add('highlight');
+  speak(numWord(n), 0.72, 1.1);
+
+  if (nlTarget !== null && n === nlTarget) {
+    nlAnswered++;
+    nlTotal++;
+    document.getElementById('nld-'+n).classList.add('answered');
+    document.getElementById('nl-feedback').textContent = '🎉 Yes! ' + numWord(n) + '!';
+    document.getElementById('nl-feedback').className = 'feedback-msg correct';
+    setTimeout(nextNLQuestion, 1200);
+  } else if (nlTarget !== null) {
+    nlTotal++;
+    document.getElementById('nl-feedback').textContent = 'Try again! Find number ' + nlTarget;
+    document.getElementById('nl-feedback').className = 'feedback-msg wrong';
+  }
+}
+
+function startNLChallenge() {
+  document.getElementById('nl-start-btn').textContent = '⟳ New Question';
+  nextNLQuestion();
+}
+
+function nextNLQuestion() {
+  nlTarget = randInt(1, 20);
+  document.getElementById('nl-question').textContent = `Can you find number ${nlTarget} on the number line? 👆`;
+  document.getElementById('nl-feedback').className = 'feedback-msg';
+}
+
+renderNumberLine();
+
+/* ══════════════════════════════════════
+   SHAPES
+══════════════════════════════════════ */
+const SHAPES = [
+  { name:'Circle',    sides:'0 sides · 1 curved edge', color:'#f0a060',
+    desc:'A circle is perfectly round. It has no corners and no straight sides. Wheels, coins and the sun are circles!',
+    svg:`<circle cx="40" cy="40" r="35" fill="#f0d0a0" stroke="#c08040" stroke-width="3"/>` },
+  { name:'Square',    sides:'4 equal sides · 4 corners', color:'#70b070',
+    desc:'A square has 4 equal sides and 4 right-angle corners. All sides are the same length!',
+    svg:`<rect x="8" y="8" width="64" height="64" fill="#c8e8b0" stroke="#508040" stroke-width="3" rx="2"/>` },
+  { name:'Rectangle', sides:'4 sides · 4 corners', color:'#6090c0',
+    desc:'A rectangle has 4 sides and 4 right angles. Two sides are longer than the other two.',
+    svg:`<rect x="4" y="18" width="72" height="44" fill="#b8d8f0" stroke="#4070a0" stroke-width="3" rx="2"/>` },
+  { name:'Triangle',  sides:'3 sides · 3 corners', color:'#d07050',
+    desc:'A triangle has 3 straight sides and 3 corners. Slices of pizza and mountains are triangle shapes!',
+    svg:`<polygon points="40,6 74,74 6,74" fill="#f0c8a0" stroke="#a05030" stroke-width="3"/>` },
+  { name:'Pentagon',  sides:'5 sides · 5 corners', color:'#9070b0',
+    desc:'A pentagon has 5 sides and 5 corners. The famous USA government building is called the Pentagon!',
+    svg:`<polygon points="40,5 75,28 62,72 18,72 5,28" fill="#d8c8f0" stroke="#7050a0" stroke-width="3"/>` },
+  { name:'Hexagon',   sides:'6 sides · 6 corners', color:'#50a090',
+    desc:'A hexagon has 6 sides. Honeycomb in a beehive is made of hexagons — bees are great at maths!',
+    svg:`<polygon points="40,4 74,22 74,58 40,76 6,58 6,22" fill="#b0e0d8" stroke="#308070" stroke-width="3"/>` },
+  { name:'Oval',      sides:'0 sides · 1 curved edge', color:'#d08040',
+    desc:'An oval is like a stretched circle. Eggs are oval shapes! It has no corners or straight sides.',
+    svg:`<ellipse cx="40" cy="40" rx="38" ry="26" fill="#f0d8b0" stroke="#a06030" stroke-width="3"/>` },
+  { name:'Diamond',   sides:'4 sides · 4 corners', color:'#b05080',
+    desc:'A diamond (rhombus) has 4 equal sides but its corners are not right angles — it\'s tilted!',
+    svg:`<polygon points="40,4 76,40 40,76 4,40" fill="#f0c0d8" stroke="#903060" stroke-width="3"/>` },
+];
+
+function renderShapes() {
+  document.getElementById('shapes-grid').innerHTML = SHAPES.map((s, i) => `
+    <div class="shape-card" id="shapecard-${i}" onclick="showShape(${i})">
+      <svg class="shape-svg" width="80" height="80" viewBox="0 0 80 80">${s.svg}</svg>
+      <div class="shape-name">${s.name}</div>
+      <div class="shape-sides">${s.sides}</div>
+    </div>
+  `).join('');
+}
+
+function showShape(idx) {
+  const s = SHAPES[idx];
+  document.querySelectorAll('.shape-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('shapecard-'+idx).classList.add('active');
+  const detail = document.getElementById('shape-detail');
+  detail.innerHTML = `
+    <svg class="shape-detail-svg" width="100" height="100" viewBox="0 0 80 80">${s.svg}</svg>
+    <h3>${s.name}</h3>
+    <p style="margin-bottom:0.5rem;font-weight:700;color:var(--text-mid)">${s.sides}</p>
+    <p>${s.desc}</p>
+    <button class="btn btn-primary btn-sm" style="margin-top:1rem;" onclick="speak('${s.name}. ${s.desc}', 0.78, 1.05)">🔊 Tell me about it</button>
+  `;
+  detail.classList.add('show');
+  speak(s.name, 0.78, 1.1);
+  detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+renderShapes();
+
+/* ══════════════════════════════════════
+   TIMES TABLES
+══════════════════════════════════════ */
+let currentTable = 2;
+
+function renderTTSelector() {
+  const sel = document.getElementById('tt-selector');
+  sel.innerHTML = [2,3,4,5,6,7,8,9,10].map(n => `
+    <button class="tt-btn ${n===2?'active':''}" onclick="showTable(${n},this)">${n}</button>
+  `).join('');
+}
+
+function showTable(n, btn) {
+  currentTable = n;
+  document.querySelectorAll('.tt-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const grid = document.getElementById('tt-grid');
+  grid.innerHTML = Array.from({length:12}, (_,i) => {
+    const a = n, b = i+1, ans = a*b;
+    return `
+      <div class="tt-fact" onclick="this.classList.toggle('reveal');if(this.classList.contains('reveal'))speak('${a} times ${b} equals ${ans}',0.8,1.05)">
+        <div class="tt-eq">${a} × ${b} =</div>
+        <div class="tt-ans">${ans}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+renderTTSelector();
+showTable(2, null);
+
+/* ══ TABS ══ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ══ INIT ══ */
+newSum('add');
+newSum('sub');
+</script>
+</body>
+</html>
